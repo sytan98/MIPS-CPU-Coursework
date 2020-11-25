@@ -41,7 +41,7 @@ vector<Labels> label;
 int tokenSize = 0; //The size of the tokenized original assembly file.
 char token; //token holder.
 vector<char> tokens; //Vector of tokens taken from the original file.
-vector<string> symbols; //Vectr of symbols.
+vector<string> symbols; //Vector of symbols.
 
 /* Converts hex values to binary values (strings only) */
 string hex2bin(string hexString)
@@ -384,6 +384,14 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Tmp = registerTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Dst + "00000100000";
         }
+        else if(temp_symbol == "addiu")
+        {
+            temp = "001001";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Imm = immediateTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Imm;
+        }
         else if(temp_symbol == "addu")
         {
             temp = "000000";
@@ -395,14 +403,6 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
         else if(temp_symbol == "addi")
         {
             temp = "001000";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            Imm = immediateTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Imm;
-        }
-        else if(temp_symbol == "addiu")
-        {
-            temp = "001001";
             Tmp = registerTable(numberOfSymbols, symbolCounter);
             Src = registerTable(numberOfSymbols, symbolCounter);
             Imm = immediateTable(numberOfSymbols, symbolCounter);
@@ -432,6 +432,48 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             temp = temp + Src + Tmp;
             branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
         }
+        else if(temp_symbol == "bgez")
+        {
+            temp = "000001";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "00001";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "bgezal")
+        {
+            temp = "000001";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "10001";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "bgtz")
+        {
+            temp = "000111";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "00000";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "blez")
+        {
+            temp = "000110";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "00000";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "bltz")
+        {
+            temp = "000001";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "00000";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "bltzal")
+        {
+            temp = "000001";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "10000";
+            branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
         else if(temp_symbol == "bne")
         {
             temp = "000101";
@@ -439,6 +481,133 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Tmp = registerTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp;
             branchTable(numberOfSymbols, symbolCounter, temp, labelsCounter, lineCounter);
+        }
+        else if(temp_symbol == "div")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + "0000000000011010";
+        }
+        else if(temp_symbol == "divu")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + "0000000000011011";
+        }
+        else if(temp_symbol == "j")
+        {
+            temp = "000010";
+            jumpTable(numberOfSymbols, symbolCounter, labelsCounter, lineCounter, temp);
+        }
+        else if(temp_symbol == "jalr") // jalr rd, rs
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "00000" + Dst + "00000001001";
+        }
+        else if(temp_symbol == "jal")
+        {
+            temp = "000011";
+            jumpTable(numberOfSymbols, symbolCounter, labelsCounter, lineCounter, temp);
+        }
+
+        else if(temp_symbol == "jr")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "000000000000000001000";
+        }
+        else if(temp_symbol == "lb")
+        {
+            temp = "100000";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lbu")
+        {
+            temp = "100100";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lh")
+        {
+            temp = "100001";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lhu")
+        {
+            temp = "100101";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lui")
+        {
+            temp = "00111100000";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Imm = immediateTable(numberOfSymbols, symbolCounter);
+            temp = temp + Tmp + Imm;
+        }
+        else if(temp_symbol == "lw")
+        {
+            temp = "100011";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lwl")
+        {
+            temp = "100010";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "lwr")
+        {
+            temp = "100110";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Lof = loadWordTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Lof;
+        }
+        else if(temp_symbol == "mthi")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "000000000000000010001";
+        }
+        else if(temp_symbol == "mtlo")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + "000000000000000010011";
+        }
+        else if(temp_symbol == "mult")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + "0000000000011000";
+        }
+        else if(temp_symbol == "multu")
+        {
+            temp = "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + "0000000000011001";
         }
         else if(temp_symbol == "nor")
         {
@@ -464,53 +633,8 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Imm = immediateTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Imm;
         }
-        else if(temp_symbol == "lui")
-        {
-            temp = "00111100000";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Imm = immediateTable(numberOfSymbols, symbolCounter);
-            temp = temp + Tmp + Imm;
-        }
-        else if(temp_symbol == "lw")
-        {
-            temp = "100011";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Lof = loadWordTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Lof;
-        }
-        else if(temp_symbol == "lhu")
-        {
-            temp = "100101";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Lof = loadWordTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Lof;
-        }
-        else if(temp_symbol == "lbu")
-        {
-            temp = "100100";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Lof = loadWordTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Lof;
-        }
-        else if(temp_symbol == "j")
-        {
-            temp = "000010";
-            jumpTable(numberOfSymbols, symbolCounter, labelsCounter, lineCounter, temp);
-        }
-        else if(temp_symbol == "jal")
-        {
-            temp = "000011";
-            jumpTable(numberOfSymbols, symbolCounter, labelsCounter, lineCounter, temp);
-        }
-        else if(temp_symbol == "jr")
-        {
-            temp = "000000";
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + "000000000000000001000";
-        }
+        
+        
         else if(temp_symbol == "sb")
         {
             temp = "101000";
@@ -527,21 +651,21 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Src = registerTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Lof;
         }
-        else if(temp_symbol == "sub")
+        else if(temp_symbol == "sll")
         {
-            temp = "000000";
+            temp = "00000000000";
             Dst = registerTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
             Tmp = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Dst + "00000100010";
+            Sft = shiftTable(numberOfSymbols, symbolCounter);
+            temp = temp + Tmp + Dst + Sft + "000000";
         }
-        else if(temp_symbol == "subu")
+        else if(temp_symbol == "sllv")
         {
             temp = "000000";
             Dst = registerTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
             Tmp = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Dst + "00000100011";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000000100";
         }
         else if(temp_symbol == "slt")
         {
@@ -550,14 +674,6 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Src = registerTable(numberOfSymbols, symbolCounter);
             Tmp = registerTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Dst + "00000101010";
-        }
-        else if(temp_symbol == "sltu")
-        {
-            temp = "000000";
-            Dst = registerTable(numberOfSymbols, symbolCounter);
-            Src = registerTable(numberOfSymbols, symbolCounter);
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Dst + "00000101011";
         }
         else if(temp_symbol == "slti")
         {
@@ -575,13 +691,29 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Imm = immediateTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Imm;
         }
-        else if(temp_symbol == "sw")
+        else if(temp_symbol == "sltu")
         {
-            temp = "101011";
-            Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Imm = immediateTable(numberOfSymbols, symbolCounter);
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
             Src = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + Src + Tmp + Imm;
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000101011";
+        }
+        else if(temp_symbol == "sra")
+        {
+            temp = "00000000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Sft = shiftTable(numberOfSymbols, symbolCounter);
+            temp = temp + Tmp + Dst + Sft + "000011";
+        }
+        else if(temp_symbol == "srav")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000000111";
         }
         else if(temp_symbol == "srl")
         {
@@ -591,13 +723,53 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Sft = shiftTable(numberOfSymbols, symbolCounter);
             temp = temp + Tmp + Dst + Sft + "000010";
         }
-        else if(temp_symbol == "sll")
+        else if(temp_symbol == "srlv")
         {
-            temp = "00000000000";
+            temp = "000000";
             Dst = registerTable(numberOfSymbols, symbolCounter);
             Tmp = registerTable(numberOfSymbols, symbolCounter);
-            Sft = shiftTable(numberOfSymbols, symbolCounter);
-            temp = temp + Tmp + Dst + Sft + "000000";
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000000110";
+        }
+        else if(temp_symbol == "sub")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000100010";
+        }
+        else if(temp_symbol == "subu")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000100011";
+        }
+        else if(temp_symbol == "sw")
+        {
+            temp = "101011";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Imm = immediateTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Imm;
+        }
+        else if(temp_symbol == "xor")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Dst + "00000100110";
+        }
+        else if(temp_symbol == "xori")
+        {
+            temp = "001110";
+            Tmp = registerTable(numberOfSymbols, symbolCounter);
+            Src = registerTable(numberOfSymbols, symbolCounter);
+            Imm = immediateTable(numberOfSymbols, symbolCounter);
+            temp = temp + Src + Tmp + Imm;
         }
         else
         {
@@ -624,35 +796,58 @@ void firstPass(int &numberOfSymbols, int &symbolsCounter, int &lineCounter, int 
     }
     string temp_symbol = symbols[symbolsCounter];
 
-    if(temp_symbol == "add")    symbolsCounter = symbolsCounter + 4;
-    else if(temp_symbol == "addi") symbolsCounter = symbolsCounter + 4;
+    if(temp_symbol == "add")    symbolsCounter = symbolsCounter + 4; // Add 4 to get to symbol after add is done
     else if(temp_symbol == "addiu") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "addu") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "addi") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "and") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "andi") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "beq") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "bgez") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "bgezal") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "bgtz") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "blez") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "bltz") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "bltzal") symbolsCounter = symbolsCounter + 3;
     else if(temp_symbol == "bne") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "div") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "divu") symbolsCounter = symbolsCounter + 3;
     else if(temp_symbol == "j") symbolsCounter = symbolsCounter + 2;
+    else if(temp_symbol == "jalr") symbolsCounter = symbolsCounter + 3;
     else if(temp_symbol == "jal") symbolsCounter = symbolsCounter + 2;
     else if(temp_symbol == "jr") symbolsCounter = symbolsCounter + 2;
+    else if(temp_symbol == "lb") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "lbu") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "lh") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "lhu") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "lui") symbolsCounter = symbolsCounter + 3;
     else if(temp_symbol == "lw") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "lwl") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "lwr") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "mthi") symbolsCounter = symbolsCounter + 2;
+    else if(temp_symbol == "mtlo") symbolsCounter = symbolsCounter + 2;
+    else if(temp_symbol == "mult") symbolsCounter = symbolsCounter + 3;
+    else if(temp_symbol == "multu") symbolsCounter = symbolsCounter + 3;
     else if(temp_symbol == "nor") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "or") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "ori") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sb") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sh") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sll") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sllv") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "slt") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "slti") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "sltiu") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "sltu") symbolsCounter = symbolsCounter + 4;
-    else if(temp_symbol == "sll") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sra") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "srav") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "srl") symbolsCounter = symbolsCounter + 4;
-    else if(temp_symbol == "sb") symbolsCounter = symbolsCounter + 4;
-    else if(temp_symbol == "sh") symbolsCounter = symbolsCounter + 4;
-    else if(temp_symbol == "sw") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "srlv") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "sub") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "subu") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "sw") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "xor") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "xori") symbolsCounter = symbolsCounter + 4;
     else
     {
             //If a label is found that isn't an instruction is probably is a label and is recorded.
@@ -812,7 +1007,7 @@ void digits(char &value, int &i)
 {
     string temp;
 
-    if(value == '0' && tokens[i+1] == 'x')
+    if(value == '0' && tokens[i+1] == 'x') // hex
     {
         i = i + 2;
     }

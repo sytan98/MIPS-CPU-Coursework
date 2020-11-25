@@ -11,7 +11,10 @@ using namespace std;
 
 int main(int argc, char **argv)
 {   
-    string option = argv[1];
+    string option = "text";
+    if (argc>1){
+        option = argv[1];
+    }
     openFile();
     cout << "file open and parsed..." << endl;
     compareTokens();
@@ -20,7 +23,7 @@ int main(int argc, char **argv)
     cout << "Symbols Printed..." << endl;
     if (option == "MIF"){
         printMIF();
-    } else {
+    } else if (option=="text") {
         printText();
     }
     
