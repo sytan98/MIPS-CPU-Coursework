@@ -58,4 +58,4 @@ Test Cases
 |45|SW|101101|Store word<b> [Implement First]</b>|
 |46|XOR|101110|Bitwise exclusive or|
 |47|XORI|101111|Bitwise exclusive or immediate|
-||||
+
