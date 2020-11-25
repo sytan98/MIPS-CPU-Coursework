@@ -670,11 +670,11 @@ void firstPass(int &numberOfSymbols, int &symbolsCounter, int &lineCounter, int 
 }
 
 /* This is the main print function that utilizes all the functions above it to print out the assembled instructions */
-void printFile() //This function prints to file.
+void printMIF() //This function prints to file.
 {
 
     ofstream oFile;
-    oFile.open("f.txt");
+    oFile.open("Output.mif");
 
     //First we want to print out the header of the file.
     oFile << "WIDTH=32;" << endl;
@@ -724,6 +724,37 @@ void printFile() //This function prints to file.
 
 }
 
+void printText() //This function prints to file.
+{
+
+    ofstream oFile;
+    oFile.open("Output.txt");
+
+    //First we want to print out the header of the file.
+
+    int lineCounter = 0; //The line counter records the line address count.
+    int numberOfSymbols = symbols.size() -1; //This is the number of symbols we parsed from the assembly file.
+    int symbolCounter = 0; //Whenever we iterate through the symbols vector we want to keep count as to not overflow.
+    string instruction; //This string holds the final instruction in HEX for printing.
+    int labelsCounter = 0; //We keep a count of the labels we find in the symbols vector.
+
+    for(int i = 0; i < numberOfSymbols; i++) //1st pass through symbols list to see if there are any labels, to record their addresses.
+    {
+        firstPass(numberOfSymbols, symbolCounter, lineCounter, labelsCounter);
+    }
+
+    symbolCounter = 0; //Reset symbolCounter and lineCounter to be used in the second pass.
+    lineCounter = 0;
+
+    for(int i = 0; i < 255; i++) //2nd pass goes through the symbol list and starts concatenating the correct string/instruction.
+    {
+        instruction = symbolPrint(i,numberOfSymbols, symbolCounter, labelsCounter, lineCounter);
+        oFile << instruction<< endl;
+
+    }
+    oFile.close();
+
+}
 /* This is a function used for tests only use if you need to see the way the symbols were parsed */
 void printSymbols()
 {

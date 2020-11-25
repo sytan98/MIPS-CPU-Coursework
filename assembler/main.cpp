@@ -9,15 +9,21 @@
 
 using namespace std;
 
-int main()
-{
+int main(int argc, char **argv)
+{   
+    string option = argv[1];
     openFile();
     cout << "file open and parsed..." << endl;
     compareTokens();
     cout << "Tokens Compared..." << endl;
     printSymbols();
     cout << "Symbols Printed..." << endl;
-    printFile();
+    if (option == "MIF"){
+        printMIF();
+    } else {
+        printText();
+    }
+    
     cout << "Assembled file created..." << endl;
     return 0;
 }
