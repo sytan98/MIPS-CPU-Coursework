@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     if (argc>1){
         option = argv[1];
     }
+
     openFile();
     cout << "file open and parsed..." << endl;
     compareTokens();
