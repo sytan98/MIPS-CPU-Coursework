@@ -83,7 +83,7 @@ string dec2bin(int value)
 
     return b.to_string();
 }
-
+string fname;
 /* Opens the file and reads it, creates a table of tokens (no spaces) */
 void openFile()
 {
@@ -91,6 +91,8 @@ void openFile()
 
     cout << "Enter filename (.txt extension is required)" << endl;
     cin.getline(filename, 400);
+    fname = filename;
+    fname = fname.substr(0,fname.size()-4); // remove .txt from ending of input to be used for output name
     ifstream file;
     file.open(filename);
 
@@ -362,7 +364,7 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
         string Imm;
         string Lof;
 
-        if(symbolCounter == numberOfSymbols) //Check for overflow of symbols vector.
+        if(symbolCounter >= numberOfSymbols) //Check for overflow of symbols vector.
         {
             return "";
         }
@@ -802,7 +804,7 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
 /* The firstPass function runs through the symbol list and records all labels and their addresses */
 void firstPass(int &numberOfSymbols, int &symbolsCounter, int &lineCounter, int &labelsCounter) //This function looks through all symbols to find labels.
 {
-    if(numberOfSymbols == symbolsCounter)
+    if(numberOfSymbols <= symbolsCounter)
     {
         return;
     }
@@ -883,7 +885,7 @@ void printMIF() //This function prints to file.
 {
 
     ofstream oFile;
-    oFile.open("Output.mif");
+    oFile.open(fname + ".out.mif");
 
     //First we want to print out the header of the file.
     oFile << "WIDTH=32;" << endl;
@@ -937,7 +939,7 @@ void printText() //This function prints to file.
 {
 
     ofstream oFile;
-    oFile.open("Output.txt");
+    oFile.open(fname + ".out.txt");
 
     //First we want to print out the header of the file.
 
@@ -951,6 +953,7 @@ void printText() //This function prints to file.
     {
         firstPass(numberOfSymbols, symbolCounter, lineCounter, labelsCounter);
     }
+    cout << "First pass complete" << endl;
 
     symbolCounter = 0; //Reset symbolCounter and lineCounter to be used in the second pass.
     lineCounter = 0;
