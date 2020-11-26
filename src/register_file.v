@@ -30,3 +30,4 @@ module register_file(
       regfile[write_reg_rd] <= write_data;
     end
   end
+endmodule
