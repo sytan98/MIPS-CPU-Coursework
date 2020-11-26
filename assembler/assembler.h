@@ -583,6 +583,18 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
             Src = registerTable(numberOfSymbols, symbolCounter);
             temp = temp + Src + Tmp + Lof;
         }
+        else if(temp_symbol == "mfhi")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + "0000000000" + Dst + "010000";
+        }
+        else if(temp_symbol == "mflo")
+        {
+            temp = "000000";
+            Dst = registerTable(numberOfSymbols, symbolCounter);
+            temp = temp + "0000000000" + Dst + "010010";
+        }
         else if(temp_symbol == "mthi")
         {
             temp = "000000";
@@ -824,6 +836,8 @@ void firstPass(int &numberOfSymbols, int &symbolsCounter, int &lineCounter, int 
     else if(temp_symbol == "lw") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "lwl") symbolsCounter = symbolsCounter + 4;
     else if(temp_symbol == "lwr") symbolsCounter = symbolsCounter + 4;
+    else if(temp_symbol == "mfhi") symbolsCounter = symbolsCounter + 2;
+    else if(temp_symbol == "mflo") symbolsCounter = symbolsCounter + 2;
     else if(temp_symbol == "mthi") symbolsCounter = symbolsCounter + 2;
     else if(temp_symbol == "mtlo") symbolsCounter = symbolsCounter + 2;
     else if(temp_symbol == "mult") symbolsCounter = symbolsCounter + 3;
