@@ -1,5 +1,4 @@
-
-module multiplier_iterative_tb(
+module alu_iterative_tb(
 );
     logic clk;
     logic[31:0] a, b;
@@ -7,8 +6,8 @@ module multiplier_iterative_tb(
     logic valid_in, valid_out;
 
     initial begin
-        $dumpfile("multiplier_iterative.vcd");
-        $dumpvars(0, multiplier_iterative_tb);
+        $dumpfile("alu_iterative.vcd");
+        $dumpvars(0, alu_iterative_tb);
         clk = 0;
 
         #5;
@@ -67,6 +66,14 @@ module multiplier_iterative_tb(
         $finish;
     end
 
+    alu a(
+        .alu_ctrl_in(),
+        .A(), .B(),
+        input logic[5:0] shamt,
+        output logic[31:0] alu_out,
+        output logic zero,
+        output logic[63:0] mult_out
+    );
     multiplier_iterative m(
         .clk(clk),
         .valid_in(valid_in), .valid_out(valid_out),

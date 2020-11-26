@@ -29,13 +29,13 @@ module alu_ctrl(
             endcase
         else
             case(opcode)
-                9: alu_ctrl_in = 5'b10100
-                12: alu_ctrl_in = 5'b10101
-                13: alu_ctrl_in = 5'b10110
-                14: alu_ctrl_in = 5'b10111
-                10: alu_ctrl_in = 5'b11000
-                11: alu_ctrl_in = 5'b11001
-                15: alu_ctrl_in = 5'b11010
+                9: alu_ctrl_in = 5'b10011 //addiu
+                10: alu_ctrl_in = 5'b10100 //slti
+                11: alu_ctrl_in = 5'b10101 //sltiu
+                12: alu_ctrl_in = 5'b10110 //andiu
+                13: alu_ctrl_in = 5'b10111 //ori
+                14: alu_ctrl_in = 5'b11000 //xori
+                15: alu_ctrl_in = 5'b11001 //lui
             endcase
         end
     end
