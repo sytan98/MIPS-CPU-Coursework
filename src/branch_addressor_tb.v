@@ -4,7 +4,7 @@
 // 3. adding the shifted number to PC+4 to get branch target address
 // so let's say our 16-bit immediate is FFFF, so sign extending would give FFFFFFFF,
 // shifting left would give us FFFFFFC.
-// adding this value to PC+4 would make us go beyond the +/- 128Kb range?
+// adding this value to PC+4 would make us go beyond the +/- 128Kb range that's mentioned in the MIPS ISA Specification Revision 3.2?
 
 module branch_addressor_tb();
   logic[31:0] imdt;
