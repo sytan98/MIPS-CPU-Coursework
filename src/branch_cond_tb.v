@@ -127,7 +127,7 @@ module branch_cond_tb();
 
   branch_cond inst0(
     .branch(branch), .opcode(opcode), .b_code(b_code),
-    .equal(equal), .rs_readdata(reg_value), .condition_met(out)
+    .equal(equal), .read_data_a(reg_value), .condition_met(out)
   );
 
 endmodule

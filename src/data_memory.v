@@ -1,12 +1,12 @@
 module data_memory(
-  input logic clk;
+  input logic clk,
 
-  input logic[31:0] data_address;
+  input logic[31:0] data_address,
 
-  input logic data_read;
-  input logic data_write;
+  input logic data_read,
+  input logic data_write,
 
-  input logic[31:0] data_writedata;
+  input logic[31:0] data_writedata,
   output logic[31:0] data_readdata
 );
   parameter RAM_INIT_FILE = "";

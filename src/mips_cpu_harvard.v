@@ -37,8 +37,7 @@ instruction_memory instmem_inst(
 );
 
 //control
-logic rd_select, branch, jump1, jump2, alu_src, reg_wren, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
-logic write_enable;
+logic rd_select, branch, jump1, jump2, alu_src, write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
 logic[1:0] alu_op;
 control control_inst(
   .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[15:11]),
@@ -50,7 +49,7 @@ control control_inst(
   .alu_src(alu_src),
   .data_read(data_read),
   .data_write(data_write),
-  .reg_wren(write_enable),
+  .write_enable(write_enable),
   .hi_wren(hi_wren),
   .lo_wren(lo_wren),
   .data_into_reg1(data_into_reg1),
@@ -78,19 +77,22 @@ register_file regfile_inst(
 );
 
 //sign_extender
+logic[31:0] immdt_32;
 sign_extender signextender_inst(
   .immdt_16(instr_readdata[15:0]),
   .immdt_32(immdt_32)
 );
 
 //mux_32bit alumux
+logic[31:0] alu_in;
 mux_32bit alumux(
   .select(alu_src),
   .in_0(read_data_b), .in_1(immdt_32),
-  .out(write_data)
+  .out(alu_in)
 );
 
 //alu_ctrl
+logic[4:0] alu_ctrl_in
 alu_ctrl aluctrl_inst(
   .alu_op(alu_op),
   .opcode(instr_readdata[31:26]),
@@ -98,26 +100,106 @@ alu_ctrl aluctrl_inst(
   .alu_ctrl_in(alu_ctrl_in)
 );
 
-
 //alu
+logic[31:0] alu_out, lo, hi;
+logic zero;
+alu alu_inst(
+  .alu_ctrl_in(alu_ctrl_in),
+  .A(read_data_a),
+  .B(alu_in),
+  .shamt(instr_readdata[10:6]),
+  .alu_out(alu_out),
+  .zero(zero),
+  .lo(lo),
+  .hi(hi)
+);
 
 //reg_hi
+logic[31:0] hi_read;
+reg_hi reghi_inst(
+  .clk(clk);
+  .hi_wren(hi_wren),
+  .read_data_a(read_data_a)
+  .hi(hi),
+  .hi_read(hi_read)
+);
 
 //reg_lo
+reg_lo reghi_inst(
+  .clk(clk),
+  .lo_wren(lo_wren),
+  .read_data_a(read_data_a)
+  .lo(lo),
+  .lo_read(lo_read)
+);
 
 //branch_cond
+logic condition_met;
+branch_cond branchcond_inst(
+  .branch(branch),
+  .opcode(instr_readdata[31:26]), .b_code(instr_readdata[15:11]),
+  .equal(zero),
+  .read_data_a(read_data_a),
+  .condition_met(condition_met)
+);
 
 //jump_addressor
+logic[31:0] jump_addr;
+jump_addressor j_calc(
+  .j_immdt(instr_readdata[25:0]),
+  .pc_4msb(PCnext[31:28]),
+  .jump_addr(jump_addr)
+);
 
 //branch_addressor
+logic[31:0] branch_addr;
+branch_addressor b_calc(
+  .immdt_32(immdt_32),
+  .PCnext(PCnext),
+  .branch_addr(branch_addr)
+);
 
 //mux_32bit branchmux
-
+logic[31:0] bmuxout;
+mux_32bit branchmux(
+  .select(condition_met),
+  .in_0(PC_next), .in_1(branch_addr),
+  .out(bmuxout)
+);
 //mux_32bit jump1mux
-
+logic[31:0] jmuxout;
+mux_32bit jump1mux(
+  .select(jump1),
+  .in_0(bmuxout), .in_1(jump_addr),
+  .out(jmuxout)
+);
 //mux_32bit jump2mux
+mux_32bit jump1mux(
+  .select(jump2),
+  .in_0(jmuxout), .in_1(read_data_a),
+  .out(instr_address)
+);
 
 //data_memory
+data_memory datamem_inst(
+  .clk(clk),
+  .data_address(data_address),
+  .data_read(data_read),
+  .data_write(data_write),
+  .data_writedata(data_writedata)
+  .data_readdata(data_readdata)
+);
 
 //data_into_reg_mux1
+mux_32bit data1mux(
+  .select(data_into_reg1),
+  .in_0(alu_out), .in_1(data_readdata),
+  .out(data1muxout)
+);
+
 //data_into_reg_mux2
+mux_32bit data1mux(
+  .select(data_into_reg2),
+  .in_0(data1muxout), .in_1(PCnext),
+  .out(write_data)
+);

@@ -42,6 +42,6 @@ module branch_addressor_tb();
     assert($signed(b_addr) == 32'd28928);
   end
 
-  branch_addressor inst0(.immdt_32(imdt), .pcnext(pc), .branch_addr(b_addr));
+  branch_addressor inst0(.immdt_32(imdt), .PCnext(pc), .branch_addr(b_addr));
 
 endmodule
