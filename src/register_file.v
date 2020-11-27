@@ -2,13 +2,13 @@ module register_file(
   input logic clk,
   input logic reset,
 
-  input logic[4:0]    read_reg_rs,
-  input logic[4:0]    read_reg_rt, 
+  input logic[4:0]    read_reg_a,
+  input logic[4:0]    read_reg_b, 
   input logic[4:0]    write_reg_rd,
   input logic         write_enable,
   input logic[31:0]   write_data,
 
-  output logic[31:0]  rs_readdata, rt_readdata
+  output logic[31:0]  read_data_a, read_data_b
 );
   logic[31:0] regfile[31:0];
 
@@ -16,18 +16,19 @@ module register_file(
     regfile[0] <= 0;
   end
 
-  assign rs_readdata = reset==1 ? 0 : regfile[read_reg_rs];
-  assign rt_readdata = reset==1 ? 0 : regfile[read_reg_rt];
+  assign read_data_a = reset==1 ? 0 : regfile[read_reg_a];
+  assign read_data_b = reset==1 ? 0 : regfile[read_reg_b];
 
+  integer index;
   always_ff @(posedge clk) begin
-    if (reset) then begin
-      integer i;
-      for (i=0; i<32; i++) begin
-        regfile[i]=0;
-      end
+    if (reset==1) begin
+        for (index=0; index<32; index=index+1) begin
+            regfile[index]<=0;
+        end
     end
-    else if (write_enable == 1) begin
+    if (write_enable == 1) begin
       regfile[write_reg_rd] <= write_data;
     end
   end
+  
 endmodule
