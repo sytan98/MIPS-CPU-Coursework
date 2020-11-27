@@ -1,7 +1,7 @@
 module instruction_memory(
 	input logic clk;
 	input logic[31:0] instr_address;
-	output logic[31:0] instr_read;
+	output logic[31:0] instr_readdata;
 );
 	parameter ROM_INIT_FILE = "";
 
@@ -14,6 +14,6 @@ module instruction_memory(
 	end
 
 	always_ff @(posedge clk) begin
-		instr_read <= MEMORY[instr_address];
+		instr_readdata <= MEMORY[instr_address];
 	end
 endmodule
