@@ -15,9 +15,9 @@ module alu(
         case (alu_ctrl_in)
             0,2,19: alu_out = A + B; //load instructions, addu, addiu
             1,3: alu_out = A - B; //branch instructions, subu
-            4,22: alu_out = A & B; //and
-            5,23: alu_out = A | B; //or
-            6,24: alu_out = A ^ B; //xor
+            4,22: alu_out = A & B; //and, andi
+            5,23: alu_out = A | B; //or, ori
+            6,24: alu_out = A ^ B; //xor, xori
 			7: alu_out = B << shamt; //sll 
             8: alu_out = B << A; //sllv
             9: alu_out = B >> shamt; //srl 
