@@ -3,7 +3,7 @@ module register_file(
   input logic reset,
 
   input logic[4:0]    read_reg_rs,
-  input logic[4:0]    read_reg_rt, 
+  input logic[4:0]    read_reg_rt,
   input logic[4:0]    write_reg_rd,
   input logic         write_enable,
   input logic[31:0]   write_data,
