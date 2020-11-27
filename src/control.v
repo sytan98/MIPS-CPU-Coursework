@@ -11,8 +11,8 @@ module control(
   output logic data_read,
   output logic data_write,
   output logic reg_wren,
-  output logic lo_wren,
   output logic hi_wren,
+  output logic lo_wren,
   output logic data_into_reg1,
   output logic data_into_reg2
 );
@@ -29,8 +29,8 @@ always @(*) begin
   data_read = (opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
   data_write = (opcode==40|opcode==41|opcode==43) ? 1 : 0;
   reg_wren = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
-  lo_wren = (opcode==19) ? 1 : 0;
   hi_wren = (opcode==17) ? 1 : 0;
+  lo_wren = (opcode==19) ? 1 : 0;
   data_into_reg1 = (opcode==40|opcode==41|opcode==43) ? 1 : 0;
   data_into_reg2 = (opcode==3|funct_code==9|b_code==17|b_code==16) ? 1 : 0;
 end
