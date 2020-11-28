@@ -5,6 +5,7 @@ module control_tb(
     logic[4:0] b_code; //branch instruction code
     logic rd_select; //output - select register to write to
     logic branch; //output - if branch, go to 1 so that block can check if condition met
+    logic imdt_sel; //output - selects which type of extended immediate value to send to alu
     logic jump1; //output - select between output and branch mux (JAL J)
     logic jump2; //output - select between output jump1 mux or read data a (JR JALR)
     logic[1:0] alu_op; //output //for alu control
@@ -38,35 +39,36 @@ module control_tb(
         #1;
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
         assert(rd_select == 1) else $fatal(1, "Xor does not select correct register to write");
-        assert(alu_op == 0) else $fatal(1, "Xor does not send correct alu_op");
-        assert(alu_src == 1) else $fatal(1, "Xor does not send correct alu port b input");
+        assert(alu_op == 2) else $fatal(1, "Xor does not send correct alu_op");
+        assert(alu_src == 0) else $fatal(1, "Xor does not send correct alu port b input");
         assert(write_enable == 1)  else $fatal(1, "Xor cannot save data in reg file");
         #1
 
         //sltu
 
         //Load/store
-
+        
         //lw
         #1;
-        function_code = 35;
+        opcode = 35;
         #1;
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
-        assert(rd_select == 1) else $fatal(1, "Lw does not select correct register to write");
-        assert(alu_op == ) else $fatal(1, "Xor does not send correct alu_op");
-        assert(alu_src == ) else $fatal(1, "Xor does not send correct alu port b input");
-        assert(write_enable == 1)  else $fatal(1, "Xor cannot save data in reg file");
+        assert(rd_select == 0) else $fatal(1, "Lw does not select correct register to write");
+        assert(alu_op == 0) else $fatal(1, "Lw does not send correct alu_op");
+        assert(imdt_sel == 0) else $fatal(1, "Lw does not send sign extended immediate port b input");
+        assert(alu_src == 1) else $fatal(1, "Lw does not send correct alu port b input");
+        assert(write_enable == 1)  else $fatal(1, "Lw cannot save data in reg file");
         #1
 
         //sh
         #1;
-        function_code = 38;
+        opcode = 41;
         #1;
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
-        assert(rd_select == 1) else $fatal(1, "Xor does not select correct register to write");
-        assert(alu_op == 2) else $fatal(1, "Xor does not send correct alu_op");
-        assert(alu_src == 0) else $fatal(1, "Xor does not send correct alu port b input");
-        assert(write_enable == 1)  else $fatal(1, "Xor cannot save data in reg file");
+        assert(rd_select == 0) else $fatal(1, "Sh does not select correct register to write");
+        assert(alu_op == 0) else $fatal(1, "Sh does not send correct alu_op");
+        assert(imdt_sel == 0) else $fatal(1, "Sh does not send sign extended immediate port b input");
+        assert(alu_src == 1) else $fatal(1, "Sh does not send correct alu port b input");
         #1
         //lwr
 
@@ -77,9 +79,25 @@ module control_tb(
         //Jump Type
 
         //Jump
+        #1;
+        opcode = 2;
+        #1;
+        // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
+        assert(jump1 == 1) else $fatal(1, "Jump does not select correct register to write");
+        assert(jump2 == 0) else $fatal(1, "Jump does not select correct register to write");
+
+        #1
 
         //JALR
-
+        #1;
+        opcode = 0;
+        function_code = 9;
+        #1;
+        // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
+        assert(jump2 == 1) else $fatal(1, "JALR does not select correct register to write");
+        assert(rd_select == 1) else $fatal(1, "JALR does not select correct register to write");
+        assert(write_enable == 1)  else $fatal(1, "JALR cannot save data in reg file");
+        #1
         //JR
 
         //Branch Type
@@ -96,6 +114,7 @@ module control_tb(
         .function_code,
         .b_code(b_code),
         .rd_select(rd_select),
+        .imdt_sel(imdt_sel),
         .branch(branch),
         .jump1(jump1),
         .jump2(jump2),
