@@ -3,6 +3,7 @@ module control(
   input logic[5:0] function_code,
   input logic[5:0] b_code,
   output logic rd_select,
+  output logic imdt_sel,
   output logic branch,
   output logic jump1,
   output logic jump2,
@@ -19,6 +20,7 @@ module control(
 
 always @(*) begin
   rd_select = (opcode==0) ? 1 : 0;
+  imdt_sel = (opcode==12|opcode==13|opcode==14) ? 1 : 0;
   branch = (opcode==1|opcode==4|opcode==6|opcode==7) ? 1 : 0;
   jump1 = (opcode==2|opcode==3) ? 1 : 0;
   jump2 = (function_code==8|function_code==9) ? 1 : 0;

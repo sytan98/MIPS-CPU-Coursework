@@ -49,7 +49,7 @@ instruction_memory instmem_inst(
 );
 
 //control
-logic rd_select, branch, jump1, jump2, alu_src, write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
+logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
 logic[1:0] alu_op;
 control control_inst(
   .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[15:11]),
@@ -88,11 +88,19 @@ register_file regfile_inst(
   .write_enable(write_enable)
 );
 
-//sign_extender
-logic[31:0] immdt_32;
-sign_extender signextender_inst(
+//immdt_extender
+logic[31:0] signed_32, zero_32;
+immdt_extender imdtextd_inst(
   .immdt_16(instr_readdata[15:0]),
-  .immdt_32(immdt_32)
+  .sign_immdt_32(signed_32), .zero_immdt_32(zero_32)
+);
+
+//immdt mux
+logic[31:0] immdt_32;
+mux_32bit imdtmux(
+  .select(imdt_sel),
+  .in_0(signed_32), .in_1(zero_32),
+  .out(immdt_32)
 );
 
 //mux_32bit alumux
