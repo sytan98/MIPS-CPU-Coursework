@@ -3,12 +3,13 @@ module alu_iterative_tb(
     logic clk;
     logic[5:0] alu_ctrl_in;
     logic[31:0] A,B;
-    logic[5:0] shamt;
+    logic[4:0] shamt;
     logic[31:0] alu_out;
     logic zero;
     logic[31:0] lo, hi;
 
     initial begin
+
         A = 32'd5;
         B = 32'd8;
         shamt = 7;

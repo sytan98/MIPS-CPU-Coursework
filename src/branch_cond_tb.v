@@ -1,7 +1,7 @@
 module branch_cond_tb();
   logic branch;
   logic[5:0] opcode;
-  logic[5:0] b_code;
+  logic[4:0] b_code;
   logic equal;
   logic[31:0] reg_value;
   logic out;
