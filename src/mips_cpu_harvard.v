@@ -65,11 +65,11 @@ control control_inst(
   .hi_wren(hi_wren),
   .lo_wren(lo_wren),
   .data_into_reg1(data_into_reg1),
-  .data_into_reg2(data_into_reg1)
+  .data_into_reg2(data_into_reg2)
 );
 
 //mux_5bit rd_mux
-logic write_reg_rd;
+logic[4:0] write_reg_rd;
 mux_5bit rd_mux(
   .select(rd_select),
   .in_0(instr_readdata[20:16]), .in_1(instr_readdata[15:11]),
@@ -112,7 +112,7 @@ mux_32bit alumux(
 );
 
 //alu_ctrl
-logic[4:0] alu_ctrl_in;
+logic[5:0] alu_ctrl_in;
 alu_ctrl aluctrl_inst(
   .alu_op(alu_op),
   .opcode(instr_readdata[31:26]),
@@ -137,7 +137,7 @@ alu alu_inst(
 //reg_hi
 logic[31:0] hi_read;
 reg_hi reghi_inst(
-  .clk(clk),
+  .clk(clk), .reset(reset),
   .hi_wren(hi_wren),
   .read_data_a(read_data_a),
   .hi(hi),
@@ -147,7 +147,7 @@ reg_hi reghi_inst(
 //reg_lo
 logic[31:0] lo_read;
 reg_lo reglo_inst(
-  .clk(clk),
+  .clk(clk), .reset(reset),
   .lo_wren(lo_wren),
   .read_data_a(read_data_a),
   .lo(lo),
@@ -225,3 +225,5 @@ mux_32bit data2mux(
   .in_0(data1muxout), .in_1(PCnext),
   .out(write_data)
 );
+
+endmodule

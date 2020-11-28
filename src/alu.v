@@ -2,7 +2,7 @@ module alu(
     input logic[5:0] alu_ctrl_in,
     input logic[31:0] A,
     input logic[31:0] B,
-    input logic[5:0] shamt,
+    input logic[4:0] shamt,
     output logic[31:0] alu_out,
     output logic zero,
     output logic[31:0] lo, hi
@@ -28,7 +28,7 @@ module alu(
             14, 21: alu_out = A < B ? 1:0; //sltu, sltiu
             15: mult_div_out = $signed(A) * $signed(B);//mult
             16: mult_div_out = A * B;//multu
-            17: mult_div_out = {32'h00000000, $signed(A)/$signed(B)} | {$signed(A)%$signed(B), 32'h00000000};//div 
+            17: mult_div_out = {32'h00000000, $signed(A)/$signed(B)} | {$signed(A)%$signed(B), 32'h00000000};//div
             //TODO:how does it handle divide by zero?
 			18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000}; //divu
             25: alu_out = B << 16; //lui

@@ -5,7 +5,7 @@ module instruction_memory(
 );
 	parameter ROM_INIT_FILE = "";
 
-	logic[31:0] MEMORY[32'hFFFFFFFF:0];
+	logic[31:0] MEMORY[0:1073741824];
 
 	initial begin
 		if (ROM_INIT_FILE != "") begin
