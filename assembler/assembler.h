@@ -91,8 +91,9 @@ void openFile()
 
     cout << "Enter filename (.txt extension is required)" << endl;
     cin.getline(filename, 400);
+    cout << filename << endl;
     fname = filename;
-    fname = fname.substr(0,fname.size()-4); // remove .txt from ending of input to be used for output name
+    fname = fname.substr(0,fname.size()-8); // remove .txt from ending of input to be used for output name
     ifstream file;
     file.open(filename);
 
@@ -939,7 +940,7 @@ void printText() //This function prints to file.
 {
 
     ofstream oFile;
-    oFile.open(fname + ".out.txt");
+    oFile.open(fname + ".hex.txt");
 
     //First we want to print out the header of the file.
 
