@@ -28,20 +28,19 @@ module reg_lo_tb();
       $fatal(1, "Testbench timed out rather than exiting gracefully.");
   end
 
-  /* Shadow copy of what we _expect_ the register file to contain. We will update this
+  /* Shadow copy of what we _expect_ the register to contain. We will update this
       as necessary in order to keep track of how the entries are expected to change. */
   logic[31:0] shadow;
 
   /* Input stimulus and checking process. This starts at the beginning of time, and
       is synchronised to the same clock as DUT. */
-  integer i;
   initial begin
 
       reset = 0;
 
       @(posedge clk)
       #1;
-      /* Pulse the reset for one cycle, in order to get register file into known state. */
+      /* Pulse the reset for one cycle, in order to get register into known state. */
       reset=1;
 
       @(posedge clk)
@@ -62,7 +61,7 @@ module reg_lo_tb();
           @(posedge clk)
           #1;
 
-          /* Update the shadow regsiters according to the commands given to the register file. */
+          /* Update the shadow regsiters according to the commands given to the register. */
           if (reset==1) begin
               shadow = 0;
           end
@@ -73,7 +72,7 @@ module reg_lo_tb();
               shadow = lo;
           end
 
-          /* Verify the returned results against the expected output from the shadow registers. */
+          /* Verify the returned results against the expected output from the shadow register. */
           if (reset==1) begin
               assert (lo_read == 0) else $error("lo_read not zero during reset.");
           end
