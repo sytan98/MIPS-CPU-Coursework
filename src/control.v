@@ -1,7 +1,7 @@
 module control(
   input logic[5:0] opcode,
   input logic[5:0] function_code,
-  input logic[5:0] b_code
+  input logic[5:0] b_code,
   output logic rd_select,
   output logic branch,
   output logic jump1,

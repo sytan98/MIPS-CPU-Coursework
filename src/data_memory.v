@@ -11,7 +11,7 @@ module data_memory(
 );
   parameter RAM_INIT_FILE = "";
 
-	logic[31:0] memory[32h'FFFFFFFF:0];
+	logic[31:0] memory[32'hFFFFFFFF:0];
 
   initial begin
     if (RAM_INIT_FILE != "") begin

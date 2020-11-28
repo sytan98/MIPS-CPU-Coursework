@@ -20,6 +20,18 @@ module mips_cpu_harvard(
     input logic[31:0]  data_readdata
 );
 
+  // not sure on how to implement reset, active and register_v0 yet
+  // initial begin
+  //   active = 0;
+  // end
+  //
+  // if (reset) begin
+  //   active = 1;
+  // end
+  //
+  // register_v0 = read_data_a;
+
+
 //PC
 logic[31:0] PCnext;
 PC PC_inst(

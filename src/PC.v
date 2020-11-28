@@ -1,15 +1,15 @@
 module PC(
-	input logic clk, reset;
-	input logic [31:0] PC_curr;
-	output logic [31:0] PC_next
+	input logic clk, reset,
+	input logic [31:0] PCcurr,
+	output logic [31:0] PCnext
 );
 
 always_ff @(posedge clk) begin
-	if (reset) then begin
-		PC_next <= 0;
+	if (reset) begin
+		PCnext <= 0;
 	end
-	else if begin
-		PC_next <= PC_curr + 4;
+	else begin
+		PCnext <= PCcurr + 4;
 	end
 end
 
