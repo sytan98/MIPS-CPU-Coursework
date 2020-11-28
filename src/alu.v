@@ -1,6 +1,6 @@
 module alu(
     input logic[5:0] alu_ctrl_in,
-    input logic[31:0] A, 
+    input logic[31:0] A,
     input logic[31:0] B,
     input logic[5:0] shamt,
     output logic[31:0] alu_out,
@@ -18,9 +18,9 @@ module alu(
             4,22: alu_out = A & B; //and, andi
             5,23: alu_out = A | B; //or, ori
             6,24: alu_out = A ^ B; //xor, xori
-			7: alu_out = B << shamt; //sll 
+			7: alu_out = B << shamt; //sll
             8: alu_out = B << A; //sllv
-            9: alu_out = B >> shamt; //srl 
+            9: alu_out = B >> shamt; //srl
             10: alu_out = B >> A;//srlv
             11: alu_out = $signed(B) >>> shamt; //sra
             12: alu_out = $signed(B) >>> A; //srav
@@ -32,7 +32,7 @@ module alu(
 			18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000}; //divu
             25: alu_out = B << 16; //lui
 
-			default: alu_out = 0; 
+			default: alu_out = 0;
         endcase
     end
 endmodule
