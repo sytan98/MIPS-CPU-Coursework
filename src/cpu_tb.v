@@ -29,7 +29,7 @@ module cpu_tb;
         $dumpfile("cpu.vcd");
         $dumpvars(0, cpu_tb);
         clk=0;
-        data_readdata=0;
+        data_readdata=32'b00000000000000000000000111111101;
         repeat (TIMEOUT_CYCLES) begin
             #10;
             clk = !clk;

@@ -28,12 +28,6 @@ logic[63:0] mul_result;
 logic jump;
 logic[3:0] jump_address;
 
-assign instr_address = pc;
-assign register_v0 = regs[2];
-assign data_address = regs[rs] + immediate;
-assign data_write = 0;
-assign data_read = 0;
-assign data_writedata = regs[0]; 
 
 typedef enum logic[1:0] {
         FETCH = 2'b00,
@@ -88,8 +82,8 @@ typedef enum logic[5:0] {
         LHU = 6'b100101,
         LUI = 6'b001111,
         LW = 6'b100011,
-        LWL = 6'b111111,
-        LWR = 6'b111110,
+        LWL = 6'b100010,
+        LWR = 6'b100110,
         ORI = 6'b001101,
         SB = 6'b101000,
         SH = 6'b101001,
@@ -121,6 +115,17 @@ assign instr_i_opcode = instr_readdata[31:26];
         assign immediate = instr_readdata[15:0];
         assign address = instr_readdata[25:0];
 
+assign instr_address = pc;
+assign register_v0 = regs[2];
+assign data_address = regs[rs] + immediate;
+
+assign data_write = (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&~instr_opcode[0]) | (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&instr_opcode[0]) | (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&instr_opcode[1]&instr_opcode[0]);
+
+assign data_read = !data_write; //could make it 1 only for load instructions
+
+assign data_writedata = instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&~instr_opcode[0] ? 32'h000000ff&regs[rt] : 
+                        (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&instr_opcode[0] ? 32'h0000ffff&regs[rt] :
+                        (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&instr_opcode[1]&instr_opcode[0] ? regs[rt] : 32'h00000000));
 
 logic[3:0] npc;
 assign npc = pc+1;
@@ -215,8 +220,7 @@ always @(posedge clk) begin
                         end
                         JALR: begin
                             //pending check on delay, prob. works
-                            //fix address (4MSB from PC, <<2)
-                            regs[rd]=npc+4;
+                            regs[rd]<=pc+8;
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -230,7 +234,6 @@ always @(posedge clk) begin
                         end
                         JR: begin
                             //pending check on delay, prob. works
-                            //fix address (4MSB from PC, <<2)
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -449,14 +452,13 @@ always @(posedge clk) begin
                 //pending check on delay, prob. works
                 //fix address (4MSB from PC, <<2)
                 if(jump == 1)begin
-                    temp_pc <= pc;
                     pc <= jump_address;
                     jump <= 0;
                 end
                 else begin
                     pc <= npc;
                 end 
-                //CORRECT: jump_address[31:28] <= temp_pc[31:28];
+                //CORRECT: jump_address[31:28] <= pc[31:28];
                 //          jump_address[27:2] <= address;
                 //          jump_address[1:0] <= 0;           
                 jump_address <= address[3:0];
@@ -465,20 +467,25 @@ always @(posedge clk) begin
             else if(instr_opcode == 6'b000011) begin
                 //pending check on delay, prob. works
                 //fix address (4MSB from PC, <<2)
-                regs[31]=npc+4;
+                regs[31]<=pc+8;
                 if(jump == 1)begin
-                    temp_pc <= pc;
                     pc <= jump_address;
                     jump <= 0;
                 end
                 else begin
                     pc <= npc;
                 end           
-                //CORRECT: jump_address[31:28] <= temp_pc[31:28];
+                //CORRECT: jump_address[31:28] <= pc[31:28];
                 //          jump_address[27:2] <= address;
                 //          jump_address[1:0] <= 0;            
                 jump_address <= address[3:0];
                 jump <= 1;            
+            end
+            else if(instr_opcode == 6'b111111) begin
+                //pending check on delay, prob. works
+                //fix address (4MSB from PC, <<2)
+                state <= HALTED;
+                active <= 0;
             end
             else begin 
                 case(instr_i_opcode)
@@ -508,7 +515,6 @@ always @(posedge clk) begin
                     BEQ: begin
                         //PENDING CHECK
                         if(jump == 1)begin
-                            temp_pc <= pc;
                             pc <= jump_address;
                             jump <= 0;
                         end
@@ -516,30 +522,28 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if(regs[rs]==regs[rt]) begin
-                            //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
-                            jump_address <= temp_pc+1+immediate;
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
                             jump <= 1;
                         end
                     end
                     BQEZ_AL_BLTZ_AL: begin
                         if(rt==5'b00001) begin
                             if(jump == 1)begin
-                                temp_pc <= pc;
                                 pc <= jump_address;
                                 jump <= 0;
                             end
                             else begin
                                  pc <= npc;
                             end 
-                            if(regs[rs]>=0) begin
+                            if($signed(regs[rs])>=0) begin
                                 //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
-                                jump_address <= temp_pc+1+immediate;
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
                         else if(rt==5'b10001) begin
-                            if(jump == 1)begin
-                                temp_pc <= pc;
+                            if(jump == 1) begin
                                 pc <= jump_address;
                                 jump <= 0;
                             end
@@ -547,16 +551,15 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end 
                             //CORRECT: jump_address <= npc+(immediate<<2);
-                            if(regs[rs]>=0) begin
-                                regs[31] <= temp_pc+8;
-                                //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
-                                jump_address <= temp_pc+1+immediate;
+                            if($signed(regs[rs])>=0) begin
+                                regs[31] <= pc+8;
+                                //CORRECT: jump_address <= pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
                         else if(rt==5'b00000) begin
                             if(jump == 1)begin
-                                temp_pc <= pc;
                                 pc <= jump_address;
                                 jump <= 0;
                             end
@@ -564,15 +567,14 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end 
                             //CORRECT: jump_address <= npc+(immediate<<2);
-                            if(regs[rs]<0) begin
+                            if($signed(regs[rs])<0) begin
                                 //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
-                                jump_address <= temp_pc+1+immediate;
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
-                        else if(rt==5'b10000) begin
+                        else if(rt==5'b10000) begin   
                             if(jump == 1)begin
-                                temp_pc <= pc;
                                 pc <= jump_address;
                                 jump <= 0;
                             end
@@ -580,18 +582,280 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end 
                             //CORRECT: jump_address <= npc+(immediate<<2);
-                            if(regs[rs]<0) begin
-                                regs[31] <= temp_pc+8;
-                                //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
-                                jump_address <= temp_pc+1+immediate;
+                            if($signed(regs[rs])<0) begin
+                                regs[31] <= pc+8;
+                                //CORRECT: jump_address <= pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
                     end
                     BGTZ: begin
-
+                        //PENDING CHECK
+                        if(jump == 1)begin
+                            pc <= jump_address;
+                            jump <= 0;
+                        end
+                        else begin
+                            pc <= npc;
+                        end 
+                        if($signed(regs[rs])>0) begin
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
+                            jump <= 1;
+                        end
                     end
+                    BLEZ: begin
+                        //PENDING CHECK
+                        if(jump == 1)begin
+                            pc <= jump_address;
+                            jump <= 0;
+                        end
+                        else begin
+                            pc <= npc;
+                        end 
+                        if($signed(regs[rs])<=0) begin
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
+                            jump <= 1;
+                        end
+                    end
+                    BNE: begin
+                        //PENDING CHECK
+                        if(jump == 1)begin
+                            pc <= jump_address;
+                            jump <= 0;
+                        end
+                        else begin
+                            pc <= npc;
+                        end 
+                        if(regs[rs]!=regs[rt]) begin
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
+                            jump <= 1;
+                        end
+                    end
+                    LB: begin
+                        if(data_address[1:0] == 2'b00) begin  
+                            regs[rt]<=$signed(data_readdata[7:0]);
+                        end
+                        else if(data_address[1:0] == 2'b01) begin  
+                            regs[rt]<=$signed(data_readdata[15:8]);
+                        end
+                        else if(data_address[1:0] == 2'b10) begin  
+                            regs[rt]<=$signed(data_readdata[23:16]);
+                        end
+                        else if(data_address[1:0] == 2'b11) begin  
+                            regs[rt]<=$signed(data_readdata[31:24]);
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LBU: begin
+                        if(data_address[1:0] == 2'b00) begin  
+                            regs[rt]<=data_readdata[7:0];
+                        end
+                        else if(data_address[1:0] == 2'b01) begin  
+                            regs[rt]<=data_readdata[15:8];
+                        end
+                        else if(data_address[1:0] == 2'b10) begin  
+                            regs[rt]<=data_readdata[23:16];
+                        end
+                        else if(data_address[1:0] == 2'b11) begin  
+                            regs[rt]<=data_readdata[31:24];
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LH: begin
+                        if(data_address[1] == 1'b0) begin  
+                            regs[rt]<=$signed(data_readdata[15:0]);
+                        end
+                        else if(data_address[1] == 1'b1) begin  
+                            regs[rt]<=$signed(data_readdata[31:16]);
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LHU: begin
+                        if(data_address[1] == 1'b0) begin  
+                            regs[rt]<=data_readdata[15:0];
+                        end
+                        else if(data_address[1] == 1'b1) begin  
+                            regs[rt]<=data_readdata[31:16];
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LUI: begin
+                        regs[rt] <= (immediate<<16);
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LW: begin
+                        regs[rt]<=data_readdata;
+                        if(jump == 1)begin
+                            pc <= jump_address;
+                            jump <= 0;
+                        end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    /*
+                    LWL: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!/////
+                        if(data_address[1:0] == 2'b00) begin 
+                            regs[rt][31:24] <= readdata[7:0];
+                        end 
+                        else if(data_address[1:0] == 2'b01) begin 
+                            regs[rt][31:16] <= readdata[15:0];
+                        end 
+                        else if(data_address[1:0] == 2'b10) begin 
+                            regs[rt][31:8] <= readdata[23:0];
+                        end
+                        else if(data_address[1:0] == 2'b11) begin 
+                            regs[rt][31:0] <= readdata[31:0];
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    LWR: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!////
+                        if(data_address[1:0] == 2'b00) begin 
+                            regs[rt][31:0] <= readdata[31:0];
+                        end 
+                        else if(data_address[1:0] == 2'b01) begin 
+                            regs[rt][23:0] <= readdata[31:8];
+                        end 
+                        else if(data_address[1:0] == 2'b10) begin 
+                            regs[rt][15:0] <= readdata[31:16];
+                        end
+                        else if(data_address[1:0] == 2'b11) begin 
+                            regs[rt][7:0] <= readdata[31:24];
+                        end
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    */
+                    ORI: begin
+                        //WRONG?? WHAT IS CORRECT OPERATION OF OR??
+                        regs[rt] = regs[rs]||immediate;
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
+                    SB: begin
+                    //ANYTHING ELSE?????
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    SH: begin
+                    //ANYTHING ELSE?????
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    SW: begin
+                    //ANYTHING ELSE?????
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    SLTI: begin
+                        if($signed(regs[rs])<$signed(immediate)) begin
+                            regs[rt]<=1;
+                        end
+                        else begin 
+                            regs[rt]<=0;
+                        end
 
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    SLTIU: begin
+                        if(regs[rs]<immediate) begin
+                            regs[rt]<=1;
+                        end
+                        else begin 
+                            regs[rt]<=0;
+                        end
+                        
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                        else begin
+                            pc <= npc;
+                        end
+                    end
+                    XORI: begin
+                        //WRONG?? WHAT IS CORRECT OPERATION OF OR??
+                        //PENDING CHECK
+                        regs[rt] = regs[rs]^immediate;
+                        if(jump == 1)begin
+                                pc <= jump_address;
+                                jump <= 0;
+                            end
+                            else begin
+                                pc <= npc;
+                            end
+                    end
                 endcase
             end
         end
