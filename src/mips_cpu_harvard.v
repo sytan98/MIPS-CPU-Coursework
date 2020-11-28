@@ -45,7 +45,7 @@ PC PC_inst(
 instruction_memory instmem_inst(
   .clk(clk),
   .instr_address(instr_address),
-  .instr_readdata(instr_readdata),
+  .instr_readdata(instr_readdata)
 );
 
 //control
@@ -104,7 +104,7 @@ mux_32bit alumux(
 );
 
 //alu_ctrl
-logic[4:0] alu_ctrl_in
+logic[4:0] alu_ctrl_in;
 alu_ctrl aluctrl_inst(
   .alu_op(alu_op),
   .opcode(instr_readdata[31:26]),
@@ -129,18 +129,19 @@ alu alu_inst(
 //reg_hi
 logic[31:0] hi_read;
 reg_hi reghi_inst(
-  .clk(clk);
+  .clk(clk),
   .hi_wren(hi_wren),
-  .read_data_a(read_data_a)
+  .read_data_a(read_data_a),
   .hi(hi),
   .hi_read(hi_read)
 );
 
 //reg_lo
-reg_lo reghi_inst(
+logic[31:0] lo_read;
+reg_lo reglo_inst(
   .clk(clk),
   .lo_wren(lo_wren),
-  .read_data_a(read_data_a)
+  .read_data_a(read_data_a),
   .lo(lo),
   .lo_read(lo_read)
 );
@@ -175,7 +176,7 @@ branch_addressor b_calc(
 logic[31:0] bmuxout;
 mux_32bit branchmux(
   .select(condition_met),
-  .in_0(PC_next), .in_1(branch_addr),
+  .in_0(PCnext), .in_1(branch_addr),
   .out(bmuxout)
 );
 //mux_32bit jump1mux
@@ -186,7 +187,7 @@ mux_32bit jump1mux(
   .out(jmuxout)
 );
 //mux_32bit jump2mux
-mux_32bit jump1mux(
+mux_32bit jump2mux(
   .select(jump2),
   .in_0(jmuxout), .in_1(read_data_a),
   .out(instr_address)
@@ -198,11 +199,12 @@ data_memory datamem_inst(
   .data_address(data_address),
   .data_read(data_read),
   .data_write(data_write),
-  .data_writedata(data_writedata)
+  .data_writedata(data_writedata),
   .data_readdata(data_readdata)
 );
 
 //data_into_reg_mux1
+logic[31:0] data1muxout;
 mux_32bit data1mux(
   .select(data_into_reg1),
   .in_0(alu_out), .in_1(data_readdata),
@@ -210,7 +212,7 @@ mux_32bit data1mux(
 );
 
 //data_into_reg_mux2
-mux_32bit data1mux(
+mux_32bit data2mux(
   .select(data_into_reg2),
   .in_0(data1muxout), .in_1(PCnext),
   .out(write_data)
