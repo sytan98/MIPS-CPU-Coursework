@@ -23,11 +23,11 @@ always @(*) begin
   imdt_sel = (opcode==12|opcode==13|opcode==14) ? 1 : 0;
   branch = (opcode==1|opcode==4|opcode==6|opcode==7) ? 1 : 0;
   jump1 = (opcode==2|opcode==3) ? 1 : 0;
-  jump2 = (function_code==8|function_code==9) ? 1 : 0;
+  jump2 = (opcode==0 &(function_code==8|function_code==9)) ? 1 : 0;
   alu_op[1:0] = (opcode==0) ? 2'd2 :
                 (opcode==4|opcode==5) ? 2'd1 :
                 (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 0;
-  alu_src = (opcode==0) ? 0 : 1;
+  alu_src = (opcode==0|opcode==4|opcode==5) ? 0 : 1;
   data_read = (opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
   data_write = (opcode==40|opcode==41|opcode==43) ? 1 : 0;
   write_enable = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;

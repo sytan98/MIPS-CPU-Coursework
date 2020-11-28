@@ -83,8 +83,8 @@ module control_tb(
         opcode = 2;
         #1;
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
-        assert(jump1 == 1) else $fatal(1, "Jump does not select correct register to write");
-        assert(jump2 == 0) else $fatal(1, "Jump does not select correct register to write");
+        assert(jump1 == 1) else $fatal(1, "Jump, mux does not choose jump address, chooses branch output instead");
+        assert(jump2 == 0) else $fatal(1, "Jump, mux does not choose jump address, chooses read_data_b from reg file instead");
 
         #1
 
@@ -94,16 +94,38 @@ module control_tb(
         function_code = 9;
         #1;
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
-        assert(jump2 == 1) else $fatal(1, "JALR does not select correct register to write");
+        assert(jump2 == 1) else $fatal(1, "JALR, mux does not choose read_data_b from reg file, chooses jump address instead");
         assert(rd_select == 1) else $fatal(1, "JALR does not select correct register to write");
         assert(write_enable == 1)  else $fatal(1, "JALR cannot save data in reg file");
+        assert(data_into_reg2 == 1) else $fatal(1, "JALR does not store current pc+4 at the register");
         #1
         //JR
 
         //Branch Type
         //BEQ
+        #1;
+        opcode = 4;
+        #1;
+        // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
+        assert(branch == 1) else $fatal(1, "BEQ does not give high signal to branch");
+        assert((jump1 == 0) & (jump2 == 0)) else $fatal(1, "BEQ does not send correct mux signal to give branch address to pc");
+        assert(write_enable == 0)  else $fatal(1, "BEQ cannot save data in reg file");
+        assert(alu_src == 0) else $fatal(1, "BEQ does not do subtraction correctly");
+        assert(alu_op == 1) else $fatal(1, "BEQ does not send correct alu op");
+        #1
 
-        //BTLZAL
+        //BLTZAL
+        #1;
+        opcode = 1;
+        b_code = 16;
+        #1;
+        // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
+        assert(branch == 1) else $fatal(1, "BLTZAL does not give high signal to branch");
+        assert((jump1 == 0) & (jump2 == 0)) else $fatal(1, "BLTZAL does not send correct mux signal to give branch address to pc");
+        assert(write_enable == 0)  else $fatal(1, "BLTZAL cannot save data in reg file");
+        assert(alu_src == 1) else $fatal(1, "BLTZAL does not do subtraction correctly");
+        assert(data_into_reg2 == 1) else $fatal(1, "BLTZAL does not store pc + 4 correctly");
+        #1
 
         $display("Finished. Total time = %t", $time);
         $finish;
