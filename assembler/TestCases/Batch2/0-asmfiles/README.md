@@ -18,3 +18,8 @@ Registers
 |$29|$sp, sp|Points to memory region containing stack|
 |$30|$fp, fp|Points to memory region containing stack frame for current procedure; also known as $s8 and treated as a saved register if not needed for this purpose|
 |$31|ra|Holds return address from current procedure|
+
+
+# EXCEPTIONS
+
+Instructions <b>lb, lbu, lh, lhu, lui, lw, lwl, lwr</b> require memory assignments .ref.txt files contain the mem[address] that needs to be checked.
