@@ -6,7 +6,7 @@ module PC(
 
 always_ff @(posedge clk) begin
 	if (reset) begin
-		PCnext <= 0;
+		PCnext <= 32'hBFC00000;
 	end
 	else begin
 		PCnext <= PCcurr + 4;
