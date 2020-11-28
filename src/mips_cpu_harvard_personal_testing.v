@@ -9,7 +9,7 @@ module mips_cpu_harvard(
     input logic     clk_enable,
 
     /* Combinatorial read access to instructions */
-    output logic[31:0]  instr_address,
+    output logic[3:0]  instr_address,
     input logic[31:0]   instr_readdata,
 
     /* Combinatorial read and single-cycle write access to instructions */
@@ -20,13 +20,13 @@ module mips_cpu_harvard(
     input logic[31:0]  data_readdata
 );
 
-logic[31:0] pc;
+logic[3:0] pc;
 logic[31:0] regs[31:0];
 logic[31:0] hi;
 logic[31:0] lo;
 logic[63:0] mul_result;
 logic jump;
-logic[31:0] jump_address;
+logic[3:0] jump_address;
 
 
 typedef enum logic[1:0] {
@@ -128,7 +128,7 @@ assign data_writedata = instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_
                         (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&instr_opcode[1]&instr_opcode[0] ? regs[rt] : 32'h00000000));
 
 logic[3:0] npc;
-assign npc = pc+4;
+assign npc = pc+1;
 
 integer i;
 
@@ -140,9 +140,13 @@ end
 
 always @(posedge clk) begin
         if (reset) begin
+            $display("CPU : INFO  : Resetting.");
             state <= EXEC;
-            pc <= 32'hbfc00000;
-            for (i=0; i<32; i++) begin
+            pc <= 0;  //WRONG: BFC00000
+            regs[0] <= 32'b00000000000000000000000000000011;
+            regs[1] <= 32'b00000000000000000000000000000111;
+            regs[2] <= 32'b00000000000000000000000000000000;
+            for (i=3; i<32; i++) begin
                 regs[i] <= 0;
             end
             lo<=0;
@@ -156,15 +160,17 @@ always @(posedge clk) begin
             //for now, do nothing as it's a single-cycle MIPS CPU
             //if combinatorial delay due to RAM is huge, make RAM synchronous and have to states: fetching instruction and executing instruction) 
         end
-        else if (pc==0) begin 
+        else if (pc==7) begin //correct 0
         state <= HALTED;
         active <= 0;
         end 
         else if (state==EXEC) begin
+            //$display("CPU : INFO  : Executing, opcode=%h, acc=%h, imm=%h, readdata=%x", instr_opcode, acc, instr_constant, readdata);
             if(instr_opcode == 6'b000000) begin
                 case(func)
                         ADDU: begin
                             //WORKS
+                            //$display("executing addu instruction");
                             regs[rd] <= regs[rs] + regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -222,7 +228,8 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end           
-                            jump_address <= regs[rs];
+                            //CORRECT: jump_address <= regs[rs];
+                            jump_address <= regs[rs][3:0];
                             jump <= 1;
                         end
                         JR: begin
@@ -234,7 +241,8 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end           
-                            jump_address <= regs[rs];
+                            //CORRECT: jump_address <= regs[rs];
+                            jump_address <= regs[rs][3:0];
                             jump <= 1;
                         end
                         MTHI: begin
@@ -441,7 +449,8 @@ always @(posedge clk) begin
                     endcase
             end
             else if(instr_opcode == 6'b000010) begin
-                
+                //pending check on delay, prob. works
+                //fix address (4MSB from PC, <<2)
                 if(jump == 1)begin
                     pc <= jump_address;
                     jump <= 0;
@@ -449,14 +458,15 @@ always @(posedge clk) begin
                 else begin
                     pc <= npc;
                 end 
-                ////WRONG//////
-                jump_address[31:28] <= pc[31:28];
-                jump_address[27:2] <= address;
-                jump_address[1:0] <= 0;
-                ///////////////          
+                //CORRECT: jump_address[31:28] <= pc[31:28];
+                //          jump_address[27:2] <= address;
+                //          jump_address[1:0] <= 0;           
+                jump_address <= address[3:0];
                 jump <= 1;
             end
             else if(instr_opcode == 6'b000011) begin
+                //pending check on delay, prob. works
+                //fix address (4MSB from PC, <<2)
                 regs[31]<=pc+8;
                 if(jump == 1)begin
                     pc <= jump_address;
@@ -465,12 +475,17 @@ always @(posedge clk) begin
                 else begin
                     pc <= npc;
                 end           
-                ////WRONG//////
-                jump_address[31:28] <= pc[31:28];
-                jump_address[27:2] <= address;
-                jump_address[1:0] <= 0;
-                ///////////////
+                //CORRECT: jump_address[31:28] <= pc[31:28];
+                //          jump_address[27:2] <= address;
+                //          jump_address[1:0] <= 0;            
+                jump_address <= address[3:0];
                 jump <= 1;            
+            end
+            else if(instr_opcode == 6'b111111) begin
+                //pending check on delay, prob. works
+                //fix address (4MSB from PC, <<2)
+                state <= HALTED;
+                active <= 0;
             end
             else begin 
                 case(instr_i_opcode)
@@ -507,7 +522,8 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if(regs[rs]==regs[rt]) begin
-                            jump_address <= pc+4+(immediate<<2);
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
                             jump <= 1;
                         end
                     end
@@ -521,7 +537,8 @@ always @(posedge clk) begin
                                  pc <= npc;
                             end 
                             if($signed(regs[rs])>=0) begin
-                                jump_address <= temp_pc+4+(immediate<<2);
+                                //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
@@ -533,9 +550,11 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end 
+                            //CORRECT: jump_address <= npc+(immediate<<2);
                             if($signed(regs[rs])>=0) begin
                                 regs[31] <= pc+8;
-                                jump_address <= pc+4+(immediate<<2);
+                                //CORRECT: jump_address <= pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
@@ -546,9 +565,11 @@ always @(posedge clk) begin
                             end
                             else begin
                                 pc <= npc;
-                            end
+                            end 
+                            //CORRECT: jump_address <= npc+(immediate<<2);
                             if($signed(regs[rs])<0) begin
-                                jump_address <= temp_pc+4+(immediate<<2);
+                                //CORRECT: jump_address <= temp_pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
@@ -560,9 +581,11 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end 
+                            //CORRECT: jump_address <= npc+(immediate<<2);
                             if($signed(regs[rs])<0) begin
                                 regs[31] <= pc+8;
-                                jump_address <= pc+4+(immediate<<2);
+                                //CORRECT: jump_address <= pc+4+(immediate<<2);
+                                jump_address <= pc+1+immediate;
                                 jump <= 1;
                             end
                         end
@@ -577,7 +600,8 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if($signed(regs[rs])>0) begin
-                            jump_address <= pc+4+(immediate<<2);
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
                             jump <= 1;
                         end
                     end
@@ -591,7 +615,8 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if($signed(regs[rs])<=0) begin
-                            jump_address <= pc+4+(immediate<<2);
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
                             jump <= 1;
                         end
                     end
@@ -605,7 +630,8 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if(regs[rs]!=regs[rt]) begin
-                            jump_address <= pc+4+(immediate<<2);
+                            //CORRECT: jump_address <= pc+4+(immediate<<2);
+                            jump_address <= pc+1+immediate;
                             jump <= 1;
                         end
                     end
@@ -701,7 +727,7 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    //////////////WRONG////////////////////////////
+                    /*
                     LWL: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!/////
                         if(data_address[1:0] == 2'b00) begin 
                             regs[rt][31:24] <= readdata[7:0];
@@ -744,10 +770,10 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    ////////////////////////////////////////////////
+                    */
                     ORI: begin
                         //WRONG?? WHAT IS CORRECT OPERATION OF OR??
-                        regs[rt] = regs[rs]|immediate;
+                        regs[rt] = regs[rs]||immediate;
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
