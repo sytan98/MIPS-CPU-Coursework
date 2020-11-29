@@ -33,12 +33,19 @@ module mips_cpu_harvard(
 
 
 //PC
-logic[31:0] PCnext;
-PC PC_inst(
+logic[31:0] pcin;
+pc pc_inst(
   .clk(clk),
   .reset(reset),
-  .PCcurr(instr_address),
-  .PCnext(PCnext)
+  .pcin(pcin),
+  .pcout(instr_address)
+);
+
+//PCadder
+logic[31:0] pc_plus4;
+pc_adder pcadder_inst(
+  .pcout(instr_address),
+  .pc_plus4(pc_plus4)
 );
 
 //instruction_memory
@@ -168,7 +175,7 @@ branch_cond branchcond_inst(
 logic[31:0] jump_addr;
 jump_addressor j_calc(
   .j_immdt(instr_readdata[25:0]),
-  .pc_4msb(PCnext[31:28]),
+  .pc_4msb(pc_plus4[31:28]),
   .jump_addr(jump_addr)
 );
 
@@ -176,7 +183,7 @@ jump_addressor j_calc(
 logic[31:0] branch_addr;
 branch_addressor b_calc(
   .immdt_32(immdt_32),
-  .PCnext(PCnext),
+  .PCnext(pc_plus4),
   .branch_addr(branch_addr)
 );
 
@@ -184,7 +191,7 @@ branch_addressor b_calc(
 logic[31:0] bmuxout;
 mux_32bit branchmux(
   .select(condition_met),
-  .in_0(PCnext), .in_1(branch_addr),
+  .in_0(pc_plus4), .in_1(branch_addr),
   .out(bmuxout)
 );
 //mux_32bit jump1mux
@@ -198,7 +205,7 @@ mux_32bit jump1mux(
 mux_32bit jump2mux(
   .select(jump2),
   .in_0(jmuxout), .in_1(read_data_a),
-  .out(instr_address)
+  .out(pcin)
 );
 
 //data_memory
@@ -222,7 +229,7 @@ mux_32bit data1mux(
 //data_into_reg_mux2
 mux_32bit data2mux(
   .select(data_into_reg2),
-  .in_0(data1muxout), .in_1(PCnext),
+  .in_0(data1muxout), .in_1(pc_plus4),
   .out(write_data)
 );
 
