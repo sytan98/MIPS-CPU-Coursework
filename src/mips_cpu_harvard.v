@@ -20,23 +20,38 @@ module mips_cpu_harvard(
     input logic[31:0]  data_readdata
 );
 
-  // not sure on how to implement reset, active and register_v0 yet
-  // initial begin
-  //   active = 0;
-  // end
-  //
-  // if (reset) begin
-  //   active = 1;
-  // end
-  //
-  // register_v0 = read_data_a;
+//cpu state
+typedef enum logic[1:0] {
+        FETCH = 2'b00,
+        EXEC = 2'b01,
+        HALTED = 2'b11
+} state_t;
+logic[1:0] state;
+
+initial begin
+        state = HALTED;
+        active = 0;
+        clk_enable = 0;
+end
+
+always_ff @(posedge clk) begin
+  if (reset) begin
+    state <= EXEC;
+    active <= 1;
+    clk_enable <= 1;
+  end
+  else if (pc==0) begin
+    state <= HALTED;
+    active <= 0;
+    clk_enable <= 0;
+  end
+end
 
 
 //PC
 logic[31:0] pcin;
 pc pc_inst(
-  .clk(clk),
-  .reset(reset),
+  .clk(clk), .reset(reset),
   .pcin(pcin),
   .pcout(instr_address)
 );
@@ -92,7 +107,8 @@ register_file regfile_inst(
   .read_data_a(read_data_a), .read_data_b(read_data_b),
   .write_reg_rd(write_reg_rd),
   .write_data(write_data),
-  .write_enable(write_enable)
+  .write_enable(write_enable),
+  .register_v0(register_v0)
 );
 
 //immdt_extender

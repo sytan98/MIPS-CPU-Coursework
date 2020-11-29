@@ -8,7 +8,7 @@ module pc(
   end
 
   always_ff @(posedge clk) begin
-	 if (reset) begin
+	 if (active) begin
 		 pcout <= 32'hBFC00000;
 	 end
 	 else begin
