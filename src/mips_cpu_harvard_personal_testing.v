@@ -461,7 +461,7 @@ always @(posedge clk) begin
                 //CORRECT: jump_address[31:28] <= pc[31:28];
                 //          jump_address[27:2] <= address;
                 //          jump_address[1:0] <= 0;           
-                jump_address <= address[3:0];
+                jump_address[3:0] <= address[3:0];
                 jump <= 1;
             end
             else if(instr_opcode == 6'b000011) begin
@@ -727,19 +727,19 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    /*
+                    
                     LWL: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!/////
                         if(data_address[1:0] == 2'b00) begin 
-                            regs[rt][31:24] <= readdata[7:0];
+                            regs[rt][31:24] <= data_readdata[7:0];
                         end 
                         else if(data_address[1:0] == 2'b01) begin 
-                            regs[rt][31:16] <= readdata[15:0];
+                            regs[rt][31:16] <= data_readdata[15:0];
                         end 
                         else if(data_address[1:0] == 2'b10) begin 
-                            regs[rt][31:8] <= readdata[23:0];
+                            regs[rt][31:8] <= data_readdata[23:0];
                         end
                         else if(data_address[1:0] == 2'b11) begin 
-                            regs[rt][31:0] <= readdata[31:0];
+                            regs[rt] <= data_readdata;
                         end
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -749,18 +749,19 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end
                     end
+                    
                     LWR: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!////
                         if(data_address[1:0] == 2'b00) begin 
-                            regs[rt][31:0] <= readdata[31:0];
+                            regs[rt][31:0] <= data_readdata[31:0];
                         end 
                         else if(data_address[1:0] == 2'b01) begin 
-                            regs[rt][23:0] <= readdata[31:8];
+                            regs[rt][23:0] <= data_readdata[31:8];
                         end 
                         else if(data_address[1:0] == 2'b10) begin 
-                            regs[rt][15:0] <= readdata[31:16];
+                            regs[rt][15:0] <= data_readdata[31:16];
                         end
                         else if(data_address[1:0] == 2'b11) begin 
-                            regs[rt][7:0] <= readdata[31:24];
+                            regs[rt][7:0] <= data_readdata[31:24];
                         end
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -770,7 +771,7 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    */
+                    
                     ORI: begin
                         //WRONG?? WHAT IS CORRECT OPERATION OF OR??
                         regs[rt] = regs[rs]||immediate;
