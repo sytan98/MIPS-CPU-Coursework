@@ -17,7 +17,9 @@ module mips_cpu_harvard(
     output logic        data_write,
     output logic        data_read,
     output logic[31:0]  data_writedata,
-    input logic[31:0]  data_readdata
+    input logic[31:0]  data_readdata,
+    output logic[1:0] check_state, //for debugging
+    output logic[31:0] check_pcout //for debugging
 );
 
 //cpu state
@@ -28,54 +30,97 @@ typedef enum logic[1:0] {
 } state_t;
 logic[1:0] state;
 
+//Wire Definition
+logic[31:0] pcin;
+logic[31:0] pcout;
+logic[31:0] pc_plus4;
+logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
+logic[1:0] alu_op;
+logic[4:0] write_reg_rd;
+logic[31:0] read_data_a, read_data_b, write_data;
+logic[31:0] signed_32, zero_32;
+logic[31:0] immdt_32;
+logic[31:0] alu_in;
+logic[5:0] alu_ctrl_in;
+logic[31:0] alu_out, lo, hi;
+logic zero;
+
+logic[31:0] hi_read;
+logic[31:0] lo_read;
+logic condition_met;
+logic[31:0] jump_addr;
+logic[31:0] branch_addr;
+logic[31:0] bmuxout;
+logic[31:0] jmuxout;
+
+logic[31:0] data1muxout;
+
+assign check_state = state; //for debugging
+assign check_pcout = pcout; //for debugging
+assign instr_address = pcout;
+
 initial begin
-        state = HALTED;
-        active = 0;
-        clk_enable = 0;
+    state = HALTED;
+    active = 0;
 end
 
-always_ff @(posedge clk) begin
-  if (reset) begin
-    state <= EXEC;
-    active <= 1;
-    clk_enable <= 1;
-  end
-  else if (pc==0) begin
-    state <= HALTED;
-    active <= 0;
-    clk_enable <= 0;
-  end
+always @(posedge clk) begin
+    if (reset) begin
+        $display("CPU : INFO  : Resetting.");
+        state <= EXEC;
+        active <= 1;
+    end
+    else if (state == EXEC) begin
+        $display("CPU : INFO  : Executing.");
+        $display("current PC address=%d", pcout);
+        $display("current inst address=%d", instr_address);
+        $display("current inst =%h", instr_readdata);
+        $display("alu src =%h", alu_src);
+        $display("alu op =%h", alu_op);
+        $display("imd sel =%h", imdt_sel);
+        $display("Read Data Address A=%d", instr_readdata[25:21]);
+        $display("Read Data Address B=%d", instr_readdata[20:16]);
+        $display("Write Data Address=%d", write_reg_rd);
+        $display("Write Data=%h", write_data);
+        $display("Data from A=%h", read_data_a);
+        $display("Data from B=%h", read_data_b);
+        if (instr_address[15:0] == 0) begin
+            state <= HALTED;
+            active <= 0;
+        end
+    end
+    else if (state == HALTED) begin
+        //do nothing
+    end
 end
 
 
 //PC
-logic[31:0] pcin;
 pc pc_inst(
   .clk(clk), .reset(reset),
   .pcin(pcin),
-  .pcout(instr_address)
+  .pcout(pcout)
 );
 
 //PCadder
-logic[31:0] pc_plus4;
 pc_adder pcadder_inst(
-  .pcout(instr_address),
+  .pcout(pcout),
   .pc_plus4(pc_plus4)
 );
 
 //instruction_memory
-instruction_memory instmem_inst(
-  .clk(clk),
-  .instr_address(instr_address),
-  .instr_readdata(instr_readdata)
-);
+// instruction_memory instmem_inst(
+//   .clk(clk),
+//   .instr_address(instr_address),
+//   .instr_readdata(instr_readdata),
+//   .clk_enable(clk_enable)
+// );
 
-//control
-logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
-logic[1:0] alu_op;
+// control
 control control_inst(
   .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[15:11]),
   .rd_select(rd_select),
+  .imdt_sel(imdt_sel),
   .branch(branch),
   .jump1(jump1),
   .jump2(jump2),
@@ -91,7 +136,6 @@ control control_inst(
 );
 
 //mux_5bit rd_mux
-logic[4:0] write_reg_rd;
 mux_5bit rd_mux(
   .select(rd_select),
   .in_0(instr_readdata[20:16]), .in_1(instr_readdata[15:11]),
@@ -99,9 +143,9 @@ mux_5bit rd_mux(
 );
 
 //register_file
-logic[31:0] read_data_a, read_data_b, write_data;
 register_file regfile_inst(
   .clk(clk),
+  .clk_enable(clk_enable),
   .reset(reset),
   .read_reg_a(instr_readdata[25:21]), .read_reg_b(instr_readdata[20:16]),
   .read_data_a(read_data_a), .read_data_b(read_data_b),
@@ -112,14 +156,12 @@ register_file regfile_inst(
 );
 
 //immdt_extender
-logic[31:0] signed_32, zero_32;
 immdt_extender imdtextd_inst(
   .immdt_16(instr_readdata[15:0]),
   .sign_immdt_32(signed_32), .zero_immdt_32(zero_32)
 );
 
 //immdt mux
-logic[31:0] immdt_32;
 mux_32bit imdtmux(
   .select(imdt_sel),
   .in_0(signed_32), .in_1(zero_32),
@@ -127,7 +169,6 @@ mux_32bit imdtmux(
 );
 
 //mux_32bit alumux
-logic[31:0] alu_in;
 mux_32bit alumux(
   .select(alu_src),
   .in_0(read_data_b), .in_1(immdt_32),
@@ -135,7 +176,6 @@ mux_32bit alumux(
 );
 
 //alu_ctrl
-logic[5:0] alu_ctrl_in;
 alu_ctrl aluctrl_inst(
   .alu_op(alu_op),
   .opcode(instr_readdata[31:26]),
@@ -144,8 +184,6 @@ alu_ctrl aluctrl_inst(
 );
 
 //alu
-logic[31:0] alu_out, lo, hi;
-logic zero;
 alu alu_inst(
   .alu_ctrl_in(alu_ctrl_in),
   .A(read_data_a),
@@ -158,7 +196,6 @@ alu alu_inst(
 );
 
 //reg_hi
-logic[31:0] hi_read;
 reg_hi reghi_inst(
   .clk(clk), .reset(reset),
   .hi_wren(hi_wren),
@@ -168,7 +205,6 @@ reg_hi reghi_inst(
 );
 
 //reg_lo
-logic[31:0] lo_read;
 reg_lo reglo_inst(
   .clk(clk), .reset(reset),
   .lo_wren(lo_wren),
@@ -177,8 +213,7 @@ reg_lo reglo_inst(
   .lo_read(lo_read)
 );
 
-//branch_cond
-logic condition_met;
+// branch_cond
 branch_cond branchcond_inst(
   .branch(branch),
   .opcode(instr_readdata[31:26]), .b_code(instr_readdata[15:11]),
@@ -188,15 +223,13 @@ branch_cond branchcond_inst(
 );
 
 //jump_addressor
-logic[31:0] jump_addr;
 jump_addressor j_calc(
   .j_immdt(instr_readdata[25:0]),
   .pc_4msb(pc_plus4[31:28]),
   .jump_addr(jump_addr)
 );
 
-//branch_addressor
-logic[31:0] branch_addr;
+// branch_addressor
 branch_addressor b_calc(
   .immdt_32(immdt_32),
   .PCnext(pc_plus4),
@@ -204,14 +237,12 @@ branch_addressor b_calc(
 );
 
 //mux_32bit branchmux
-logic[31:0] bmuxout;
 mux_32bit branchmux(
   .select(condition_met),
   .in_0(pc_plus4), .in_1(branch_addr),
   .out(bmuxout)
 );
 //mux_32bit jump1mux
-logic[31:0] jmuxout;
 mux_32bit jump1mux(
   .select(jump1),
   .in_0(bmuxout), .in_1(jump_addr),
@@ -224,18 +255,18 @@ mux_32bit jump2mux(
   .out(pcin)
 );
 
-//data_memory
-data_memory datamem_inst(
-  .clk(clk),
-  .data_address(data_address),
-  .data_read(data_read),
-  .data_write(data_write),
-  .data_writedata(data_writedata),
-  .data_readdata(data_readdata)
-);
+// //data_memory
+// // data_memory datamem_inst(
+// //   .clk(clk),
+// //   .data_address(data_address),
+// //   .data_read(data_read),
+// //   .data_write(data_write),
+// //   .data_writedata(data_writedata),
+// //   .data_readdata(data_readdata),
+// //   .clk_enable(clk_enable)
+// // );
 
 //data_into_reg_mux1
-logic[31:0] data1muxout;
 mux_32bit data1mux(
   .select(data_into_reg1),
   .in_0(alu_out), .in_1(data_readdata),

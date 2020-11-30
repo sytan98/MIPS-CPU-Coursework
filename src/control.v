@@ -19,11 +19,23 @@ module control(
 );
 
 always @(*) begin
+  case (opcode)
+    1,4,6,7: branch = 1;
+    default: branch = 0;
+  endcase
+  case (opcode)
+    2,3: jump1 = 1;
+    default: jump1 = 0;
+  endcase
+  case (function_code)
+    8,9: jump2 = (opcode == 0) ? 1 : 0; 
+    default: jump2 = 0;
+  endcase
   rd_select = (opcode==0) ? 1 : 0;
   imdt_sel = (opcode==12|opcode==13|opcode==14) ? 1 : 0;
-  branch = (opcode==1|opcode==4|opcode==6|opcode==7) ? 1 : 0;
-  jump1 = (opcode==2|opcode==3) ? 1 : 0;
-  jump2 = (opcode==0 &(function_code==8|function_code==9)) ? 1 : 0;
+  // branch = (opcode==1|opcode==4|opcode==6|opcode==7) ? 1 : 0;
+  // jump1 = (opcode==2|opcode==3) ? 1 : 0;
+  // jump2 = (opcode==0 &(function_code==8|function_code==9)) ? 1 : 0;
   alu_op[1:0] = (opcode==0) ? 2'd2 :
                 (opcode==4|opcode==5) ? 2'd1 :
                 (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 0;

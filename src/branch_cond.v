@@ -24,6 +24,7 @@ module branch_cond(
           1, 17: condition_met = (branch & !neg) ? 1 : 0; //BGEZ, BGEZAL
           0, 16: condition_met = (branch &  neg) ? 1 : 0; //BLTZ, BLTZAL
          endcase
+      default: condition_met = 0;
     endcase
   end
 

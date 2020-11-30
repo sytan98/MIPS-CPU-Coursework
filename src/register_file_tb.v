@@ -2,7 +2,7 @@ module register_file_tb(
 );
     logic clk;
     logic reset;
-
+    logic clk_enable;
     logic[4:0] write_reg_rd, read_reg_a, read_reg_b;
     logic[31:0] write_data, read_data_a, read_data_b;
     logic write_enable;
@@ -68,7 +68,7 @@ module register_file_tb(
             read_reg_a = $urandom_range(0,31);
             read_reg_b = $urandom_range(0,31);
             reset = $urandom_range(0,100)==0;       /* 1% chance of reset in each cycle. */
-
+            clk_enable = $urandom_range(0,1); 
             @(posedge clk)
             #1;
 
@@ -79,7 +79,7 @@ module register_file_tb(
                 end
             end
             else begin
-                if (write_enable==1) begin
+                if( clk_enable && write_enable) begin
                     shadow[write_reg_rd] = write_data;
                 end
             end
@@ -88,7 +88,7 @@ module register_file_tb(
             if (reset==1) begin
                 assert (read_data_a==0 && read_data_b == 0) else $error("read_data_a not zero during reset.");
             end
-            else begin
+            else if (clk_enable) begin
                 assert( read_data_a == shadow[read_reg_a] )
                 else $error("At time %t, read_index_rs=%d, got=%h, ref=%h", $time, read_reg_a, read_data_a, shadow[read_reg_a]);
                 assert( read_data_b == shadow[read_reg_b] )
@@ -103,6 +103,7 @@ module register_file_tb(
 
     register_file regs(
         .clk(clk),
+        .clk_enable(clk_enable),
         .reset(reset),
         .read_reg_a(read_reg_a), .read_reg_b(read_reg_b),
         .read_data_a(read_data_a), .read_data_b(read_data_b),

@@ -59,7 +59,6 @@ module pc_tb();
 
             @(posedge clk)
             #1;
-
             /* Update the shadow regsiters according to the commands given to the PC */
             if (reset==1) begin
               shadow = 32'hBFC00000;
@@ -73,7 +72,7 @@ module pc_tb();
                 assert (pcout == 32'hBFC00000) else $error("PC not reset to reset vector.");
             end
             else begin
-                assert( pcout == shadow )
+                assert(pcout == shadow )
                 else $error("At time %t, PC=%h, shadow=%h", $time, pcout, shadow);
             end
         end

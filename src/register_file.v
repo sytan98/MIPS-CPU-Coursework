@@ -1,5 +1,6 @@
 module register_file(
   input logic clk,
+  input logic clk_enable,
   input logic reset,
 
   input logic[4:0]    read_reg_a,
@@ -18,21 +19,24 @@ module register_file(
     regfile[0] <= 0;
   end
 
-  assign read_data_a = reset==1 ? 0 : regfile[read_reg_a];
-  assign read_data_b = reset==1 ? 0 : regfile[read_reg_b];
+  assign read_data_a = (reset==1) ? 0 : regfile[read_reg_a];
+  assign read_data_b = (reset==1) ? 0 : regfile[read_reg_b];
 
   assign register_v0 = reset==1 ? 0 : regfile[2];
 
   integer index;
-  always_ff @(posedge clk) begin
+  always @(posedge clk) begin
     if (reset==1) begin
         for (index=0; index<32; index=index+1) begin
             regfile[index]<=0;
         end
     end
+    // else if (clk_enable) begin
+
     if (write_enable == 1) begin
       regfile[write_reg_rd] <= write_data;
     end
+    // end
   end
 
 endmodule
