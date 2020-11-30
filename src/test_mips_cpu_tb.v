@@ -2,7 +2,7 @@ module test_mips_cpu_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "addiu1.hex.txt";
-    parameter TIMEOUT_CYCLES = 20;
+    parameter TIMEOUT_CYCLES = 20000;
 
     logic clk;
     logic reset;

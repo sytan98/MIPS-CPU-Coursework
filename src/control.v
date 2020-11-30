@@ -55,7 +55,6 @@ always @(*) begin
   write_enable = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
   hi_wren = (opcode==17) ? 1 : 0;
   lo_wren = (opcode==19) ? 1 : 0;
-  data_into_reg1 = (opcode==40|opcode==41|opcode==43) ? 1 : 0;
   case (opcode)
     40,41,43: data_into_reg1 = 1;
     default: data_into_reg1 = 0;
@@ -72,7 +71,6 @@ always @(*) begin
     3: data_into_reg2 = 1;
     default: data_into_reg2 = 0;
   endcase
-  //data_into_reg2 = (opcode==3|function_code==9|b_code==17|b_code==16) ? 1 : 0;
 end
 
 endmodule
