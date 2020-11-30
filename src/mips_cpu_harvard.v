@@ -42,7 +42,7 @@ logic[31:0] read_data_a, read_data_b, write_data;
 logic[31:0] signed_32, zero_32;
 logic[31:0] immdt_32;
 logic[31:0] alu_in;
-logic[5:0] alu_ctrl_in;
+logic[4:0] alu_ctrl_in;
 logic[31:0] alu_out, lo, hi;
 logic zero;
 
@@ -90,14 +90,14 @@ always @(posedge clk) begin
             state <= HALTED;
             active <= 0;
         end
-        if (instr_address[]) begin
-            state <= DELAY;
-            delay <= 1;
-        end
+        // if (instr_address[]) begin
+        //     state <= DELAY;
+        //     delay <= 1;
+        // end
     end
-    else if (state == DELAY) begin
-        state <= EXEC;
-    end
+    // else if (state == DELAY) begin
+    //     state <= EXEC;
+    // end
     else if (state == HALTED) begin
         //do nothing
         //potential bug, still increments pc?

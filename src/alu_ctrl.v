@@ -2,7 +2,7 @@ module alu_ctrl(
     input logic [1:0] alu_op,
     input logic [5:0] function_code,
     input logic [5:0] opcode,
-    output logic [5:0] alu_ctrl_in
+    output logic [4:0] alu_ctrl_in
 );
     always_comb begin
         if (alu_op == 0) begin  

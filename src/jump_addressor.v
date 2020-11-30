@@ -7,7 +7,7 @@ module jump_addressor(
   logic[27:0] shifted;
 
   always@(*) begin
-    shifted[27:0] = j_immdt<<2;
+    shifted[27:0] = {j_immdt, 2'b00};
     jump_addr[31:28] = pc_4msb;
     jump_addr[27:0] = shifted;
   end

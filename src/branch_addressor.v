@@ -8,7 +8,7 @@ module branch_addressor(
   logic[33:0] shifted;
 
   always@(*) begin
-    shifted[33:0] = (immdt_32<<2);
+    shifted[33:0] = {immdt_32, 2'b00};
     branch_addr = $signed(shifted[31:0]) + $signed(PCnext);
   end
 

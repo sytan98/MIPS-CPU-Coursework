@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-iverilog -Wall -g 2012 test_mips_cpu_tb.v mips_cpu_harvard.v instruction_memory.v \
+iverilog -g 2012 test_mips_cpu_tb.v mips_cpu_harvard.v instruction_memory.v \
 alu.v alu_ctrl.v branch_addressor.v branch_cond.v control.v data_memory.v \
 immdt_extender.v mux_32bit.v mux_5bit.v jump_addressor.v reg_hi.v reg_lo.v \
 register_file.v pc_adder.v pc.v \

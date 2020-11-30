@@ -16,7 +16,7 @@ module register_file(
   logic[31:0] regfile[31:0];
 
   initial begin
-    regfile[0] <= 0;
+    regfile[0] = 0;
   end
 
   assign read_data_a = (reset==1) ? 0 : regfile[read_reg_a];

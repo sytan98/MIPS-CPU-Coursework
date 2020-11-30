@@ -1,5 +1,5 @@
 module alu(
-    input logic[5:0] alu_ctrl_in,
+    input logic[4:0] alu_ctrl_in,
     input logic[31:0] A,
     input logic[31:0] B,
     input logic[4:0] shamt,
