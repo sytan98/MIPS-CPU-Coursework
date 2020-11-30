@@ -2,13 +2,13 @@ module test_mips_cpu_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "addiu1.hex.txt";
-    parameter TIMEOUT_CYCLES = 20000;
+    parameter TIMEOUT_CYCLES = 20;
 
     logic clk;
     logic reset;
     logic clk_enable;
     logic active;
-    
+
     logic data_write;
     logic data_read;
     logic[31:0] instr_address;
@@ -24,7 +24,7 @@ module test_mips_cpu_tb;
 
     instruction_memory #(ROM_INIT_FILE) romInst(clk, instr_address, instr_readdata);
     data_memory ramInst(clk, data_address, data_read, data_write, data_writedata, data_readdata);
-    mips_cpu_harvard cpuInst(clk, reset, active, register_v0, clk_enable, instr_address, instr_readdata, 
+    mips_cpu_harvard cpuInst(clk, reset, active, register_v0, clk_enable, instr_address, instr_readdata,
                     data_address, data_write, data_read, data_writedata, data_readdata, check_state, check_pcout);
 
     // Generate clock
@@ -61,7 +61,7 @@ module test_mips_cpu_tb;
             $display("Register v0=%h", register_v0);
             $display("current instruction address=%d", instr_address);
         end
-        
+
         $display("TB : finished; running=0");
 
         $finish;
