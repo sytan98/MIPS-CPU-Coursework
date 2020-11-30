@@ -63,7 +63,7 @@ typedef enum logic[5:0] {
 } r_function;
 
 typedef enum logic[5:0] {
-        ADDUI = 6'b001000,
+        ADDUI = 6'b001001,
         ANDI = 6'b001100,
         BEQ = 6'b000100,
         BQEZ_AL_BLTZ_AL = 6'b000001,
@@ -154,10 +154,11 @@ always @(posedge clk) begin
         state <= HALTED;
         active <= 0;
         end
-        /*else if (clk_enable == 0) begin
+        else if (clk_enable == 0) begin
             //wait, do nothing, do not update any register (including pc)
-        end*/ 
-        else if (state==EXEC /*& clk_enable==1*/) begin
+        end 
+        else if (state==EXEC & clk_enable==1) begin
+            $display("exec state");
             if(instr_opcode == 6'b000000) begin
                 case(func)
                         ADDU: begin

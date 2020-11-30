@@ -32,7 +32,7 @@ module test_mips_cpu_tb;
         $dumpfile("test_mips_cpu_tb.vcd");
         $dumpvars(0, test_mips_cpu_tb);
         clk=0;
-        //clk_enable=1;
+        clk_enable=1;
 
         repeat (TIMEOUT_CYCLES) begin
             #10;
