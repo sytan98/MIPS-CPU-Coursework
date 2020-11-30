@@ -59,6 +59,8 @@ logic delay;
 assign check_state = state; //for debugging
 assign check_pcout = pcout; //for debugging
 assign instr_address = pcout;
+assign data_writedata = read_data_b;
+assign data_address = alu_out;
 
 initial begin
     state = HALTED;
