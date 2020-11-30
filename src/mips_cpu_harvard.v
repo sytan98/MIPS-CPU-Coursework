@@ -26,6 +26,7 @@ module mips_cpu_harvard(
 typedef enum logic[1:0] {
         FETCH = 2'b00,
         EXEC = 2'b01,
+        DELAY = 2'b10,
         HALTED = 2'b11
 } state_t;
 logic[1:0] state;
@@ -54,6 +55,7 @@ logic[31:0] bmuxout;
 logic[31:0] jmuxout;
 
 logic[31:0] data1muxout;
+logic delay;
 
 assign check_state = state; //for debugging
 assign check_pcout = pcout; //for debugging
@@ -88,9 +90,17 @@ always @(posedge clk) begin
             state <= HALTED;
             active <= 0;
         end
+        if (instr_address[]) begin
+            state <= DELAY;
+            delay <= 1;
+        end
+    end
+    else if (state == DELAY) begin
+        state <= EXEC;
     end
     else if (state == HALTED) begin
         //do nothing
+        //potential bug, still increments pc?
     end
 end
 
