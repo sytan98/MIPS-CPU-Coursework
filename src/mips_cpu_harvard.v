@@ -26,7 +26,6 @@ module mips_cpu_harvard(
 typedef enum logic[1:0] {
         FETCH = 2'b00,
         EXEC = 2'b01,
-        DELAY = 2'b10,
         HALTED = 2'b11
 } state_t;
 logic[1:0] state;
@@ -51,8 +50,8 @@ logic[31:0] lo_read;
 logic condition_met;
 logic[31:0] jump_addr;
 logic[31:0] branch_addr;
-logic[31:0] bmuxout;
-logic[31:0] jmuxout;
+logic[31:0] tgt_addr_0;
+logic[31:0] tgt_addr_1;
 
 logic[31:0] data1muxout;
 logic delay;
@@ -64,6 +63,7 @@ assign instr_address = pcout;
 initial begin
     state = HALTED;
     active = 0;
+    delay = 0;
 end
 
 always @(posedge clk) begin
@@ -77,9 +77,10 @@ always @(posedge clk) begin
         $display("current PC address=%d", pcout);
         $display("current inst address=%d", instr_address);
         $display("current inst =%h", instr_readdata);
-        $display("alu src =%h", alu_src);
-        $display("alu op =%h", alu_op);
-        $display("imd sel =%h", imdt_sel);
+        $display("branch =%h", branch);
+        $display("jump1 =%h", jump1);
+        $display("jump2 =%h", jump2);
+        $display("delay =%h", delay);
         $display("Read Data Address A=%d", instr_readdata[25:21]);
         $display("Read Data Address B=%d", instr_readdata[20:16]);
         $display("Write Data Address=%d", write_reg_rd);
@@ -90,14 +91,13 @@ always @(posedge clk) begin
             state <= HALTED;
             active <= 0;
         end
-        // if (instr_address[]) begin
-        //     state <= DELAY;
-        //     delay <= 1;
-        // end
+        if (branch|jump1|jump2) begin
+            delay <= 1;
+        end
+        else begin
+            delay <= 0;
+        end
     end
-    // else if (state == DELAY) begin
-    //     state <= EXEC;
-    // end
     else if (state == HALTED) begin
         //do nothing
         //potential bug, still increments pc?
@@ -117,14 +117,6 @@ pc_adder pcadder_inst(
   .pcout(pcout),
   .pc_plus4(pc_plus4)
 );
-
-//instruction_memory
-// instruction_memory instmem_inst(
-//   .clk(clk),
-//   .instr_address(instr_address),
-//   .instr_readdata(instr_readdata),
-//   .clk_enable(clk_enable)
-// );
 
 // control
 control control_inst(
@@ -246,35 +238,28 @@ branch_addressor b_calc(
   .branch_addr(branch_addr)
 );
 
-//mux_32bit branchmux
-mux_32bit branchmux(
-  .select(condition_met),
-  .in_0(pc_plus4), .in_1(branch_addr),
-  .out(bmuxout)
-);
-//mux_32bit jump1mux
-mux_32bit jump1mux(
-  .select(jump1),
-  .in_0(bmuxout), .in_1(jump_addr),
-  .out(jmuxout)
-);
-//mux_32bit jump2mux
-mux_32bit jump2mux(
-  .select(jump2),
-  .in_0(jmuxout), .in_1(read_data_a),
-  .out(pcin)
+//PC_address_selector
+PC_address_selector pcsel_inst(
+  .branch_addr(branch_addr),
+  .jump_addr(jump_addr),
+  .read_data_a(read_data_a),
+  .condition_met(condition_met), //from branch_cond block
+  .jump1(jump1), //from control, for J and JAL
+  .jump2(jump2), //from control, for JR and JALR
+  .tgt_addr_0(tgt_addr_0)
 );
 
-// //data_memory
-// // data_memory datamem_inst(
-// //   .clk(clk),
-// //   .data_address(data_address),
-// //   .data_read(data_read),
-// //   .data_write(data_write),
-// //   .data_writedata(data_writedata),
-// //   .data_readdata(data_readdata),
-// //   .clk_enable(clk_enable)
-// // );
+target_addr_holder taddr_inst(
+  .clk(clk),
+  .tgt_addr_0(tgt_addr_0),
+  .tgt_addr_1(tgt_addr_1)
+);
+
+mux_32bit pcmux(
+  .select(delay),
+  .in_0(pc_plus4), .in_1(tgt_addr_1),
+  .out(pcin)
+);
 
 //data_into_reg_mux1
 mux_32bit data1mux(
