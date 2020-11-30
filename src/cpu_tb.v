@@ -14,13 +14,15 @@ module cpu_tb;
     logic[31:0] instr_readdata;
 
 
-    logic[31:0]  data_address;
+    logic[3:0]  data_address;
     logic        data_write;
     logic        data_read;
     logic[31:0]  data_writedata;
     logic[31:0]  data_readdata;
 
     RAM_32x4GB ramInst(clk, instr_address, instr_readdata);
+
+    RAM_32x8_delay0 ramDataInst(clk, data_address, data_write, data_read, data_writedata, data_readdata);
     
     mips_cpu_harvard cpuInst(clk, reset, active, register_v0, clk_enable, instr_address, instr_readdata, data_address, data_write, data_read, data_writedata, data_readdata);
 
@@ -29,7 +31,7 @@ module cpu_tb;
         $dumpfile("cpu.vcd");
         $dumpvars(0, cpu_tb);
         clk=0;
-        data_readdata=32'b00000000000000000000000111111101;
+        //data_readdata=32'b00000000000000000000000111111101;
         repeat (TIMEOUT_CYCLES) begin
             #10;
             clk = !clk;

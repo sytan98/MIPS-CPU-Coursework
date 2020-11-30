@@ -13,7 +13,7 @@ module mips_cpu_harvard(
     input logic[31:0]   instr_readdata,
 
     /* Combinatorial read and single-cycle write access to instructions */
-    output logic[31:0]  data_address,
+    output logic[3:0]  data_address,
     output logic        data_write,
     output logic        data_read,
     output logic[31:0]  data_writedata,
@@ -117,7 +117,7 @@ assign instr_i_opcode = instr_readdata[31:26];
 
 assign instr_address = pc;
 assign register_v0 = regs[2];
-assign data_address = regs[rs] + immediate;
+assign data_address = (regs[rs] + immediate);
 
 assign data_write = (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&~instr_opcode[0]) | (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&instr_opcode[0]) | (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&instr_opcode[1]&instr_opcode[0]);
 
@@ -143,8 +143,8 @@ always @(posedge clk) begin
             $display("CPU : INFO  : Resetting.");
             state <= EXEC;
             pc <= 0;  //WRONG: BFC00000
-            regs[0] <= 32'b00000000000000000000000000000011;
-            regs[1] <= 32'b00000000000000000000000000000111;
+            regs[0] <= 32'b00000000000000000000000000000001;
+            regs[1] <= 32'b00000000000000000000000000000010;
             regs[2] <= 32'b00000000000000000000000000000000;
             for (i=3; i<32; i++) begin
                 regs[i] <= 0;
