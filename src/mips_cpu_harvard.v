@@ -121,7 +121,7 @@ assign data_writedata = instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_
                         (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&~instr_opcode[1]&instr_opcode[0] ? 32'h0000ffff&regs[rt] :
                         (instr_opcode[5]&~instr_opcode[4]&instr_opcode[3]&~instr_opcode[2]&instr_opcode[1]&instr_opcode[0] ? regs[rt] : 32'h00000000));
 
-logic[3:0] npc;
+logic[31:0] npc;
 assign npc = pc+4;
 
 integer i;
@@ -134,8 +134,9 @@ end
 
 always @(posedge clk) begin
         if (reset) begin
+            $display("accessed");
             state <= EXEC;
-            pc <= 32'hbfc00000;
+            pc <= 32'h00000008;        //CORRECT 32'hbfc00000;
             for (i=0; i<32; i++) begin
                 regs[i] <= 0;
             end
@@ -153,10 +154,10 @@ always @(posedge clk) begin
         state <= HALTED;
         active <= 0;
         end
-        else if (clk_enable == 0) begin
+        /*else if (clk_enable == 0) begin
             //wait, do nothing, do not update any register (including pc)
-        end 
-        else if (state==EXEC & clk_enable==1) begin
+        end*/ 
+        else if (state==EXEC /*& clk_enable==1*/) begin
             if(instr_opcode == 6'b000000) begin
                 case(func)
                         ADDU: begin
