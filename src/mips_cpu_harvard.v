@@ -62,12 +62,6 @@ typedef enum logic[5:0] {
         XOR = 6'b100110
 } r_function;
 
-/*
-typedef enum logic[5:0] {
-        J = 6'b000010,
-        JAL = 6'b000011
-} j_function;
-*/
 typedef enum logic[5:0] {
         ADDUI = 6'b001000,
         ANDI = 6'b001100,
@@ -153,14 +147,16 @@ always @(posedge clk) begin
             //do nothing    
         end
         else if (state==FETCH) begin 
-            //for now, do nothing as it's a single-cycle MIPS CPU
-            //if combinatorial delay due to RAM is huge, make RAM synchronous and have to states: fetching instruction and executing instruction) 
+            //not needed since we have combinatorial reads from RAMS 
         end
         else if (pc==0) begin 
         state <= HALTED;
         active <= 0;
+        end
+        else if (clk_enable == 0) begin
+            //wait, do nothing, do not update any register (including pc)
         end 
-        else if (state==EXEC) begin
+        else if (state==EXEC & clk_enable==1) begin
             if(instr_opcode == 6'b000000) begin
                 case(func)
                         ADDU: begin
@@ -517,7 +513,7 @@ always @(posedge clk) begin
                                  pc <= npc;
                             end 
                             if($signed(regs[rs])>=0) begin
-                                jump_address <= temp_pc+4+(immediate<<2);
+                                jump_address <= pc+4+(immediate<<2);
                                 jump <= 1;
                             end
                         end
@@ -544,7 +540,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end
                             if($signed(regs[rs])<0) begin
-                                jump_address <= temp_pc+4+(immediate<<2);
+                                jump_address <= pc+4+(immediate<<2);
                                 jump <= 1;
                             end
                         end
@@ -697,7 +693,6 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    //////////////WRONG////////////////////////////
                     LWL: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!/////
                         if(data_address[1:0] == 2'b00) begin 
                             regs[rt][31:24] <= data_readdata[7:0];
@@ -740,7 +735,6 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    ////////////////////////////////////////////////
                     ORI: begin
                         //WRONG?? WHAT IS CORRECT OPERATION OF OR??
                         regs[rt] = regs[rs]|immediate;
@@ -828,11 +822,6 @@ always @(posedge clk) begin
                     end
                 endcase
             end
-        end
-
-        else begin
-            $display("CPU : ERROR : Processor in unexpected state %b", state);
-            $finish;
         end
     end
 endmodule
