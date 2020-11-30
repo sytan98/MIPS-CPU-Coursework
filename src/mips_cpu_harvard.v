@@ -174,7 +174,7 @@ always @(posedge clk) begin
                         end
                         AND: begin  //WRONG?? loop: one AND for each bit??
                             //PENDING CHECK
-                            regs[rd] <= regs[rs] && regs[rt];
+                            regs[rd] <= regs[rs] & regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
