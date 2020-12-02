@@ -1,0 +1,10 @@
+addiu $16, $0, 0x16
+addiu $15, $0, 0x05
+addiu $21, $15, 0x014
+loop:
+beq $21, $15, end
+subu $21, $21, $15
+j loop
+addiu $16, $16, 0x01 #testing delay slot
+end:
+addu $2, $16, $0 #v0 will have 0x01a, $16 will have 0x01a and $21 will be 0x00
