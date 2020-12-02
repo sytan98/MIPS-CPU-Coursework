@@ -1,15 +1,15 @@
-    addi    $s0, $zero, 1
-    addi    $s1, $zero, 2
-    addi    $t0, $zero, 0
-    addi    $t1, $zero, 0
-
-    addi    $ra, $zero, 20  # byte address of loop
-
+addiu $16, $0, 1
+addiu $17, $0, 5
+lui $31, 0xbfc0
+addiu $31, $0, 0xC
 loop:
-    add     $t0, $t0, $s0
-    add     $t1, $t1, $s1
-    jr      $ra     # loop
-
-    # Should be unreachable
-    addi    $t0, $zero, 0
-    addi    $t1, $zero, 0
+subu $17, $17, $16
+beq $16, $17, end
+addiu $0, $0, 0
+jr $31 
+end:
+addiu $5, $0, 1
+addiu $5, $5, 2
+addiu $5, $5, 3
+jr $0
+addu $2, $5, $0
