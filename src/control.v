@@ -59,7 +59,7 @@ always @(*) begin
   hi_wren = (opcode==17) ? 1 : 0;
   lo_wren = (opcode==19) ? 1 : 0;
   case (opcode)
-    32,33,34,35, 36, 37, 38: data_into_reg1 = 1;
+    32,33,34,35,36,37,38: data_into_reg1 = 1;
     default: data_into_reg1 = 0;
   endcase
   case (opcode)
