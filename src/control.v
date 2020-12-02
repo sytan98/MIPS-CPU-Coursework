@@ -11,7 +11,7 @@ module control(
   output logic alu_src,
   output logic data_read,
   output logic data_write,
-  output logic write_enable,
+  output logic reg_write_enable,
   output logic hi_wren,
   output logic lo_wren,
   output logic data_into_reg1,
@@ -55,7 +55,7 @@ always @(*) begin
     default: data_write = 0;
   endcase
   data_read = (opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
-  write_enable = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
+  reg_write_enable = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
   hi_wren = (opcode==17) ? 1 : 0;
   lo_wren = (opcode==19) ? 1 : 0;
   case (opcode)
@@ -64,15 +64,13 @@ always @(*) begin
   endcase
   case (opcode)
     3: data_into_reg2 = 1;
-    default: data_into_reg2 = 0;
-  endcase
-  case (function_code)
-    3: data_into_reg2 = 1;
-    default: data_into_reg2 = 0;
-  endcase
-  case (b_code)
-    3: data_into_reg2 = 1;
-    default: data_into_reg2 = 0;
+    default: case (function_code)
+               9: data_into_reg2 = 1;
+               default: case(b_code)
+                          16,17: data_into_reg2 = 1;
+                          default: data_into_reg2 = 0;
+                        endcase
+             endcase
   endcase
 end
 

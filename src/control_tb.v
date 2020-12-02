@@ -10,9 +10,9 @@ module control_tb(
     logic jump2; //output - select between output jump1 mux or read data a (JR JALR)
     logic[1:0] alu_op; //output //for alu control
     logic alu_src; //output //controls what is going into alu ()
-    logic data_read; //output //High for load instructions 
+    logic data_read; //output //High for load instructions
     logic data_write; //output //High for store instructions
-    logic write_enable; //output //High for writing reg file (Arithmetic, logical shifts, setting inst, loading)
+    logic reg_write_enable; //output //High for writing reg file (Arithmetic, logical shifts, setting inst, loading)
     logic hi_wren; //output for writing to hi
     logic lo_wren; //output for writing to lo
     logic data_into_reg1; //output //
@@ -30,7 +30,7 @@ module control_tb(
         assert(rd_select == 1) else $fatal(1, "Addu does not select correct register to write");
         assert(alu_op == 2) else $fatal(1, "Addu does not send correct alu_op");
         assert(alu_src == 0) else $fatal(1, "Addu does not send correct alu port b input");
-        assert(write_enable == 1)  else $fatal(1, "Addu cannot save data in reg file");
+        assert(reg_write_enable == 1)  else $fatal(1, "Addu cannot save data in reg file");
         #1
 
         //xor
@@ -41,13 +41,13 @@ module control_tb(
         assert(rd_select == 1) else $fatal(1, "Xor does not select correct register to write");
         assert(alu_op == 2) else $fatal(1, "Xor does not send correct alu_op");
         assert(alu_src == 0) else $fatal(1, "Xor does not send correct alu port b input");
-        assert(write_enable == 1)  else $fatal(1, "Xor cannot save data in reg file");
+        assert(reg_write_enable == 1)  else $fatal(1, "Xor cannot save data in reg file");
         #1
 
         //sltu
 
         //Load/store
-        
+
         //lw
         #1;
         opcode = 35;
@@ -57,7 +57,7 @@ module control_tb(
         assert(alu_op == 0) else $fatal(1, "Lw does not send correct alu_op");
         assert(imdt_sel == 0) else $fatal(1, "Lw does not send sign extended immediate port b input");
         assert(alu_src == 1) else $fatal(1, "Lw does not send correct alu port b input");
-        assert(write_enable == 1)  else $fatal(1, "Lw cannot save data in reg file");
+        assert(reg_write_enable == 1)  else $fatal(1, "Lw cannot save data in reg file");
         #1
 
         //sh
@@ -96,7 +96,7 @@ module control_tb(
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
         assert(jump2 == 1) else $fatal(1, "JALR, mux does not choose read_data_b from reg file, chooses jump address instead");
         assert(rd_select == 1) else $fatal(1, "JALR does not select correct register to write");
-        assert(write_enable == 1)  else $fatal(1, "JALR cannot save data in reg file");
+        assert(reg_write_enable == 1)  else $fatal(1, "JALR cannot save data in reg file");
         assert(data_into_reg2 == 1) else $fatal(1, "JALR does not store current pc+4 at the register");
         #1
         //JR
@@ -109,7 +109,7 @@ module control_tb(
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
         assert(branch == 1) else $fatal(1, "BEQ does not give high signal to branch");
         assert((jump1 == 0) & (jump2 == 0)) else $fatal(1, "BEQ does not send correct mux signal to give branch address to pc");
-        assert(write_enable == 0)  else $fatal(1, "BEQ cannot save data in reg file");
+        assert(reg_write_enable == 0)  else $fatal(1, "BEQ cannot save data in reg file");
         assert(alu_src == 0) else $fatal(1, "BEQ does not do subtraction correctly");
         assert(alu_op == 1) else $fatal(1, "BEQ does not send correct alu op");
         #1
@@ -122,7 +122,7 @@ module control_tb(
         // $display("a=%d, b=%d, r=%d, time=%t", A, B, alu_out, $time);
         assert(branch == 1) else $fatal(1, "BLTZAL does not give high signal to branch");
         assert((jump1 == 0) & (jump2 == 0)) else $fatal(1, "BLTZAL does not send correct mux signal to give branch address to pc");
-        assert(write_enable == 0)  else $fatal(1, "BLTZAL cannot save data in reg file");
+        assert(reg_write_enable == 0)  else $fatal(1, "BLTZAL cannot save data in reg file");
         assert(alu_src == 1) else $fatal(1, "BLTZAL does not do subtraction correctly");
         assert(data_into_reg2 == 1) else $fatal(1, "BLTZAL does not store pc + 4 correctly");
         #1
@@ -144,7 +144,7 @@ module control_tb(
         .alu_src(alu_src),
         .data_read(data_read),
         .data_write(data_write),
-        .write_enable(write_enable),
+        .reg_write_enable(reg_write_enable),
         .hi_wren(hi_wren),
         .lo_wren(lo_wren),
         .data_into_reg1(data_into_reg1),

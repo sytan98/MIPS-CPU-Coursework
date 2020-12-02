@@ -6,8 +6,8 @@ module register_file(
   input logic[4:0]    read_reg_a,
   input logic[4:0]    read_reg_b,
   input logic[4:0]    write_reg_rd,
-  input logic         write_enable,
-  input logic[31:0]   write_data,
+  input logic         reg_write_enable,
+  input logic[31:0]   reg_write_data,
 
   output logic[31:0]  read_data_a, read_data_b,
 
@@ -33,8 +33,8 @@ module register_file(
     end
     // else if (clk_enable) begin
 
-    if (write_enable == 1) begin
-      regfile[write_reg_rd] <= write_data;
+    if (reg_write_enable == 1) begin
+      regfile[write_reg_rd] <= reg_write_data;
     end
     // end
   end

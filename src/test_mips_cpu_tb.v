@@ -54,7 +54,7 @@ module test_mips_cpu_tb;
         $display("check state after reset=%d", check_state);
 
         assert(active==1)
-        else $display("TB : CPU did not set running=1 after reset.");
+        else $display("TB : CPU did not set active=1 after reset.");
 
         while (active) begin
             @(posedge clk);
