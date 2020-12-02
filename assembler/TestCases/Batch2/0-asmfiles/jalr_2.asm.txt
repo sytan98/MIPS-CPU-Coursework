@@ -1,1 +1,28 @@
 what happens if you do jalr but then change r in the delay slot?
+    j start_program  # so the address of loop is always 4
+
+# ===============================================
+# The loop increments counter by 2 each cycle
+# a0 = initial counter
+# a1 = number of cycles
+loop:
+    addi    $t0, $zero, 0       # internal counter
+loop_int:
+    addi    $a0, $a0, 2         # increment counter
+    addi    $t0, $t0, 1         # count
+    bne     $t0, $a1, loop_int
+    jr      $ra
+
+# ===============================================
+start_program:
+
+    # Store the address of loop in register
+    # so we can then branch to it
+    addi    $s0, $zero, 4   # 4 is the address of loop
+
+    addi    $a0, $zero, 0   # counter
+    addi    $a1, $zero, 2   # number of cycles
+
+    jalr    $s0, $ra        # should branch
+
+    addi    $s1, $zero, 29  # to test return

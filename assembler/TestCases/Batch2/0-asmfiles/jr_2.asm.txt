@@ -1,0 +1,15 @@
+    addi    $s0, $zero, 1
+    addi    $s1, $zero, 2
+    addi    $t0, $zero, 0
+    addi    $t1, $zero, 0
+
+    addi    $ra, $zero, 20  # byte address of loop
+
+loop:
+    add     $t0, $t0, $s0
+    add     $t1, $t1, $s1
+    jr      $ra     # loop
+
+    # Should be unreachable
+    addi    $t0, $zero, 0
+    addi    $t1, $zero, 0

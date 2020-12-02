@@ -1,16 +1,16 @@
-j start  # jump to start which is at the back of jal
+j start
 counter:
-addiu $8, $0, 0       # set register 8 to zero
+addiu $8, $0, 0
 loop:
-addiu $4, $4, 2         # add 2 to register 4 for each loop
+addiu $4, $4, 2
 bne $8, $5, loop
-addiu $8, $8, 1         # loop for 2 cycles but ends up being 3 due to it being in the delay slot
+addiu $8, $8, 1
 jr $31
 start:
 addu $0, $0, $0
-addiu $4, $0, 0   # counter
-addiu $5, $0, 2   # number of cycles
+addiu $4, $0, 0
+addiu $5, $0, 2
 jal counter
 addu $0, $0, $0
-addiu $2, $4, 0  #fill up delay slot
-addiu $2, $2, 0x89  # v0 should have 0x89 + 6
+addiu $2, $4, 0
+addiu $2, $2, 0x89
