@@ -45,8 +45,8 @@ logic[4:0] alu_ctrl_in;
 logic[31:0] alu_out, lo, hi;
 logic zero;
 
-logic[31:0] hi_read;
-logic[31:0] lo_read;
+logic[31:0] hi_readdata;
+logic[31:0] lo_readdata;
 logic condition_met;
 logic[31:0] jump_addr;
 logic[31:0] branch_addr;
@@ -116,7 +116,7 @@ end
 
 //PC
 pc pc_inst(
-  .clk(clk), .reset(reset),
+  .clk(clk), .reset(reset), .clk_enable(clk_enable),
   .pcin(pcin),
   .pcout(pcout)
 );
@@ -208,20 +208,20 @@ alu alu_inst(
 
 //reg_hi
 reg_hi reghi_inst(
-  .clk(clk), .reset(reset),
+  .clk(clk), .reset(reset), .clk_enable(clk_enable),
   .hi_wren(hi_wren),
   .read_data_a(read_data_a),
   .hi(hi),
-  .hi_read(hi_read)
+  .hi_readdata(hi_readdata)
 );
 
 //reg_lo
 reg_lo reglo_inst(
-  .clk(clk), .reset(reset),
+  .clk(clk), .reset(reset), .clk_enable(clk_enable),
   .lo_wren(lo_wren),
   .read_data_a(read_data_a),
   .lo(lo),
-  .lo_read(lo_read)
+  .lo_readdata(lo_readdata)
 );
 
 // branch_cond

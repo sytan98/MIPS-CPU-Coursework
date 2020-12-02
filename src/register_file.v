@@ -31,12 +31,9 @@ module register_file(
             regfile[index]<=0;
         end
     end
-    // else if (clk_enable) begin
-
-    if (reg_write_enable == 1) begin
+    else if (reg_write_enable == 1 & clk_enable == 1) begin
       regfile[write_reg_rd] <= reg_write_data;
     end
-    // end
   end
 
 endmodule

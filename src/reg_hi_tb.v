@@ -1,6 +1,6 @@
 module reg_hi_tb();
-  logic clk, reset, hi_wren;
-  logic[31:0] read_data_a, hi, hi_read;
+  logic clk, reset, hi_wren,clk_enable;
+  logic[31:0] read_data_a, hi, hi_readdata;
 
   /* The number of cycles we want to actually test. Increasing the number will make the test-bench
       take longer, but may also uncover edge-cases. */
@@ -56,6 +56,7 @@ module reg_hi_tb();
           hi = $urandom();
           read_data_a = $urandom();
           hi_wren = $urandom_range(0,1);     /* Write enable is toggled randomly. */
+          clk_enable = $urandom_range(0,1);     /* clk enable is toggled randomly. */
           reset = $urandom_range(0,100)==0;       /* 1% chance of reset in each cycle. */
 
           @(posedge clk)
@@ -65,7 +66,7 @@ module reg_hi_tb();
           if (reset==1) begin
               shadow = 0;
           end
-          else if (hi_wren==1) begin
+          else if (hi_wren==1 & clk_enable==1) begin
               shadow = read_data_a;
           end
           else begin
@@ -74,11 +75,11 @@ module reg_hi_tb();
 
           /* Verify the returned results against the expected output from the shadow registers. */
           if (reset==1) begin
-              assert (hi_read == 0) else $error("hi_read not zero during reset.");
+              assert (hi_readdata == 0) else $error("hi_readdata not zero during reset.");
           end
           else begin
-              assert( hi_read == shadow )
-              else $error("At time %t, hi=%d, read_data_a=%d, got=%d, ref=%d", $time, hi, read_data_a, hi_read, shadow);
+              assert( hi_readdata == shadow )
+              else $error("At time %t, hi=%d, read_data_a=%d, got=%d, ref=%d", $time, hi, read_data_a, hi_readdata, shadow);
           end
       end
 
@@ -87,9 +88,9 @@ module reg_hi_tb();
   end
 
   reg_hi reghi_inst(
-    .clk(clk), .reset(reset), .hi_wren(hi_wren),
+    .clk(clk), .reset(reset), .hi_wren(hi_wren), .clk_enable(clk_enable),
     .read_data_a(read_data_a), .hi(hi),
-    .hi_read(hi_read)
+    .hi_readdata(hi_readdata)
   );
 
 endmodule

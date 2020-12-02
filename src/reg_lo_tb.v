@@ -1,6 +1,6 @@
 module reg_lo_tb();
-  logic clk, reset, lo_wren;
-  logic[31:0] read_data_a, lo, lo_read;
+  logic clk, reset, lo_wren, clk_enable;
+  logic[31:0] read_data_a, lo, lo_readdata;
 
   /* The number of cycles we want to actually test. Increasing the number will make the test-bench
       take longer, but may also uncover edge-cases. */
@@ -56,6 +56,7 @@ module reg_lo_tb();
           lo = $urandom();
           read_data_a = $urandom();
           lo_wren = $urandom_range(0,1);     /* Write enable is toggled randomly. */
+          clk_enable = $urandom_range(0,1);     /* Write enable is toggled randomly. */
           reset = $urandom_range(0,100)==0;       /* 1% chance of reset in each cycle. */
 
           @(posedge clk)
@@ -65,7 +66,7 @@ module reg_lo_tb();
           if (reset==1) begin
               shadow = 0;
           end
-          else if (lo_wren==1) begin
+          else if (lo_wren==1 & clk_enable==1) begin
               shadow = read_data_a;
           end
           else begin
@@ -74,11 +75,11 @@ module reg_lo_tb();
 
           /* Verify the returned results against the expected output from the shadow register. */
           if (reset==1) begin
-              assert (lo_read == 0) else $error("lo_read not zero during reset.");
+              assert (lo_readdata == 0) else $error("lo_readdata not zero during reset.");
           end
           else begin
-              assert( lo_read == shadow )
-              else $error("At time %t, lo=%d, read_data_a=%d, got=%d, ref=%d", $time, lo, read_data_a, lo_read, shadow);
+              assert( lo_readdata == shadow )
+              else $error("At time %t, lo=%d, read_data_a=%d, got=%d, ref=%d", $time, lo, read_data_a, lo_readdata, shadow);
           end
       end
 
@@ -87,9 +88,9 @@ module reg_lo_tb();
   end
 
   reg_lo reglo_inst(
-    .clk(clk), .reset(reset), .lo_wren(lo_wren),
+    .clk(clk), .reset(reset), .lo_wren(lo_wren), .clk_enable(clk_enable),
     .read_data_a(read_data_a), .lo(lo),
-    .lo_read(lo_read)
+    .lo_readdata(lo_readdata)
   );
 
 endmodule

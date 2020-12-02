@@ -1,8 +1,8 @@
 module register_file_tb(
 );
     logic clk;
-    logic reset;
     logic clk_enable;
+    logic reset;
     logic[4:0] write_reg_rd, read_reg_a, read_reg_b;
     logic[31:0] reg_write_data, read_data_a, read_data_b;
     logic reg_write_enable;

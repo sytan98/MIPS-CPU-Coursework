@@ -1,5 +1,5 @@
 module pc_tb();
-    logic clk, reset;
+    logic clk, reset, clk_enable;
     logic[31:0] adder_input, adder_output, pcout;
     assign pcout = adder_input;
 
@@ -49,32 +49,35 @@ module pc_tb();
         #1;
 
         /* reset==1 -> Initialise PC to reset vector. */
-        shadow = 32'hBFC00000;
+        shadow = 32'h00000008;
 
 
         /* Run as many test cycles as were requested. */
         repeat (TEST_CYCLES) begin
             /* Generate input*/
             reset = $urandom_range(0,100)==0;       /* 1% chance of reset in each cycle. */
+            clk_enable = $urandom_range(0,1);     /* clk enable is toggled randomly. */
 
             @(posedge clk)
             #1;
             /* Update the shadow regsiters according to the commands given to the PC */
             if (reset==1) begin
-              shadow = 32'hBFC00000;
+              shadow = 32'h00000008;
             end
-            else begin
+            else if (clk_enable == 1) begin
               shadow = shadow + 4;
             end
 
             /* Verify the returned results against the expected output from the shadow registers. */
             if (reset==1) begin
-                assert (pcout == 32'hBFC00000) else $error("PC not reset to reset vector.");
+                assert (pcout == 32'h00000008) else $error("PC not reset to reset vector.");
             end
             else begin
-                assert(pcout == shadow )
+                assert(pcout == shadow)
                 else $error("At time %t, PC=%h, shadow=%h", $time, pcout, shadow);
             end
+
+            $display("reset=%b, clk_enable=%b, PC=%d", reset, clk_enable, pcout);
         end
 
         /* Exit successfully. */
@@ -82,7 +85,7 @@ module pc_tb();
     end
 
     pc pc_inst(
-      .clk(clk), .reset(reset),
+      .clk(clk), .reset(reset), .clk_enable(clk_enable),
       .pcin(adder_output),
       .pcout(adder_input)
     );
