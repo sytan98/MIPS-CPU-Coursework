@@ -50,13 +50,16 @@ always @(*) begin
     0,4,5: alu_src = 0;
     default: alu_src = 1;
   endcase
+  case (opcode)
+    40,41,43: data_write = 1;
+    default: data_write = 0;
+  endcase
   data_read = (opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
-  data_write = (opcode==40|opcode==41|opcode==43) ? 1 : 0;
   write_enable = (opcode==0|opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15|opcode==32|opcode==33|opcode==34|opcode==35|opcode==36|opcode==37|opcode==38) ? 1 : 0;
   hi_wren = (opcode==17) ? 1 : 0;
   lo_wren = (opcode==19) ? 1 : 0;
   case (opcode)
-    40,41,43: data_into_reg1 = 1;
+    32,33,34,35, 36, 37, 38: data_into_reg1 = 1;
     default: data_into_reg1 = 0;
   endcase
   case (opcode)
