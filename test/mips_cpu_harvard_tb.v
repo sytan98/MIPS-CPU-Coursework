@@ -1,4 +1,4 @@
-module test_mips_cpu_tb;
+module mips_cpu_harvard_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "beq1.hex.txt";
@@ -29,8 +29,8 @@ module test_mips_cpu_tb;
 
     // Generate clock
     initial begin
-        $dumpfile("test_mips_cpu_tb.vcd");
-        $dumpvars(0, test_mips_cpu_tb);
+        $dumpfile("mips_cpu_harvard_tb.vcd");
+        $dumpvars(0, mips_cpu_harvard_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
@@ -47,21 +47,20 @@ module test_mips_cpu_tb;
         reset <= 0;
         @(posedge clk);
         reset <= 1;
-        $display("check state before reset=%d", check_state);
+        // $display("check state before reset=%d", check_state);
         @(posedge clk);
         reset <= 0;
         @(posedge clk);
-        $display("check state after reset=%d", check_state);
+        // $display("check state after reset=%d", check_state);
 
         assert(active==1)
         else $display("TB : CPU did not set running=1 after reset.");
 
         while (active) begin
             @(posedge clk);
-            $display("Register v0=%h", register_v0);
-            $display("current instruction address=%d", instr_address);
+            // $display("current instruction address=%d", instr_address);
         end
-
+        $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
 
         $finish;

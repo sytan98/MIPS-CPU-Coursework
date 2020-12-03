@@ -31,10 +31,4 @@ module data_memory(
     end
   end
 
-  // always_ff @(negedge clk) begin
-  //   if (data_read == 1) begin
-  //     data_readdata = memory[data_address[17:2]];
-  //   end
-  // end
-
 endmodule
