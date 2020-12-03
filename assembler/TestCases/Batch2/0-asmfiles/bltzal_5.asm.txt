@@ -1,8 +1,8 @@
 addiu $9, $0, 0x0001
-addiu $8, $0, 0x0001
+addiu $8, $0, 0xfffe
 loop:
-subu $8, $8, $9
-bgezal $8, loop
+addu $8, $8, $9
+bltzal $8, loop
 lui $0, 0x0
 jr $0
 addu $2, $0, $8
