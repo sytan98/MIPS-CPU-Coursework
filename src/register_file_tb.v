@@ -1,11 +1,11 @@
 module register_file_tb(
 );
     logic clk;
-    logic reset;
     logic clk_enable;
+    logic reset;
     logic[4:0] write_reg_rd, read_reg_a, read_reg_b;
-    logic[31:0] write_data, read_data_a, read_data_b;
-    logic write_enable;
+    logic[31:0] reg_write_data, read_data_a, read_data_b;
+    logic reg_write_enable;
 
     /* The number of cycles we want to actually test. Increasing the number will make the test-bench
         take longer, but may also uncover edge-cases. */
@@ -38,7 +38,7 @@ module register_file_tb(
         as necessary in order to keep track of how the entries are expected to change. */
     logic[31:0] shadow[31:0];
 
-    /* Input stimulus and checking process. This starts at the beginning of time, and   
+    /* Input stimulus and checking process. This starts at the beginning of time, and
         is synchronised to the same clock as DUT. */
     integer i;
     initial begin
@@ -63,12 +63,12 @@ module register_file_tb(
         repeat (TEST_CYCLES) begin
             /* Generate random samplings of input to apply in next cycle. */
             write_reg_rd = $urandom_range(0,31);
-            write_data = $urandom();
-            write_enable = $urandom_range(0,1);     /* Write enable is toggled randomly. */
+            reg_write_data = $urandom();
+            reg_write_enable = $urandom_range(0,1);     /* Write enable is toggled randomly. */
             read_reg_a = $urandom_range(0,31);
             read_reg_b = $urandom_range(0,31);
             reset = $urandom_range(0,100)==0;       /* 1% chance of reset in each cycle. */
-            clk_enable = $urandom_range(0,1); 
+            clk_enable = $urandom_range(0,1);
             @(posedge clk)
             #1;
 
@@ -79,8 +79,8 @@ module register_file_tb(
                 end
             end
             else begin
-                if( clk_enable && write_enable) begin
-                    shadow[write_reg_rd] = write_data;
+                if( clk_enable && reg_write_enable) begin
+                    shadow[write_reg_rd] = reg_write_data;
                 end
             end
 
@@ -107,7 +107,7 @@ module register_file_tb(
         .reset(reset),
         .read_reg_a(read_reg_a), .read_reg_b(read_reg_b),
         .read_data_a(read_data_a), .read_data_b(read_data_b),
-        .write_reg_rd(write_reg_rd), .write_data(write_data),
-        .write_enable(write_enable)
+        .write_reg_rd(write_reg_rd), .reg_write_data(reg_write_data),
+        .reg_write_enable(reg_write_enable)
     );
 endmodule
