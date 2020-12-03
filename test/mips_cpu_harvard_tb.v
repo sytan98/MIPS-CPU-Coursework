@@ -1,7 +1,7 @@
 module mips_cpu_harvard_tb;
     timeunit 1ns / 10ps;
 
-    parameter ROM_INIT_FILE = "beq1.hex.txt";
+    parameter ROM_INIT_FILE = "";
     parameter TIMEOUT_CYCLES = 10;
 
     logic clk;
@@ -60,6 +60,7 @@ module mips_cpu_harvard_tb;
         while (active) begin
             @(posedge clk);
             // $display("current instruction address=%d", instr_address);
+            $display("Register v0:%h", register_v0);
         end
         $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
