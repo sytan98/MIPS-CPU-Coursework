@@ -136,7 +136,7 @@ always @(posedge clk) begin
         if (reset) begin
             $display("accessed");
             state <= EXEC;
-            pc <= 32'h00000008;        //CORRECT 32'hbfc00000;
+            pc <= 32'h00000020;        //CORRECT 32'hbfc00000;
             for (i=0; i<32; i++) begin
                 regs[i] <= 0;
             end
