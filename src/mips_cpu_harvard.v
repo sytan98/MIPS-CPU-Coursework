@@ -140,8 +140,8 @@ always @(posedge clk) begin
             for (i=0; i<32; i++) begin
                 regs[i] <= 0;
             end
-            lo<=0;
-            hi<=0;
+            lo<=32'h00000000;
+            hi<=32'h00000000;
             active <= 1;
         end
         else if (state==HALTED) begin
@@ -307,7 +307,7 @@ always @(posedge clk) begin
                         end
                         OR: begin  //WRONG?? DOES IT WORK BIT-BY-BIT??
                         //PENDING CHECK
-                            regs[rd] <= regs[rs] || regs[rt];
+                            regs[rd] <= regs[rs]|regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -425,7 +425,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end           
                         end
-                        XORI: begin  //WRONG?? DOES IT WORK BIT-BY-BIT??
+                        XOR: begin  //WRONG?? DOES IT WORK BIT-BY-BIT??
                         //PENDING CHECK
                             regs[rd] <= regs[rt]^regs[rs];
                             if(jump == 1)begin
@@ -482,7 +482,7 @@ always @(posedge clk) begin
                     ANDI: begin
                         //WRONG?? WHAT IS CORRECT OPERATION OF AND??
                         //PENDING CHECK
-                        regs[rt] = regs[rs]&&immediate;
+                        regs[rt] = regs[rs]&immediate;
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
