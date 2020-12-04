@@ -295,7 +295,7 @@ string jumpTable(int &numberOfSymbols, int &symbolCounter, int &labelsCounter, i
     {
         if(label[i].name == temp_symbol)
         {
-            offset = label[i].address;
+            offset = label[i].address; // Can add 0x3F00000 here if instr is j or jal to make sure addresses are in 0xBFC00000 region
 
             stringstream ht;    //After finding it we increment the address and turn it into binary form.
             ht << hex << offset;
