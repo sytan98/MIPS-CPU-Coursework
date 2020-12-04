@@ -114,8 +114,6 @@ always @(posedge clk) begin
         $display("value going into hi=%h", hi);
         $display("value going into lo=%h", lo);
         // $display("data_readdata=%h", data_readdata);
-        $display("data_into_reg1=%b", data_into_reg1);
-        $display("data_into_reg2=%b", data_into_reg2);
         // $display("data read signal=%h", data_read);
         $display("Data address=%h", data_address);
         if (instr_address == 0) begin
