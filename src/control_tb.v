@@ -127,13 +127,23 @@ module control_tb(
         assert(data_into_reg2 == 1) else $fatal(1, "BLTZAL does not store pc + 4 correctly");
         #1
 
+        //lui
+        #1;
+        opcode = 15;
+        #1;
+        // $display("data_into_reg1=%b", data_into_reg1);
+        // $display("data_into_reg2=%b", data_into_reg2);
+        assert(alu_src == 1) else $fatal(1, "LUI does not choose correct input to ALU");
+        assert(data_into_reg1 == 0) else $fatal(1, "LUI does not choose correct data1 to write into destination register");
+        assert(data_into_reg2 == 0) else $fatal(1, "LUI does not choose correct data2 to write into destination register");
+
         $display("Finished. Total time = %t", $time);
         $finish;
     end
 
     control dut(
         .opcode(opcode),
-        .function_code,
+        .function_code(function_code),
         .b_code(b_code),
         .rd_select(rd_select),
         .imdt_sel(imdt_sel),

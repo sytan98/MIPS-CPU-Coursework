@@ -62,16 +62,7 @@ always @(*) begin
     32,33,34,35,36,37,38: data_into_reg1 = 1;
     default: data_into_reg1 = 0;
   endcase
-  case (opcode)
-    3: data_into_reg2 = 1;
-    default: case (function_code)
-               9: data_into_reg2 = 1;
-               default: case(b_code)
-                          16,17: data_into_reg2 = 1;
-                          default: data_into_reg2 = 0;
-                        endcase
-             endcase
-  endcase
+  data_into_reg2 = ( opcode==3 | (opcode==0 & function_code==9) | (opcode==1 & (b_code==16|b_code==17)) ) ? 1 : 0;
 end
 
 endmodule
