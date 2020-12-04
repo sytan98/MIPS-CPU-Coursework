@@ -2,7 +2,7 @@ module mips_cpu_harvard_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "";
-    parameter TIMEOUT_CYCLES = 10;
+    parameter TIMEOUT_CYCLES = 100;
 
     logic clk;
     logic reset;
