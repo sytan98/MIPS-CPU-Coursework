@@ -63,7 +63,7 @@ typedef enum logic[5:0] {
 } r_function;
 
 typedef enum logic[5:0] {
-        ADDUI = 6'b001001,
+        ADDIU = 6'b001001,
         ANDI = 6'b001100,
         BEQ = 6'b000100,
         BQEZ_AL_BLTZ_AL = 6'b000001,
@@ -468,9 +468,9 @@ always @(posedge clk) begin
             end
             else begin 
                 case(instr_i_opcode)
-                    ADDUI: begin
+                    ADDIU: begin
                         //PENDING CHECK
-                        regs[rt] = regs[rs] + immediate;
+                        regs[rt] = regs[rs] + $signed(immediate);
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
