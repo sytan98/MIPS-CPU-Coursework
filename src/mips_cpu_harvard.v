@@ -470,7 +470,12 @@ always @(posedge clk) begin
                 case(instr_i_opcode)
                     ADDIU: begin
                         //PENDING CHECK
+                        if(immediate[15]==1) begin 
                         regs[rt] = regs[rs] + 32'hffff0000|immediate;   //FIX THIS TO SIGN_EXTEND
+                        end
+                        else begin
+                            regs[rt] = regs[rs] + immediate;
+                        end
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -779,7 +784,7 @@ always @(posedge clk) begin
                         end
                     end
                     SLTI: begin
-                        if($signed(regs[rs])<$signed(immediate)) begin  //FIX SIGN-EXTENDED IMMEDIATE
+                        if($signed(regs[rs])<$signed(immediate)) begin
                             regs[rt]<=1;
                         end
                         else begin 
@@ -794,7 +799,23 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    SLTIU: begin  //FIX SIGN-EXTENDED IMMEDIATE
+                    SLTIU: begin 
+                        if(immediate[15]==1) begin 
+                            if(regs[rs]< (32'hffff0000|immediate)) begin
+                                regs[rt]<=1;
+                            end
+                            else begin 
+                                regs[rt]<=0;
+                           end                        
+                        end
+                        else begin
+                            if(regs[rs]<immediate) begin
+                                regs[rt]<=1;
+                            end
+                            else begin 
+                                regs[rt]<=0;
+                            end
+                        end
                         if(regs[rs]<immediate) begin
                             regs[rt]<=1;
                         end
