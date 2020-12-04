@@ -470,7 +470,7 @@ always @(posedge clk) begin
                 case(instr_i_opcode)
                     ADDIU: begin
                         //PENDING CHECK
-                        regs[rt] = regs[rs] + $signed(immediate);
+                        regs[rt] = regs[rs] + 32'hffff0000|immediate;   //FIX THIS TO SIGN_EXTEND
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -779,7 +779,7 @@ always @(posedge clk) begin
                         end
                     end
                     SLTI: begin
-                        if($signed(regs[rs])<$signed(immediate)) begin
+                        if($signed(regs[rs])<$signed(immediate)) begin  //FIX SIGN-EXTENDED IMMEDIATE
                             regs[rt]<=1;
                         end
                         else begin 
@@ -794,7 +794,7 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    SLTIU: begin
+                    SLTIU: begin  //FIX SIGN-EXTENDED IMMEDIATE
                         if(regs[rs]<immediate) begin
                             regs[rt]<=1;
                         end
