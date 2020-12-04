@@ -30,6 +30,7 @@ iverilog -g 2012 \
 ./src/alu.v ./src/mips_cpu_harvard.v ./src/alu_ctrl.v ./src/branch_addressor.v ./src/branch_cond.v ./src/control.v \
 ./src/immdt_extender.v ./src/mux_32bit.v ./src/mux_5bit.v ./src/jump_addressor.v ./src/reg_hi.v ./src/reg_lo.v \
 ./src/register_file.v ./src/pc_adder.v ./src/pc.v ./src/target_addr_holder.v ./src/PC_address_selector.v \
+./src/reg_writedata_selector.v \
 -s mips_cpu_harvard_tb \
 -P mips_cpu_harvard_tb.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
 -o ./test/simulator/mips_cpu_harvard_tb_${TESTCASE_ID}.sim

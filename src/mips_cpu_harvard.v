@@ -35,7 +35,7 @@ logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
 logic [1:0]rd_select;
-logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
+logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, datamem_to_reg, link_to_reg, mfhi, mflo, multdiv;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
 logic[31:0] read_data_a, read_data_b, reg_write_data;
@@ -164,8 +164,9 @@ control control_inst(
   .reg_write_enable(reg_write_enable),
   .hi_wren(hi_wren),
   .lo_wren(lo_wren),
-  .data_into_reg1(data_into_reg1),
-  .data_into_reg2(data_into_reg2)
+  .datamem_to_reg(datamem_to_reg),
+  .link_to_reg(link_to_reg),
+  .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv)
 );
 
 //mux_5bit rd_mux
@@ -231,7 +232,7 @@ alu alu_inst(
 //reg_hi
 reg_hi reghi_inst(
   .clk(clk), .reset(reset), .clk_enable(clk_enable),
-  .hi_wren(hi_wren),
+  .hi_wren(hi_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .hi(hi),
   .hi_readdata(hi_readdata)
@@ -240,7 +241,7 @@ reg_hi reghi_inst(
 //reg_lo
 reg_lo reglo_inst(
   .clk(clk), .reset(reset), .clk_enable(clk_enable),
-  .lo_wren(lo_wren),
+  .lo_wren(lo_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .lo(lo),
   .lo_readdata(lo_readdata)
@@ -293,18 +294,26 @@ mux_32bit pcmux(
   .out(pcin)
 );
 
-//data_into_reg_mux1
-mux_32bit data1mux(
-  .select(data_into_reg1),
-  .in_0(alu_out), .in_1(data_readdata),
-  .out(data1muxout)
-);
+// //data_into_reg_mux1
+// mux_32bit data1mux(
+//   .select(datamem_to_reg),
+//   .in_0(alu_out), .in_1(data_readdata),
+//   .out(data1muxout)
+// );
+//
+// //data_into_reg_mux2
+// mux_32bit data2mux(
+//   .select(link_to_reg),
+//   .in_0(data1muxout), .in_1(pc_plus4),
+//   .out(reg_write_data)
+// );
 
-//data_into_reg_mux2
-mux_32bit data2mux(
-  .select(data_into_reg2),
-  .in_0(data1muxout), .in_1(pc_plus4),
-  .out(reg_write_data)
+reg_writedata_selector regwritedata_sel(
+  .alu_out(alu_out), .data_readdata(data_readdata), .pc_plus4(pc_plus4),
+  .hi_readdata(hi_readdata), .lo_readdata(lo_readdata),
+  .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
+  .mfhi(mfhi), .mflo(mflo),
+  .reg_write_data(reg_write_data)
 );
 
 endmodule
