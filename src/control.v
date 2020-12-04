@@ -2,7 +2,7 @@ module control(
   input logic[5:0] opcode,
   input logic[5:0] function_code,
   input logic[4:0] b_code,
-  output logic rd_select,
+  output logic [1:0] rd_select,
   output logic imdt_sel,
   output logic branch,
   output logic jump1,
@@ -21,6 +21,8 @@ module control(
 always @(*) begin
   case (opcode)
     0: rd_select = 1;
+    1: rd_select = (b_code==16|b_code==17) ? 2:0;
+    3: rd_select = 2;
     default: rd_select = 0;
   endcase
   case (opcode)
@@ -28,7 +30,7 @@ always @(*) begin
     default: imdt_sel = 0;
   endcase
   case (opcode)
-    1,4,6,7: branch = 1;
+    1,4,5,6,7: branch = 1;
     default: branch = 0;
   endcase
   case (opcode)

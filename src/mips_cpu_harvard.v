@@ -34,7 +34,8 @@ logic[1:0] state;
 logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
-logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
+logic [1:0]rd_select;
+logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
 logic[31:0] read_data_a, read_data_b, reg_write_data;
@@ -76,36 +77,48 @@ always @(posedge clk) begin
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
-        $display("current PC address=%d", pcout);
-        // $display("current inst address=%d", instr_address);
+
+        //Current address
+        $display("current PC address=%h", pcout);
+        $display("current inst address=%h", instr_address);
         $display("current inst =%h", instr_readdata);
-        // $display("branch =%h", branch);
-        // $display("jump1 =%h", jump1);
-        // $display("jump2 =%h", jump2);
-        // $display("condition_met =%h", condition_met);
-        // $display("tgt_addr_0 =%d", tgt_addr_0);
-        // $display("tgt_addr_1 =%d", tgt_addr_1);
-        // $display("delay =%h", delay);
+
+        //Branch Related
+        $display("opcode =%d", instr_readdata[31:26]);
+        $display("branch =%h", branch);
+        $display("jump1 =%h", jump1);
+        $display("jump2 =%h", jump2);
+        $display("condition_met =%h", condition_met);
+        $display("tgt_addr_0 =%h", tgt_addr_0);
+        $display("tgt_addr_1 =%h", tgt_addr_1);
+        $display("delay =%h", delay);
+        $display("branch address =%h", branch_addr);
         // $display("next PC =%d", pcin);
-        // $display("Reading Register A=%d", instr_readdata[25:21]);
-        // $display("Reading Register B=%d", instr_readdata[20:16]);
-        // $display("Data from Reg A=%h", read_data_a);
-        // $display("Data from Reg B=%h", read_data_b);
-        // $display("Register being written to=%d", write_reg_rd);
-        // $display("Reg Write Data=%h", reg_write_data);
-        // $display("Write Data to data mem=%h", data_write);
+
+        //Register Values
+        $display("Reading Register A=%d", instr_readdata[25:21]);
+        $display("Reading Register B=%d", instr_readdata[20:16]);
+        $display("Data from Reg A=%h", read_data_a);
+        $display("Data from Reg B=%h", read_data_b);
+        $display("Register being written to=%d", write_reg_rd);
+        $display("Reg Write Data=%h", reg_write_data);
+        $display("Write Data to data mem=%h", data_write);
         // $display("Data1 MUX=%h", data_into_reg1);
         // $display("Data2 MUX=%h", data_into_reg2);
         // $display("Data read data=%h", data_readdata);
         // $display("sign extended immediate=%h", immdt_32);
-        // $display("alu_src=%b", alu_src);
-        // $display("alu out=%h", alu_out);
+
+        //ALU 
+        $display("alu_src=%b", alu_src);
+        $display("alu out=%h", alu_out);
+        $display("value going into hi=%h", hi);
+        $display("value going into lo=%h", lo);
         // $display("data_readdata=%h", data_readdata);
-        // $display("data_into_reg1=%b", data_into_reg1);
-        // $display("data_into_reg2=%b", data_into_reg2);
+        $display("data_into_reg1=%b", data_into_reg1);
+        $display("data_into_reg2=%b", data_into_reg2);
         // $display("data read signal=%h", data_read);
-        // $display("Data address=%h", data_address);
-        if (instr_address[15:0] == 0) begin
+        $display("Data address=%h", data_address);
+        if (instr_address == 0) begin
             state <= HALTED;
             active <= 0;
         end
@@ -138,7 +151,7 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[15:11]),
+  .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[20:16]),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
@@ -236,7 +249,7 @@ reg_lo reglo_inst(
 // branch_cond
 branch_cond branchcond_inst(
   .branch(branch),
-  .opcode(instr_readdata[31:26]), .b_code(instr_readdata[15:11]),
+  .opcode(instr_readdata[31:26]), .b_code(instr_readdata[20:16]),
   .equal(zero),
   .read_data_a(read_data_a),
   .condition_met(condition_met)
@@ -252,7 +265,7 @@ jump_addressor j_calc(
 // branch_addressor
 branch_addressor b_calc(
   .immdt_32(immdt_32),
-  .PCnext(pc_plus4),
+  .PCnext(pcout),
   .branch_addr(branch_addr)
 );
 
