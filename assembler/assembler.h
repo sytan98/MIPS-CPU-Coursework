@@ -257,10 +257,12 @@ string shiftTable(int &numberOfSymbols, int &symbolCounter)
     //The algorithm below takes the string decimal and converts it into a integer decimal value, then converts
     //It to a 5-bit binary representation of the number.
 
-    int decimal = atoi(temp_symbol.c_str());
+    // int decimal = atoi(temp_symbol.c_str());
+
+    // we want it in hex
 
     stringstream ht;
-    ht << hex << decimal;
+    ht << hex << temp_symbol;
 
     stringstream bt;
     bt << hex << ht.str();
