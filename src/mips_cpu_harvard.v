@@ -372,7 +372,7 @@ always @(posedge clk) begin
                         end
                         SRA: begin 
                         //PENDING CHECK
-                            regs[rd] <= $signed(regs[rt]) >> sa;
+                            regs[rd] <= $signed(regs[rt]) >>> sa;
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
