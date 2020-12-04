@@ -34,7 +34,7 @@ logic[1:0] state;
 logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
-logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, data_into_reg1, data_into_reg2;
+logic rd_select, imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, datamem_to_reg, link_to_reg, mfhi, mflo, multdiv;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
 logic[31:0] read_data_a, read_data_b, reg_write_data;
@@ -76,10 +76,12 @@ always @(posedge clk) begin
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
-        $display("current PC address=%d", pcout);
-        // $display("current inst address=%d", instr_address);
-        $display("current inst =%h", instr_readdata);
+        $display("Current PC address=%d", pcout);
+        $display("current inst address=%d", instr_address);
+        $display("Current inst =%h", instr_readdata);
+        $display("opcode=%d", instr_readdata[31:26]);
         // $display("branch =%h", branch);
+        // $display("zero =%h", zero);
         // $display("jump1 =%h", jump1);
         // $display("jump2 =%h", jump2);
         // $display("condition_met =%h", condition_met);
@@ -87,25 +89,30 @@ always @(posedge clk) begin
         // $display("tgt_addr_1 =%d", tgt_addr_1);
         // $display("delay =%h", delay);
         // $display("next PC =%d", pcin);
-        // $display("Reading Register A=%d", instr_readdata[25:21]);
-        // $display("Reading Register B=%d", instr_readdata[20:16]);
-        // $display("Data from Reg A=%h", read_data_a);
-        // $display("Data from Reg B=%h", read_data_b);
-        // $display("Register being written to=%d", write_reg_rd);
-        // $display("Reg Write Data=%h", reg_write_data);
-        // $display("Write Data to data mem=%h", data_write);
-        // $display("Data1 MUX=%h", data_into_reg1);
-        // $display("Data2 MUX=%h", data_into_reg2);
-        // $display("Data read data=%h", data_readdata);
+        $display("Reading Register A=%d", instr_readdata[25:21]);
+        $display("Reading Register B=%d", instr_readdata[20:16]);
+        $display("Data from Reg A=%h", read_data_a);
+        $display("Data from Reg B=%h", read_data_b);
+        $display("Register being written to=%d", write_reg_rd);
+        $display("Reg Write Data=%h", reg_write_data);
+        // $display("datamem_to_reg=%h", datamem_to_reg);
+        // $display("link_to_reg=%h", link_to_reg);
+        $display("mfhi=%h", mfhi);
+        $display("mflo=%h", mflo);
+        $display("multdiv=%h", multdiv);
         // $display("sign extended immediate=%h", immdt_32);
         // $display("alu_src=%b", alu_src);
-        // $display("alu out=%h", alu_out);
+        $display("alu out=%h", alu_out);
+        $display("hi_readdata=%h", hi_readdata);
+        $display("lo_readdata=%h", lo_readdata);
         // $display("data_readdata=%h", data_readdata);
-        // $display("data_into_reg1=%b", data_into_reg1);
-        // $display("data_into_reg2=%b", data_into_reg2);
+        // $display("data written to data mem=%h", data_writedata);
         // $display("data read signal=%h", data_read);
+        // $display("data write signal=%h", data_write);
         // $display("Data address=%h", data_address);
-        if (instr_address[15:0] == 0) begin
+
+
+        if (instr_address == 0) begin
             state <= HALTED;
             active <= 0;
         end
@@ -138,7 +145,7 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[15:11]),
+  .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[20:16]),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
@@ -151,8 +158,9 @@ control control_inst(
   .reg_write_enable(reg_write_enable),
   .hi_wren(hi_wren),
   .lo_wren(lo_wren),
-  .data_into_reg1(data_into_reg1),
-  .data_into_reg2(data_into_reg2)
+  .datamem_to_reg(datamem_to_reg),
+  .link_to_reg(link_to_reg),
+  .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv)
 );
 
 //mux_5bit rd_mux
@@ -218,7 +226,7 @@ alu alu_inst(
 //reg_hi
 reg_hi reghi_inst(
   .clk(clk), .reset(reset), .clk_enable(clk_enable),
-  .hi_wren(hi_wren),
+  .hi_wren(hi_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .hi(hi),
   .hi_readdata(hi_readdata)
@@ -227,7 +235,7 @@ reg_hi reghi_inst(
 //reg_lo
 reg_lo reglo_inst(
   .clk(clk), .reset(reset), .clk_enable(clk_enable),
-  .lo_wren(lo_wren),
+  .lo_wren(lo_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .lo(lo),
   .lo_readdata(lo_readdata)
@@ -280,18 +288,26 @@ mux_32bit pcmux(
   .out(pcin)
 );
 
-//data_into_reg_mux1
-mux_32bit data1mux(
-  .select(data_into_reg1),
-  .in_0(alu_out), .in_1(data_readdata),
-  .out(data1muxout)
-);
+// //data_into_reg_mux1
+// mux_32bit data1mux(
+//   .select(datamem_to_reg),
+//   .in_0(alu_out), .in_1(data_readdata),
+//   .out(data1muxout)
+// );
+//
+// //data_into_reg_mux2
+// mux_32bit data2mux(
+//   .select(link_to_reg),
+//   .in_0(data1muxout), .in_1(pc_plus4),
+//   .out(reg_write_data)
+// );
 
-//data_into_reg_mux2
-mux_32bit data2mux(
-  .select(data_into_reg2),
-  .in_0(data1muxout), .in_1(pc_plus4),
-  .out(reg_write_data)
+reg_writedata_selector regwritedata_sel(
+  .alu_out(alu_out), .data_readdata(data_readdata), .pc_plus4(pc_plus4),
+  .hi_readdata(hi_readdata), .lo_readdata(lo_readdata),
+  .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
+  .mfhi(mfhi), .mflo(mflo),
+  .reg_write_data(reg_write_data)
 );
 
 endmodule
