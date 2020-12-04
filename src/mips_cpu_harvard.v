@@ -76,32 +76,36 @@ always @(posedge clk) begin
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
-        $display("current PC address=%h", pcout);
-        $display("current inst address=%h", instr_address);
+        $display("current PC address=%d", pcout);
+        // $display("current inst address=%d", instr_address);
         $display("current inst =%h", instr_readdata);
         // $display("branch =%h", branch);
         // $display("jump1 =%h", jump1);
         // $display("jump2 =%h", jump2);
+        // $display("condition_met =%h", condition_met);
+        // $display("tgt_addr_0 =%d", tgt_addr_0);
+        // $display("tgt_addr_1 =%d", tgt_addr_1);
         // $display("delay =%h", delay);
-        $display("Reading Register A=%d", instr_readdata[25:21]);
-        $display("Reading Register B=%d", instr_readdata[20:16]);
-        $display("Register being written to=%d", write_reg_rd);
+        // $display("next PC =%d", pcin);
+        // $display("Reading Register A=%d", instr_readdata[25:21]);
+        // $display("Reading Register B=%d", instr_readdata[20:16]);
         // $display("Data from Reg A=%h", read_data_a);
-        $display("Do we write data=%h", data_write);
-        $display("Data to write=%h", data_writedata);
+        // $display("Data from Reg B=%h", read_data_b);
+        // $display("Register being written to=%d", write_reg_rd);
+        // $display("Reg Write Data=%h", reg_write_data);
+        // $display("Write Data to data mem=%h", data_write);
         // $display("Data1 MUX=%h", data_into_reg1);
         // $display("Data2 MUX=%h", data_into_reg2);
-        $display("Data read data=%h", data_readdata);
-        $display("sign extended immediate=%h", immdt_32);
-        $display("alu_src=%b", alu_src);
-        $display("alu out=%h", alu_out);
+        // $display("Data read data=%h", data_readdata);
+        // $display("sign extended immediate=%h", immdt_32);
+        // $display("alu_src=%b", alu_src);
+        // $display("alu out=%h", alu_out);
         // $display("data_readdata=%h", data_readdata);
-        $display("data_into_reg1=%b", data_into_reg1);
-        $display("data_into_reg2=%b", data_into_reg2);
-        $display("Reg Write Data=%h", reg_write_data);
-        $display("data read signal=%h", data_read);
-        $display("Data address=%h", data_address);
-        if (instr_address == 0) begin
+        // $display("data_into_reg1=%b", data_into_reg1);
+        // $display("data_into_reg2=%b", data_into_reg2);
+        // $display("data read signal=%h", data_read);
+        // $display("Data address=%h", data_address);
+        if (instr_address[15:0] == 0) begin
             state <= HALTED;
             active <= 0;
         end
@@ -257,6 +261,7 @@ PC_address_selector pcsel_inst(
   .branch_addr(branch_addr),
   .jump_addr(jump_addr),
   .read_data_a(read_data_a),
+  .pc_plus4(pc_plus4),
   .condition_met(condition_met), //from branch_cond block
   .jump1(jump1), //from control, for J and JAL
   .jump2(jump2), //from control, for JR and JALR

@@ -20,10 +20,11 @@ module branch_cond(
       5: condition_met = (branch & !equal) ? 1 : 0; //BNE
       7: condition_met = (branch & !zero & !neg) ? 1 : 0;//BGTZ
       6: condition_met = (branch & (zero | neg)) ? 1 : 0; //BLEZ
-      1: case(b_code)
-          1, 17: condition_met = (branch & !neg) ? 1 : 0; //BGEZ, BGEZAL
-          0, 16: condition_met = (branch &  neg) ? 1 : 0; //BLTZ, BLTZAL
-         endcase
+      1: condition_met = ( ((b_code==1|b_code==17)&(branch&!neg)) | ((b_code==0|b_code==16)&(branch&neg)) ) ? 1 : 0; //BGEZ,BGEZAL, BLTZ,BLTZAL
+         // case(b_code)
+         //  1, 17: condition_met = (branch & !neg) ? 1 : 0; //BGEZ, BGEZAL
+         //  0, 16: condition_met = (branch &  neg) ? 1 : 0; //BLTZ, BLTZAL
+         // endcase
       default: condition_met = 0;
     endcase
   end
