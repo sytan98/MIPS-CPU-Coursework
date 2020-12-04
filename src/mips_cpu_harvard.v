@@ -477,9 +477,9 @@ always @(posedge clk) begin
                         else begin
                             regs[rt] = regs[rs] + immediate;
                         end
-                        $display("rs = %h", (regs[rs]));
-                        $display("immidiate = %h", 32'hffff0000|immediate);
-                        $display("rt = %h", (regs[rt]));
+                        //$display("rs = %h", (regs[rs]));
+                        //$display("immidiate = %h", 32'hffff0000|immediate);
+                        //$display("rt = %h", (regs[rt]));
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
