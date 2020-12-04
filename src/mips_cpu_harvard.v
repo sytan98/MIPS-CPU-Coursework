@@ -470,12 +470,16 @@ always @(posedge clk) begin
                 case(instr_i_opcode)
                     ADDIU: begin
                         //PENDING CHECK
+                       
                         if(immediate[15]==1) begin 
-                        regs[rt] = regs[rs] + 32'hffff0000|immediate;   //FIX THIS TO SIGN_EXTEND
+                            regs[rt] = regs[rs] + (32'hffff0000|immediate);   
                         end
                         else begin
                             regs[rt] = regs[rs] + immediate;
                         end
+                        $display("rs = %h", (regs[rs]));
+                        $display("immidiate = %h", 32'hffff0000|immediate);
+                        $display("rt = %h", (regs[rt]));
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
