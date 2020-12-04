@@ -170,7 +170,8 @@ always @(posedge clk) begin
                             end
                             else begin
                                 pc <= npc;
-                            end                    
+                            end
+                            $display("rd after addu: %h", regs[rd]);                    
                         end
                         AND: begin  //WRONG?? loop: one AND for each bit??
                             //PENDING CHECK
@@ -187,8 +188,8 @@ always @(posedge clk) begin
                             //tested 7/2 >> WORKS
                             //tested -7/2 >> WORKS
                             //tested 7/-2 >> WORKS 
-                            hi <= $signed(regs[rs])/$signed(regs[rt]);
-                            lo <= $signed(regs[rs])%$signed(regs[rt]);
+                            lo <= $signed(regs[rs])/$signed(regs[rt]);
+                            hi <= $signed(regs[rs])%$signed(regs[rt]);
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -200,15 +201,17 @@ always @(posedge clk) begin
                         DIVU: begin
                             //tested 7/2 >> works
                             //tested large values (with MSB=1) >> works
-                            hi <= regs[rs]/regs[rt];
-                            lo <= regs[rs]%regs[rt];
+                            lo <= regs[rs]/regs[rt];
+                            hi <= regs[rs]%regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
                             end
                             else begin
                                 pc <= npc;
-                            end           
+                            end     
+                                $display("rs divided: %h", regs[rs]);
+                                $display("rt divider: %h", regs[rt]); 
                         end
                         JALR: begin
                             //pending check on delay, prob. works
