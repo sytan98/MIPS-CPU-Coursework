@@ -10,7 +10,7 @@ module pc(
 	always @(posedge clk) begin
 		if (reset == 1) begin
 			$display("PC : INFO  : Resetting pc.");
-			pcout <= 32'h00000020;
+			pcout <= 32'hBFC00000;
 		end
 		else if (clk_enable == 1) begin
 			pcout <= pcin;

@@ -59,7 +59,7 @@ module mips_cpu_harvard_tb;
 
         while (active) begin
             @(posedge clk);
-            // $display("current instruction address=%d", instr_address);
+            $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
         end
         $display("Output at v0:%h", register_v0);
