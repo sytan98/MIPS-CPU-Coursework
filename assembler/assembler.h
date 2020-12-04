@@ -295,7 +295,7 @@ string jumpTable(int &numberOfSymbols, int &symbolCounter, int &labelsCounter, i
     {
         if(label[i].name == temp_symbol)
         {
-            offset = label[i].address; // Can add 0x3F00000 here if instr is j or jal to make sure addresses are in 0xBFC00000 region
+            offset = label[i].address+66060288; // Can add 0x3F00000 here if instr is j or jal to make sure addresses are in 0xBFC00000 region
 
             stringstream ht;    //After finding it we increment the address and turn it into binary form.
             ht << hex << offset;
@@ -590,13 +590,13 @@ string symbolPrint(int &addr, int &numberOfSymbols, int &symbolCounter, int &lab
         {
             temp = "000000";
             Dst = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + "0000000000" + Dst + "010000";
+            temp = temp + "0000000000" + Dst + "00000010000";
         }
         else if(temp_symbol == "mflo")
         {
             temp = "000000";
             Dst = registerTable(numberOfSymbols, symbolCounter);
-            temp = temp + "0000000000" + Dst + "010010";
+            temp = temp + "0000000000" + Dst + "00000010010";
         }
         else if(temp_symbol == "mthi")
         {
