@@ -134,7 +134,7 @@ end
 
 always @(posedge clk) begin
         if (reset) begin
-            $display("accessed");
+            //$display("accessed");
             state <= EXEC;
             pc <= 32'h00000020;        //CORRECT 32'hbfc00000;
             for (i=0; i<32; i++) begin
@@ -158,11 +158,10 @@ always @(posedge clk) begin
             //wait, do nothing, do not update any register (including pc)
         end 
         else if (state==EXEC & clk_enable==1) begin
-            $display("exec state");
+            //$display("exec state");
             if(instr_opcode == 6'b000000) begin
                 case(func)
                         ADDU: begin
-                            //WORKS
                             regs[rd] <= regs[rs] + regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -171,10 +170,9 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end
-                            $display("rd after addu: %h", regs[rd]);                    
+                            //$display("rd after addu: %h", regs[rd]);                    
                         end
-                        AND: begin  //WRONG?? loop: one AND for each bit??
-                            //PENDING CHECK
+                        AND: begin
                             regs[rd] <= regs[rs] & regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -184,10 +182,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end           
                         end
-                        DIV: begin 
-                            //tested 7/2 >> WORKS
-                            //tested -7/2 >> WORKS
-                            //tested 7/-2 >> WORKS 
+                        DIV: begin
                             lo <= $signed(regs[rs])/$signed(regs[rt]);
                             hi <= $signed(regs[rs])%$signed(regs[rt]);
                             if(jump == 1)begin
@@ -199,8 +194,6 @@ always @(posedge clk) begin
                             end           
                         end
                         DIVU: begin
-                            //tested 7/2 >> works
-                            //tested large values (with MSB=1) >> works
                             lo <= regs[rs]/regs[rt];
                             hi <= regs[rs]%regs[rt];
                             if(jump == 1)begin
@@ -210,11 +203,10 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end     
-                                $display("rs divided: %h", regs[rs]);
-                                $display("rt divider: %h", regs[rt]); 
+                                //$display("rs divided: %h", regs[rs]);
+                               // $display("rt divider: %h", regs[rt]); 
                         end
                         JALR: begin
-                            //pending check on delay, prob. works
                             regs[rd]<=pc+8;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -227,7 +219,6 @@ always @(posedge clk) begin
                             jump <= 1;
                         end
                         JR: begin
-                            //pending check on delay, prob. works
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -239,7 +230,6 @@ always @(posedge clk) begin
                             jump <= 1;
                         end
                         MTHI: begin
-                            //WORKS
                             hi <= regs[rs];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -250,7 +240,6 @@ always @(posedge clk) begin
                             end 
                         end
                         MTLO: begin
-                            //WORKS
                             lo <= regs[rs];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -261,7 +250,6 @@ always @(posedge clk) begin
                             end 
                         end
                         MFHI: begin
-                            //WORKS  
                             regs[rd] <= hi;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -272,7 +260,6 @@ always @(posedge clk) begin
                             end
                         end
                         MFLO: begin
-                            //WORKS  
                             regs[rd] <= lo;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -283,7 +270,6 @@ always @(posedge clk) begin
                             end
                         end
                         MULT: begin
-                            //PENDING CHECK
                             mul_result = $signed(regs[rs])*$signed(regs[rt]); 
                             hi <= mul_result[63:32];
                             lo <= mul_result[31:0];
@@ -296,7 +282,6 @@ always @(posedge clk) begin
                             end  
                         end
                         MULTU: begin
-                            //WORKS (7*2=14)
                             mul_result = regs[rs]*regs[rt]; 
                             hi <= mul_result[63:32];
                             lo <= mul_result[31:0];
@@ -308,8 +293,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end   
                         end
-                        OR: begin  //WRONG?? DOES IT WORK BIT-BY-BIT??
-                        //PENDING CHECK
+                        OR: begin 
                             regs[rd] <= regs[rs]|regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -320,7 +304,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SLL: begin  
-                        //PENDING CHECK
                             regs[rd] <= regs[rt] << sa;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -331,7 +314,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SLLV: begin 
-                        //PENDING CHECK
                             regs[rd] <= regs[rt] << regs[rs][4:0];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -341,8 +323,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end           
                         end
-                        SLT: begin 
-                        //PENDING CHECK
+                        SLT: begin
                             if($signed(regs[rs])<$signed(regs[rt])) begin
                                 regs[rd] <= 1;
                             end
@@ -358,7 +339,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SLTU: begin 
-                        //PENDING CHECK
                             if(regs[rs]<regs[rt]) begin
                                 regs[rd] <= 1;
                             end
@@ -374,7 +354,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SRA: begin 
-                        //PENDING CHECK
                             regs[rd] <= $signed(regs[rt]) >>> sa;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -385,7 +364,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SRAV: begin 
-                        //PENDING CHECK
                             regs[rd] <= $signed(regs[rt]) >> regs[rs][4:0];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -396,7 +374,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SRL: begin 
-                        //PENDING CHECK
                             regs[rd] <= regs[rt] >> sa;
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -407,7 +384,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SRLV: begin  
-                        //PENDING CHECK
                             regs[rd] <= regs[rt] >> regs[rs][4:0];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -418,7 +394,6 @@ always @(posedge clk) begin
                             end           
                         end
                         SUBU: begin 
-                        //PENDING CHECK
                             regs[rd] <= regs[rs] - regs[rt];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -428,8 +403,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end           
                         end
-                        XOR: begin  //WRONG?? DOES IT WORK BIT-BY-BIT??
-                        //PENDING CHECK
+                        XOR: begin
                             regs[rd] <= regs[rt]^regs[rs];
                             if(jump == 1)begin
                                 pc <= jump_address;
@@ -472,8 +446,6 @@ always @(posedge clk) begin
             else begin 
                 case(instr_i_opcode)
                     ADDIU: begin
-                        //PENDING CHECK
-                       
                         if(immediate[15]==1) begin 
                             regs[rt] = regs[rs] + (32'hffff0000|immediate);   
                         end
@@ -492,8 +464,6 @@ always @(posedge clk) begin
                             end
                     end
                     ANDI: begin
-                        //WRONG?? WHAT IS CORRECT OPERATION OF AND??
-                        //PENDING CHECK
                         regs[rt] = regs[rs]&immediate;
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -504,7 +474,6 @@ always @(posedge clk) begin
                             end
                     end
                     BEQ: begin
-                        //PENDING CHECK
                         if(jump == 1)begin
                             pc <= jump_address;
                             jump <= 0;
@@ -574,7 +543,6 @@ always @(posedge clk) begin
                         end
                     end
                     BGTZ: begin
-                        //PENDING CHECK
                         if(jump == 1)begin
                             pc <= jump_address;
                             jump <= 0;
@@ -588,7 +556,6 @@ always @(posedge clk) begin
                         end
                     end
                     BLEZ: begin
-                        //PENDING CHECK
                         if(jump == 1)begin
                             pc <= jump_address;
                             jump <= 0;
@@ -602,7 +569,6 @@ always @(posedge clk) begin
                         end
                     end
                     BNE: begin
-                        //PENDING CHECK
                         if(jump == 1)begin
                             pc <= jump_address;
                             jump <= 0;
@@ -671,6 +637,7 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end
+                        
                     end
                     LHU: begin
                         if(data_address[1] == 1'b0) begin  
@@ -679,6 +646,7 @@ always @(posedge clk) begin
                         else if(data_address[1] == 1'b1) begin  
                             regs[rt]<=data_readdata[31:16];
                         end
+                        //$display("regs[rs]: %h", regs[rs]);
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -707,7 +675,7 @@ always @(posedge clk) begin
                             pc <= npc;
                         end
                     end
-                    LWL: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!/////
+                    LWL: begin
                         if(data_address[1:0] == 2'b00) begin 
                             regs[rt][31:24] <= data_readdata[7:0];
                         end 
@@ -728,7 +696,7 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end
                     end
-                    LWR: begin //CHECK WITH OTHERS IF CODED CORRECTLY!!!////
+                    LWR: begin
                         if(data_address[1:0] == 2'b00) begin 
                             regs[rt][31:0] <= data_readdata[31:0];
                         end 
@@ -750,7 +718,6 @@ always @(posedge clk) begin
                         end
                     end
                     ORI: begin
-                        //WRONG?? WHAT IS CORRECT OPERATION OF OR??
                         regs[rt] = regs[rs]|immediate;
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -761,7 +728,6 @@ always @(posedge clk) begin
                             end
                     end
                     SB: begin
-                    //ANYTHING ELSE?????
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -771,7 +737,6 @@ always @(posedge clk) begin
                         end
                     end
                     SH: begin
-                    //ANYTHING ELSE?????
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -781,7 +746,6 @@ always @(posedge clk) begin
                         end
                     end
                     SW: begin
-                    //ANYTHING ELSE?????
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -839,8 +803,6 @@ always @(posedge clk) begin
                         end
                     end
                     XORI: begin
-                        //WRONG?? WHAT IS CORRECT OPERATION OF OR??
-                        //PENDING CHECK
                         regs[rt] = regs[rs]^immediate;
                         if(jump == 1)begin
                                 pc <= jump_address;
