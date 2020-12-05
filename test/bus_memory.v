@@ -18,16 +18,6 @@ module bus_memory(
 	// instructions start at word 128
 	// this divides memory equally between data(first half excluding address 0) and instructions (second half starting at word 128)
 
-	//Initialise memory:
-
-	initial begin
-		if (ROM_INIT_FILE != "") begin
-			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
-		end
-		if (RAM_INIT_FILE != "") begin
-      		$readmemh(RAM_INIT_FILE, memory);
-    	end
-	end
 
 	// If address > BFC00000, it is instruction address and needs to be mapped to start at word 128
 	// otherwise, it is a data address (keep the same)
@@ -60,6 +50,17 @@ module bus_memory(
       		assign readdata = {bytes[mapped_instr_address+3], bytes[mapped_instr_address+2], bytes[mapped_instr_address+1], bytes[mapped_instr_address]};
     	end
   	end
+
+  	//Initialise memory:
+
+	initial begin
+		if (ROM_INIT_FILE != "") begin // instruction memory
+			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
+		end
+		if (RAM_INIT_FILE != "") begin
+      		$readmemh(RAM_INIT_FILE, bytes, 1); // data memory - don't write to address 0
+    	end
+	end
 
 	
 endmodule
