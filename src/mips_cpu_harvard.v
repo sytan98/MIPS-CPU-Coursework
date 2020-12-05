@@ -70,6 +70,7 @@ initial begin
 end
 
 always @(posedge clk) begin
+    $display("-------------------------------");
     if (reset) begin
         $display("CPU : INFO  : Resetting.");
         state <= EXEC;
@@ -102,6 +103,7 @@ always @(posedge clk) begin
         $display("Data from Reg B=%h", read_data_b);
         $display("Register being written to=%d", write_reg_rd);
         $display("Reg Write Data=%h", reg_write_data);
+        $display("Reg Write Enable=%h", reg_write_enable);
         $display("Write Data to data mem=%h", data_write);
         // $display("Data1 MUX=%h", data_into_reg1);
         // $display("Data2 MUX=%h", data_into_reg2);
@@ -291,20 +293,6 @@ mux_32bit pcmux(
   .in_0(pc_plus4), .in_1(tgt_addr_1),
   .out(pcin)
 );
-
-// //data_into_reg_mux1
-// mux_32bit data1mux(
-//   .select(datamem_to_reg),
-//   .in_0(alu_out), .in_1(data_readdata),
-//   .out(data1muxout)
-// );
-//
-// //data_into_reg_mux2
-// mux_32bit data2mux(
-//   .select(link_to_reg),
-//   .in_0(data1muxout), .in_1(pc_plus4),
-//   .out(reg_write_data)
-// );
 
 reg_writedata_selector regwritedata_sel(
   .alu_out(alu_out), .data_readdata(data_readdata), .pc_plus4(pc_plus4),

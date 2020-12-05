@@ -80,7 +80,8 @@ always @(*) begin
 
   //reg_write_enable: write enable signal to register_file. for instructions that write into a register so arithmetic, logical operations, shifts, setting etc
   case (opcode)
-    0,9,10,11,12,13,14,15,32,33,34,35,36,37,38: reg_write_enable = 1;
+    0: reg_write_enable = ((function_code == 24) | (function_code== 25) | (function_code==26) | (function_code== 27)) ? 0 : 1;
+    9,10,11,12,13,14,15,32,33,34,35,36,37,38: reg_write_enable = 1;
     default: reg_write_enable = 0;
   endcase
 

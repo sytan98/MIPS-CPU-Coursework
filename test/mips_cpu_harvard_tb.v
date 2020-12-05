@@ -61,7 +61,6 @@ module mips_cpu_harvard_tb;
             @(posedge clk);
             // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
-            $display("_______________________");
         end
         $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
