@@ -104,16 +104,16 @@ always @(posedge clk) begin
         $display("Data from Reg B = %h", read_data_b);
         $display("Register being written to = %d", write_reg_rd);
         $display("Reg Write Data = %h", reg_write_data);
-        // $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
-        // $display("Link to reg for links = %d", link_to_reg);
+        $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
+        $display("Link to reg for links = %d", link_to_reg);
         $display("Reg Write Enable = %h", reg_write_enable);
 
         //Data Memory Related
-        // $display("Data address = %h", data_address);
-        // $display("data_readdata = %h", data_readdata);
-        // $display("data read signal = %h", data_read);
-        // $display("Write Data to data mem = %h", data_write);
-        // $display("Data Mem to Reg = %d", datamem_to_reg);
+        $display("Data address = %h", data_address);
+        $display("data_readdata = %h", data_readdata);
+        $display("data read signal = %h", data_read);
+        $display("data write signal = %h", data_write);
+        $display("Write Data to data mem = %h", data_writedata);
 
         $display("immediate = %h", immdt_32);
 

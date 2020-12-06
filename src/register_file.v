@@ -31,7 +31,7 @@ module register_file(
             regfile[index]<=0;
         end
     end
-    else if (reg_write_enable == 1 & clk_enable == 1) begin
+    else if ( (reg_write_enable == 1) & (clk_enable == 1) ) begin
       $display("REGISTER %d BEING WRITTEN WITH %h", write_reg_rd,reg_write_data );
       regfile[write_reg_rd] <= reg_write_data;
     end
