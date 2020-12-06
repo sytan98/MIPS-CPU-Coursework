@@ -38,16 +38,18 @@ module bus_memory(
   	//write writedata to mapped_address word
 	always_ff @(posedge clk) begin
 		if (stall==0 && (write==1 || read==1)) begin // if read/write are asserted, start waitrequest
-			stall=1;
+			stall<=1;
 		end
     	if (write == 1 && stall==1) begin // write
       		bytes[mapped_address] <= writedata[7:0] & byteenable[0];
       		bytes[mapped_address+1] <= writedata[15:8] & byteenable[1];
       		bytes[mapped_address+2] <= writedata[23:16] & byteenable[2];
       		bytes[mapped_address+3] <= writedata[31:24] & byteenable[3];
+      		stall<=0;
     	end
     	if (read == 1 && stall==1) begin // read
-      		assign readdata = {bytes[mapped_instr_address+3], bytes[mapped_instr_address+2], bytes[mapped_instr_address+1], bytes[mapped_instr_address]};
+      		readdata <= {bytes[mapped_instr_address+3], bytes[mapped_instr_address+2], bytes[mapped_instr_address+1], bytes[mapped_instr_address]};
+      		stall<=0;
     	end
   	end
 
@@ -58,7 +60,7 @@ module bus_memory(
 			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
 		end
 		if (RAM_INIT_FILE != "") begin
-      		$readmemh(RAM_INIT_FILE, bytes, 1); // data memory - don't write to address 0
+      		$readmemh(RAM_INIT_FILE, bytes, 4); // data memory - don't write to address 0
     	end
 	end
 
