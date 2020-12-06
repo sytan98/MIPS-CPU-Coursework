@@ -12,9 +12,8 @@ module instruction_memory(
 
 	logic[address_bit_size - 1: 0] mapped_address;		
 
-	assign mapped_address = (instr_address != 0) ? instr_address[address_bit_size-1:0] - 32'hBFBFFFE0 : 0;
-
-	logic[7:0] bytes [0: (2**address_bit_size-1)];
+	assign mapped_address = instr_address[address_bit_size-1:0];
+	logic[7:0] bytes [0: (2**address_bit_size-1)* 4];
 	assign instr_readdata = {bytes[mapped_address+3], bytes[mapped_address+2], bytes[mapped_address+1], bytes[mapped_address]};
 
 	initial begin
