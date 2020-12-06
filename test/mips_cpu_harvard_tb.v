@@ -1,26 +1,34 @@
-module CPU_MU0_delay0_tb;
+module mips_cpu_harvard_tb;
     timeunit 1ns / 10ps;
 
-    parameter RAM_INIT_FILE = "test/01-binary/countdown.hex.txt";
-    parameter TIMEOUT_CYCLES = 10000;
+    parameter ROM_INIT_FILE = "";
+    parameter TIMEOUT_CYCLES = 1000;
 
     logic clk;
-    logic rst;
+    logic reset;
+    logic clk_enable;
+    logic active;
 
-    logic running;
+    logic data_write;
+    logic data_read;
+    logic[31:0] instr_address;
+    logic[31:0] instr_readdata;
+    logic[31:0]  data_address;
 
-    logic[11:0] address;
-    logic write;
-    logic read;
-    logic[15:0] writedata;
-    logic[15:0] readdata;
+    logic[31:0]  data_writedata;
+    logic[31:0]  data_readdata;
 
-    RAM_16x4096_delay0 #(RAM_INIT_FILE) ramInst(clk, address, write, read, writedata, readdata);
-    
-    CPU_MU0_delay0 cpuInst(clk, rst, running, address, write, read, writedata, readdata);
+    logic [31:0] register_v0;
+
+    instruction_memory #(ROM_INIT_FILE) romInst(clk, instr_address, instr_readdata);
+    data_memory ramInst(clk, data_address, data_read, data_write, data_writedata, data_readdata);
+    mips_cpu_harvard cpuInst(clk, reset, active, register_v0, clk_enable, instr_address, instr_readdata,
+                    data_address, data_write, data_read, data_writedata, data_readdata);
 
     // Generate clock
     initial begin
+        $dumpfile("mips_cpu_harvard_tb.vcd");
+        $dumpvars(0, mips_cpu_harvard_tb);
         clk=0;
 
         repeat (TIMEOUT_CYCLES) begin
@@ -34,28 +42,27 @@ module CPU_MU0_delay0_tb;
     end
 
     initial begin
-        rst <= 0;
-
+        reset <= 0;
         @(posedge clk);
-        rst <= 1;
-
+        reset <= 1;
+        // $display("check state before reset=%d", check_state);
         @(posedge clk);
-        rst <= 0;
-
+        reset <= 0;
         @(posedge clk);
-        assert(running==1)
-        else $display("TB : CPU did not set running=1 after reset.");
+        // $display("check state after reset=%d", check_state);
+        clk_enable = 1;
 
-        while (running) begin
+        assert(active==1)
+        else $display("TB : CPU did not set active=1 after reset.");
+
+        while (active) begin
             @(posedge clk);
+            // $display("current instruction address=%d", instr_address);
+            $display("Register v0:%h", register_v0);
         end
-
+        $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
 
         $finish;
-        
     end
-
-    
-
 endmodule
