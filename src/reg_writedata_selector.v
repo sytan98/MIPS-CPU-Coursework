@@ -17,13 +17,13 @@ module reg_writedata_selector(
     end
     // lb
     else if (datamem_to_reg == 2) begin
-      
+
       reg_write_data = (data_readdata[7])? { 24'hFFFFFF, data_readdata[7:0]} : { 24'h000000, data_readdata[7:0]};
     end
     // lbu
     else if (datamem_to_reg == 3) begin
       reg_write_data = { 24'h000000, data_readdata[7:0]};
-    end 
+    end
     // lh
     else if (datamem_to_reg == 4) begin
       reg_write_data = (data_readdata[15])? { 16'hFFFF, data_readdata[15:0]} : { 16'h0000, data_readdata[15:0]};
@@ -33,7 +33,7 @@ module reg_writedata_selector(
       reg_write_data = { 16'h0000, data_readdata[15:0]};
     end
     else if (link_to_reg) begin
-      reg_write_data = pc_plus4;
+      reg_write_data = pc_plus4 + 4;
     end
     else if (mfhi) begin
       reg_write_data = hi_readdata;
