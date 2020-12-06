@@ -14,7 +14,7 @@ module control(
   output logic reg_write_enable,
   output logic hi_wren,
   output logic lo_wren,
-  output logic datamem_to_reg,
+  output logic[2:0] datamem_to_reg,
   output logic link_to_reg,
   output logic mfhi,
   output logic mflo,
@@ -97,7 +97,11 @@ always @(*) begin
 
   //datamem_to_reg: control signal to reg_writedata_selector.v selects data from datamemory to be written into destination register for load instructions
   case (opcode)
-    32,33,34,35,36,37,38: datamem_to_reg = 1;
+    34,35,38: datamem_to_reg = 1;
+    32: datamem_to_reg = 2;//lb
+    36: datamem_to_reg = 3;//lbu
+    33: datamem_to_reg = 4;//lh
+    37: datamem_to_reg = 5;//lhu
     default: datamem_to_reg = 0;
   endcase
 
