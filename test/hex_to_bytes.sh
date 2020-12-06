@@ -1,9 +1,9 @@
 #!/bin/bash
 set -eou pipefail
 
-g++ hex_to_bytes.cpp -o hex_to_bytes
+g++ ./test/hex_to_bytes.cpp -o ./test/hex_to_bytes
 
-TESTCASES="./*.hex.txt"
+TESTCASES="./test/cases/*.hex.txt"
 
 # Loop over every test in cases folder
 for i in ${TESTCASES} ; do
@@ -11,5 +11,5 @@ for i in ${TESTCASES} ; do
     TESTCASEID=$(basename ${i} .hex.txt)
     >&2 echo $TESTCASEID
     # Dispatch to the main test-case script
-    ./hex_to_bytes ${i} ${TESTCASEID}
+    ./test/hex_to_bytes ${i} ${TESTCASEID}
 done

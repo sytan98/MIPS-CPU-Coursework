@@ -7,7 +7,7 @@ int main(int argc, char **argv){
     string textfile = argv[1];
     string testcaseid = argv[2];
     string filetype = ".bytes.txt";
-    string bytefile = testcaseid + filetype;
+    string bytefile = "./test/cases/"+testcaseid + filetype;
     string line;
     ifstream readfile(textfile);
     ofstream writefile (bytefile);
