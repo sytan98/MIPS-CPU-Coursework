@@ -35,7 +35,8 @@ logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
 logic [1:0]rd_select;
-logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, datamem_to_reg, link_to_reg, mfhi, mflo, multdiv;
+logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv;
+logic [2:0] datamem_to_reg;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
 logic[31:0] read_data_a, read_data_b, reg_write_data;
@@ -84,7 +85,7 @@ always @(posedge clk) begin
         $display("current inst address=%h", instr_address);
         $display("current inst =%h", instr_readdata);
 
-        //Branch Related
+        //Branch/Jump Related
         $display("opcode =%d", instr_readdata[31:26]);
         $display("branch =%h", branch);
         $display("jump1 =%h", jump1);
@@ -94,6 +95,7 @@ always @(posedge clk) begin
         $display("tgt_addr_1 =%h", tgt_addr_1);
         $display("delay =%h", delay);
         $display("branch address =%h", branch_addr);
+        $display("jump address =%h", jump_addr);
         // $display("next PC =%d", pcin);
 
         //Register Related
@@ -112,8 +114,9 @@ always @(posedge clk) begin
         $display("data_readdata=%h", data_readdata);
         $display("data read signal=%h", data_read);
         $display("Write Data to data mem=%h", data_write);
+        $display("Data Mem to Reg=%d", datamem_to_reg);
 
-        // $display("sign extended immediate=%h", immdt_32);
+        $display("immediate=%h", immdt_32);
 
         //ALU
         $display("alu_src=%b", alu_src);
