@@ -482,8 +482,15 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if(regs[rs]==regs[rt]) begin
+                            if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
                             jump_address <= pc+4+(immediate<<2);
                             jump <= 1;
+                            end
                         end
                     end
                     BQEZ_AL_BLTZ_AL: begin
@@ -496,8 +503,14 @@ always @(posedge clk) begin
                                  pc <= npc;
                             end 
                             if($signed(regs[rs])>=0) begin
+                                 if(immediate[15]==1) begin 
+                                 jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                                 jump <= 1;
+                                end
+                                else begin
                                 jump_address <= pc+4+(immediate<<2);
                                 jump <= 1;
+                                end
                             end
                         end
                         else if(rt==5'b10001) begin
@@ -510,8 +523,15 @@ always @(posedge clk) begin
                             end 
                             if($signed(regs[rs])>=0) begin
                                 regs[31] <= pc+8;
-                                jump_address <= pc+4+(immediate<<2);
-                                jump <= 1;
+                                 if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
+                            jump_address <= pc+4+(immediate<<2);
+                            jump <= 1;
+                            end
                             end
                         end
                         else if(rt==5'b00000) begin
@@ -523,8 +543,15 @@ always @(posedge clk) begin
                                 pc <= npc;
                             end
                             if($signed(regs[rs])<0) begin
-                                jump_address <= pc+4+(immediate<<2);
-                                jump <= 1;
+                                 if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
+                            jump_address <= pc+4+(immediate<<2);
+                            jump <= 1;
+                            end
                             end
                         end
                         else if(rt==5'b10000) begin   
@@ -537,8 +564,15 @@ always @(posedge clk) begin
                             end 
                             if($signed(regs[rs])<0) begin
                                 regs[31] <= pc+8;
-                                jump_address <= pc+4+(immediate<<2);
-                                jump <= 1;
+                                 if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
+                            jump_address <= pc+4+(immediate<<2);
+                            jump <= 1;
+                            end
                             end
                         end
                     end
@@ -551,8 +585,15 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if($signed(regs[rs])>0) begin
+                             if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
                             jump_address <= pc+4+(immediate<<2);
                             jump <= 1;
+                            end
                         end
                     end
                     BLEZ: begin
@@ -564,8 +605,15 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if($signed(regs[rs])<=0) begin
+                             if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
                             jump_address <= pc+4+(immediate<<2);
                             jump <= 1;
+                            end
                         end
                     end
                     BNE: begin
@@ -577,8 +625,15 @@ always @(posedge clk) begin
                             pc <= npc;
                         end 
                         if(regs[rs]!=regs[rt]) begin
+                             if(immediate[15]==1) begin 
+                            jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
+                            jump <= 1;
+                            end
+                            else begin
+                            
                             jump_address <= pc+4+(immediate<<2);
                             jump <= 1;
+                            end
                         end
                     end
                     LB: begin
@@ -772,7 +827,7 @@ always @(posedge clk) begin
                     end
                     SLTIU: begin 
                         if(immediate[15]==1) begin 
-                            if(regs[rs]< (32'hffff0000|immediate)) begin
+                            if(regs[rs] < (32'hffff0000|immediate)) begin
                                 regs[rt]<=1;
                             end
                             else begin 
