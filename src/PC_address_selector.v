@@ -16,7 +16,7 @@ module PC_address_selector(
       tgt_addr_0 = read_data_a;
     end
     else begin
-      tgt_addr_0 = pc_plus4;
+      tgt_addr_0 = pc_plus4 + 4;
     end
   end
 endmodule
