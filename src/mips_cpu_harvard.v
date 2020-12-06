@@ -96,28 +96,32 @@ always @(posedge clk) begin
         $display("branch address =%h", branch_addr);
         // $display("next PC =%d", pcin);
 
-        //Register Values
+        //Register Related
         $display("Reading Register A=%d", instr_readdata[25:21]);
         $display("Reading Register B=%d", instr_readdata[20:16]);
         $display("Data from Reg A=%h", read_data_a);
         $display("Data from Reg B=%h", read_data_b);
         $display("Register being written to=%d", write_reg_rd);
         $display("Reg Write Data=%h", reg_write_data);
+        $display("Datamem to Reg signal for loads=%d", datamem_to_reg);
+        $display("Link to reg for links=%d", link_to_reg);
         $display("Reg Write Enable=%h", reg_write_enable);
+
+        //Data Memory Related
+        $display("Data address=%h", data_address);
+        $display("data_readdata=%h", data_readdata);
+        $display("data read signal=%h", data_read);
         $display("Write Data to data mem=%h", data_write);
-        // $display("Data1 MUX=%h", data_into_reg1);
-        // $display("Data2 MUX=%h", data_into_reg2);
-        // $display("Data read data=%h", data_readdata);
+
         // $display("sign extended immediate=%h", immdt_32);
 
-        //ALU 
+        //ALU
         $display("alu_src=%b", alu_src);
         $display("alu out=%h", alu_out);
         $display("value going into hi=%h", hi);
         $display("value going into lo=%h", lo);
-        // $display("data_readdata=%h", data_readdata);
-        // $display("data read signal=%h", data_read);
-        $display("Data address=%h", data_address);
+
+
         if (instr_address == 0) begin
             state <= HALTED;
             active <= 0;

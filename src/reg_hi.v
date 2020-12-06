@@ -5,7 +5,6 @@ module reg_hi(
   input logic[31:0] hi,
   output logic[31:0] hi_readdata
 );
-
   logic[31:0] hi_reg;
   assign hi_readdata = hi_reg;
 
