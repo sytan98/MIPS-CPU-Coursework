@@ -453,7 +453,7 @@ always @(posedge clk) begin
                             regs[rt] = regs[rs] + immediate;
                         end
                         //$display("rs = %h", (regs[rs]));
-                        //$display("immidiate = %h", 32'hffff0000|immediate);
+                        //$display("immediate = %h", 32'hffff0000|immediate);
                         //$display("rt = %h", (regs[rt]));
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -637,9 +637,9 @@ always @(posedge clk) begin
                         end
                     end
                     LB: begin
-                        if(data_address[1:0] == 2'b00) begin  
+                        //if(data_address[1:0] == 2'b00) begin  
                             regs[rt]<=$signed(data_readdata[7:0]);
-                        end
+                        /*end
                         else if(data_address[1:0] == 2'b01) begin  
                             regs[rt]<=$signed(data_readdata[15:8]);
                         end
@@ -648,7 +648,7 @@ always @(posedge clk) begin
                         end
                         else if(data_address[1:0] == 2'b11) begin  
                             regs[rt]<=$signed(data_readdata[31:24]);
-                        end
+                        end*/
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -658,9 +658,9 @@ always @(posedge clk) begin
                             end
                     end
                     LBU: begin
-                        if(data_address[1:0] == 2'b00) begin  
+                        //if(data_address[1:0] == 2'b00) begin  
                             regs[rt]<=data_readdata[7:0];
-                        end
+                        /*end
                         else if(data_address[1:0] == 2'b01) begin  
                             regs[rt]<=data_readdata[15:8];
                         end
@@ -669,7 +669,7 @@ always @(posedge clk) begin
                         end
                         else if(data_address[1:0] == 2'b11) begin  
                             regs[rt]<=data_readdata[31:24];
-                        end
+                        end*/
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -679,12 +679,13 @@ always @(posedge clk) begin
                             end
                     end
                     LH: begin
-                        if(data_address[1] == 1'b0) begin  
+                        //if(data_address[1] == 1'b0) begin  
+                            
                             regs[rt]<=$signed(data_readdata[15:0]);
-                        end
-                        else if(data_address[1] == 1'b1) begin  
-                            regs[rt]<=$signed(data_readdata[31:16]);
-                        end
+                        //end
+                        //else if(data_address[1] == 1'b1) begin  
+                        //    regs[rt]<=$signed(data_readdata[31:16]);
+                       // end
                         if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
@@ -695,12 +696,12 @@ always @(posedge clk) begin
                         
                     end
                     LHU: begin
-                        if(data_address[1] == 1'b0) begin  
+                        //if(data_address[1] == 1'b0) begin  
                             regs[rt]<=data_readdata[15:0];
-                        end
-                        else if(data_address[1] == 1'b1) begin  
-                            regs[rt]<=data_readdata[31:16];
-                        end
+                        //end
+                        //else if(data_address[1] == 1'b1) begin  
+                         //   regs[rt]<=data_readdata[31:16];
+                        //end
                         //$display("regs[rs]: %h", regs[rs]);
                         if(jump == 1)begin
                                 pc <= jump_address;
@@ -826,6 +827,7 @@ always @(posedge clk) begin
                         end
                     end
                     SLTIU: begin 
+                        
                         if(immediate[15]==1) begin 
                             if(regs[rs] < (32'hffff0000|immediate)) begin
                                 regs[rt]<=1;
@@ -841,12 +843,6 @@ always @(posedge clk) begin
                             else begin 
                                 regs[rt]<=0;
                             end
-                        end
-                        if(regs[rs]<immediate) begin
-                            regs[rt]<=1;
-                        end
-                        else begin 
-                            regs[rt]<=0;
                         end
                         
                         if(jump == 1)begin
