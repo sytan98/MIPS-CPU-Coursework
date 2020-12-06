@@ -1,17 +1,22 @@
 module reg_lo(
-  input clk;
+  input clk,
+  input reset,
   input logic lo_wren,
-  input logic[31:0] read_data_a
-  input logic[63:0] mult_div_out,
+  input logic[31:0] read_data_a,
+  input logic[31:0] lo,
   output logic[31:0] lo_read
 );
 
-assign lo_read = reset==1 ? 0 : mult_div_out[31:0];
-
-always_ff @(posedge clk) begin
-  if(lo_wren==1) begin
-    lo_read <= read_data_a;
+  always_ff @(posedge clk) begin
+    if(reset) begin
+      lo_read <= 0;
+    end
+    else if(lo_wren) begin
+      lo_read <= read_data_a;
+    end
+    else begin
+      lo_read <= lo;
+    end
   end
-end
 
 endmodule

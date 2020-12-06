@@ -1,17 +1,17 @@
 module branch_cond(
   input logic branch,
   input logic[5:0] opcode,
-  input logic[5:0] b_code,
+  input logic[4:0] b_code,
   input logic equal, //zero flag from alu.v
-  input logic[31:0] rs_readdata, //data read from register rs.
+  input logic[31:0] read_data_a, //data read from register rs.
   output logic condition_met //will be used as a control signal to branchmux that selects btwn 0:PC+4 or 1:branch target address
 );
 
   logic zero;
   logic neg;
 
-  assign zero = (rs_readdata[31:0]==32'h00000000) ? 1 : 0; //if value of rs = 0
-  assign neg = (rs_readdata[31]==1) ? 1 : 0; //if value of rs < 0
+  assign zero = (read_data_a[31:0]==32'h00000000) ? 1 : 0; //if value of rs = 0
+  assign neg = (read_data_a[31]==1) ? 1 : 0; //if value of rs < 0
 
 
   always@(*) begin

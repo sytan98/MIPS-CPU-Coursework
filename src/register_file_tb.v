@@ -97,6 +97,7 @@ module register_file_tb(
         end
 
         /* Exit successfully. */
+        $display("Finished. Total time = %t", $time);
         $finish;
     end
 

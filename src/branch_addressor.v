@@ -1,7 +1,7 @@
 //used to calculate branch target address.
 module branch_addressor(
   input logic[31:0] immdt_32,
-  input logic[31:0] pcnext,
+  input logic[31:0] PCnext,
   output logic[31:0] branch_addr
 );
 
@@ -9,7 +9,7 @@ module branch_addressor(
 
   always@(*) begin
     shifted[33:0] = (immdt_32<<2);
-    branch_addr = $signed(shifted[31:0]) + $signed(pcnext);
+    branch_addr = $signed(shifted[31:0]) + $signed(PCnext);
   end
 
 endmodule
