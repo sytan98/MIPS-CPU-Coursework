@@ -1,0 +1,15 @@
+addiu $16, $0, 1
+addiu $17, $0, 5
+lui $31, 0xbfc0
+addiu $31, $0, 0xC
+loop:
+subu $17, $17, $16
+beq $16, $17, end
+addiu $0, $0, 0
+jr $31
+end:
+addiu $5, $0, 1
+addiu $5, $5, 2
+addiu $5, $5, 3
+jr $0
+addu $2, $5, $0
