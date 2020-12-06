@@ -35,9 +35,9 @@ module test_mips_cpu_tb;
         clk_enable=1;
 
         repeat (TIMEOUT_CYCLES) begin
-            #10;
+            #100;
             clk = !clk;
-            #10;
+            #100;
             clk = !clk;
         end
 
