@@ -334,10 +334,10 @@ string loadWordTable(int &numberOfSymbols, int &symbolCounter)
     symbolCounter++;
     temp_symbol = symbols[symbolCounter]; //Store the offset amount symbol in a temporary symbol variable.
 
-    signed decimal = atoi(temp_symbol.c_str());
+    // signed decimal = atoi(temp_symbol.c_str());
 
         stringstream ht;    //After finding it we increment the address and turn it into binary form.
-        ht << hex << decimal;
+        ht << hex << temp_symbol;
 
         stringstream bt;
         bt << hex << ht.str();
