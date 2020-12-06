@@ -81,47 +81,47 @@ always @(posedge clk) begin
         $display("CPU : INFO  : Executing.");
 
         //Current address
-        $display("current PC address=%h", pcout);
-        $display("current inst address=%h", instr_address);
+        $display("current PC address =%h", pcout);
+        $display("current inst address =%h", instr_address);
         $display("current inst =%h", instr_readdata);
 
         //Branch/Jump Related
-        $display("opcode =%d", instr_readdata[31:26]);
-        $display("branch =%h", branch);
-        $display("jump1 =%h", jump1);
-        $display("jump2 =%h", jump2);
-        $display("condition_met =%h", condition_met);
-        $display("tgt_addr_0 =%h", tgt_addr_0);
-        $display("tgt_addr_1 =%h", tgt_addr_1);
-        $display("delay =%h", delay);
-        $display("branch address =%h", branch_addr);
-        $display("jump address =%h", jump_addr);
+        $display("opcode = %d", instr_readdata[31:26]);
+        $display("branch = %h", branch);
+        $display("jump1 = %h", jump1);
+        $display("jump2 = %h", jump2);
+        $display("condition_met = %h", condition_met);
+        $display("tgt_addr_0 = %h", tgt_addr_0);
+        $display("tgt_addr_1 = %h", tgt_addr_1);
+        $display("delay = %h", delay);
+        $display("branch address = %h", branch_addr);
+        $display("jump address = %h", jump_addr);
 
         //Register Related
-        $display("Reading Register A=%d", instr_readdata[25:21]);
-        $display("Reading Register B=%d", instr_readdata[20:16]);
-        $display("Data from Reg A=%h", read_data_a);
-        $display("Data from Reg B=%h", read_data_b);
-        $display("Register being written to=%d", write_reg_rd);
-        $display("Reg Write Data=%h", reg_write_data);
-        // $display("Datamem to Reg signal for loads=%d", datamem_to_reg);
-        // $display("Link to reg for links=%d", link_to_reg);
-        $display("Reg Write Enable=%h", reg_write_enable);
+        $display("Reading Register A = %d", instr_readdata[25:21]);
+        $display("Reading Register B = %d", instr_readdata[20:16]);
+        $display("Data from Reg A = %h", read_data_a);
+        $display("Data from Reg B = %h", read_data_b);
+        $display("Register being written to = %d", write_reg_rd);
+        $display("Reg Write Data = %h", reg_write_data);
+        // $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
+        // $display("Link to reg for links = %d", link_to_reg);
+        $display("Reg Write Enable = %h", reg_write_enable);
 
         //Data Memory Related
-        // $display("Data address=%h", data_address);
-        // $display("data_readdata=%h", data_readdata);
-        // $display("data read signal=%h", data_read);
-        // $display("Write Data to data mem=%h", data_write);
-        // $display("Data Mem to Reg=%d", datamem_to_reg);
+        // $display("Data address = %h", data_address);
+        // $display("data_readdata = %h", data_readdata);
+        // $display("data read signal = %h", data_read);
+        // $display("Write Data to data mem = %h", data_write);
+        // $display("Data Mem to Reg = %d", datamem_to_reg);
 
-        $display("immediate=%h", immdt_32);
+        $display("immediate = %h", immdt_32);
 
         //ALU
-        $display("alu_src=%b", alu_src);
-        $display("alu out=%h", alu_out);
-        // $display("value going into hi=%h", hi);
-        // $display("value going into lo=%h", lo);
+        $display("alu_src = %b", alu_src);
+        $display("alu out = %h", alu_out);
+        // $display("value going into hi = %h", hi);
+        // $display("value going into lo = %h", lo);
 
 
         if (instr_address == 0) begin
@@ -272,7 +272,7 @@ jump_addressor j_calc(
 // branch_addressor
 branch_addressor b_calc(
   .immdt_32(immdt_32),
-  .PCnext(pcout),
+  .PCnext(pc_plus4),
   .branch_addr(branch_addr)
 );
 
