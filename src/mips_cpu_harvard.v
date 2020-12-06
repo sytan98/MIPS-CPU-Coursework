@@ -364,7 +364,7 @@ always @(posedge clk) begin
                             end           
                         end
                         SRAV: begin 
-                            regs[rd] <= $signed(regs[rt]) >> regs[rs][4:0];
+                            regs[rd] <= $signed(regs[rt]) >>> regs[rs][4:0];
                             if(jump == 1)begin
                                 pc <= jump_address;
                                 jump <= 0;
