@@ -96,7 +96,6 @@ always @(posedge clk) begin
         $display("delay =%h", delay);
         $display("branch address =%h", branch_addr);
         $display("jump address =%h", jump_addr);
-        // $display("next PC =%d", pcin);
 
         //Register Related
         $display("Reading Register A=%d", instr_readdata[25:21]);
@@ -105,8 +104,8 @@ always @(posedge clk) begin
         $display("Data from Reg B=%h", read_data_b);
         $display("Register being written to=%d", write_reg_rd);
         $display("Reg Write Data=%h", reg_write_data);
-        $display("Datamem to Reg signal for loads=%d", datamem_to_reg);
-        $display("Link to reg for links=%d", link_to_reg);
+        // $display("Datamem to Reg signal for loads=%d", datamem_to_reg);
+        // $display("Link to reg for links=%d", link_to_reg);
         $display("Reg Write Enable=%h", reg_write_enable);
 
         //Data Memory Related
@@ -121,8 +120,8 @@ always @(posedge clk) begin
         //ALU
         $display("alu_src=%b", alu_src);
         $display("alu out=%h", alu_out);
-        $display("value going into hi=%h", hi);
-        $display("value going into lo=%h", lo);
+        // $display("value going into hi=%h", hi);
+        // $display("value going into lo=%h", lo);
 
 
         if (instr_address == 0) begin

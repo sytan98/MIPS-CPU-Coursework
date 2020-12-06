@@ -11,7 +11,7 @@ module alu(
     assign lo = mult_div_out[31:0];
     assign hi = mult_div_out[63:32];
     assign zero = (alu_out == 0);
-    always_comb begin
+    always@(*) begin
         case (alu_ctrl_in)
             0,2,19: alu_out = A + B; //load instructions, addu, addiu
             1,3: alu_out = A - B; //branch instructions, subu
@@ -19,11 +19,11 @@ module alu(
             5,23: alu_out = A | B; //or, ori
             6,24: alu_out = A ^ B; //xor, xori
 			7: alu_out = B << shamt; //sll
-            8: alu_out = B << A; //sllv
+            8: alu_out = B << A[4:0]; //sllv
             9: alu_out = B >> shamt; //srl
-            10: alu_out = B >> A;//srlv
+            10: alu_out = B >> A[4:0];//srlv
             11: alu_out = $signed(B) >>> shamt; //sra
-            12: alu_out = $signed(B) >>> A; //srav
+            12: alu_out = $signed(B) >>> A[4:0]; //srav
             13, 20: alu_out = $signed(A) < $signed(B) ? 1:0; //slt, slti
             14, 21: alu_out = A < B ? 1:0; //sltu, sltiu
             15: mult_div_out = $signed(A) * $signed(B);//mult
