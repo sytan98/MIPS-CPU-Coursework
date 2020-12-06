@@ -166,13 +166,13 @@ string branchTable(int &numberOfSymbols, int &symbolCounter, string &temp, int &
     {
         if(label[i].name == temp_symbol)
         {
-            if(label[i].address >  lineCounter)
+            if(label[i].address >  lineCounter) // forward branching
             {
-                offset = (label[i].address - lineCounter) - 1;
+                offset = (label[i].address - lineCounter)-1;
             }
-            else
+            else // backwards branching
             {
-                offset = -((lineCounter - label[i].address));
+                offset = -((lineCounter - label[i].address)+1);
             }
 
             //After finding it we turn it into binary form.
