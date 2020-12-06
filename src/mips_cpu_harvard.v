@@ -35,7 +35,7 @@ logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
 logic [1:0]rd_select;
-logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv;
+logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv, lwl, lwr;
 logic [2:0] datamem_to_reg;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
@@ -55,14 +55,19 @@ logic[31:0] branch_addr;
 logic[31:0] tgt_addr_0;
 logic[31:0] tgt_addr_1;
 
-logic[31:0] data1muxout;
 logic delay;
+
+logic[31:0] data_address_temp;
+logic[1:0] byte_addressing;
 
 assign check_state = state; //for debugging
 assign check_pcout = pcout; //for debugging
 assign instr_address = pcout;
 assign data_writedata = read_data_b;
-assign data_address = alu_out;
+assign data_address_temp = alu_out;
+assign data_address = {data_address_temp[31:2], 2'b00};
+assign byte_addressing = data_address_temp[1:0];
+
 
 initial begin
     state = HALTED;
@@ -110,6 +115,10 @@ always @(posedge clk) begin
 
         //Data Memory Related
         $display("Data address = %h", data_address);
+        $display("Data address temp = %h", data_address_temp);
+        $display("lwl signal = %b", lwl);
+        $display("lwr signal = %b", lwr);
+        $display("byte_addressing = %b", byte_addressing);
         $display("data_readdata = %h", data_readdata);
         $display("data read signal = %h", data_read);
         $display("data write signal = %h", data_write);
@@ -172,7 +181,8 @@ control control_inst(
   .lo_wren(lo_wren),
   .datamem_to_reg(datamem_to_reg),
   .link_to_reg(link_to_reg),
-  .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv)
+  .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv),
+  .lwl(lwl), .lwr(lwr)
 );
 
 //mux_5bit rd_mux
@@ -192,7 +202,8 @@ register_file regfile_inst(
   .write_reg_rd(write_reg_rd),
   .reg_write_data(reg_write_data),
   .reg_write_enable(reg_write_enable),
-  .register_v0(register_v0)
+  .register_v0(register_v0),
+  .byte_addressing(byte_addressing), .lwl(lwl), .lwr(lwr)
 );
 
 //immdt_extender
@@ -304,7 +315,7 @@ reg_writedata_selector regwritedata_sel(
   .alu_out(alu_out), .data_readdata(data_readdata), .pc_plus4(pc_plus4),
   .hi_readdata(hi_readdata), .lo_readdata(lo_readdata),
   .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
-  .mfhi(mfhi), .mflo(mflo),
+  .mfhi(mfhi), .mflo(mflo), .byte_addressing(byte_addressing),
   .reg_write_data(reg_write_data)
 );
 

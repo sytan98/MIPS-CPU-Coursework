@@ -18,7 +18,8 @@ module control(
   output logic link_to_reg,
   output logic mfhi,
   output logic mflo,
-  output logic multdiv
+  output logic multdiv,
+  output logic lwl, lwr
 );
 
 always @(*) begin
@@ -123,6 +124,17 @@ always @(*) begin
   case(function_code)
     24,25,26,27: multdiv = (opcode==0) ? 1 : 0;
     default: multdiv = 0;
+  endcase
+
+  //lwl
+  case(opcode)
+    34: lwl = 1;
+    default: lwl = 0;
+  endcase
+  //lwr
+  case(opcode)
+    38: lwr = 1;
+    default: lwr = 0;
   endcase
 end
 
