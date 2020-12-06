@@ -110,11 +110,11 @@ always @(posedge clk) begin
         $display("Reg Write Enable=%h", reg_write_enable);
 
         //Data Memory Related
-        $display("Data address=%h", data_address);
-        $display("data_readdata=%h", data_readdata);
-        $display("data read signal=%h", data_read);
-        $display("Write Data to data mem=%h", data_write);
-        $display("Data Mem to Reg=%d", datamem_to_reg);
+        // $display("Data address=%h", data_address);
+        // $display("data_readdata=%h", data_readdata);
+        // $display("data read signal=%h", data_read);
+        // $display("Write Data to data mem=%h", data_write);
+        // $display("Data Mem to Reg=%d", datamem_to_reg);
 
         $display("immediate=%h", immdt_32);
 
