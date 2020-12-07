@@ -22,6 +22,6 @@ elec50010-mips-coursework
     |   test_mips_cpu_harvard.sh
 ```
 ## How to use:
-To test:
-Run from the base directory of the submission  `./test/test_mips_cpu_harvard.sh [source_directory] [instruction]`
+To test:\
+Run from the base directory of the submission  `./test/test_mips_cpu_harvard.sh [source_directory] [instruction]`.\
 The output files can be used for debugging and will be stored in the ./test/output 
