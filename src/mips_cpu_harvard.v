@@ -523,8 +523,9 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end 
+                            regs[31] <= pc+8;
                             if($signed(regs[rs])>=0) begin
-                                regs[31] <= pc+8;
+                                
                                  if(immediate[15]==1) begin 
                             jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
                             jump <= 1;
@@ -564,8 +565,9 @@ always @(posedge clk) begin
                             else begin
                                 pc <= npc;
                             end 
+                            regs[31] <= pc+8;
                             if($signed(regs[rs])<0) begin
-                                regs[31] <= pc+8;
+                                
                                  if(immediate[15]==1) begin 
                             jump_address <= pc+4+(32'hfffc0000|(immediate<<2));
                             jump <= 1;
