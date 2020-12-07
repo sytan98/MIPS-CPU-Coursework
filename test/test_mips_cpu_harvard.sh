@@ -12,14 +12,14 @@ INSTRUCTION_TYPE="$2"
 if [ -z INSTRUCTION_TYPE ]
 then
     >&2 echo "Instruction not given, running all instructions."
-    TESTCASES="test/cases/*.bytes.txt"
+    TESTCASES="test/cases/*.hex.txt"
     passesnum=0
     totalcount=0
     # Loop over every test in cases folder
     for i in ${TESTCASES} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
-        TESTCASEID=$(basename ${i} .bytes.txt)
-        >&2 echo $TESTCASEID
+        TESTCASEID=$(basename ${i} .hex.txt)
+        # >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_harvard_one_testcase.sh ${SRC} ${TESTCASEID}`
         B=$(echo $var | cut -d " " -f 3-4)
@@ -34,14 +34,14 @@ then
 else
     >&2 echo "${INSTRUCTION_TYPE} instructions to be tested."
     
-    TESTCASES="./test/cases/${INSTRUCTION_TYPE}*.bytes.txt"
+    TESTCASES="./test/cases/${INSTRUCTION_TYPE}*.hex.txt"
     # Loop over every file matching the TESTCASES pattern
     passesnum=0
     totalcount=0
     for i in ${TESTCASES} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
-        TESTCASEID=$(basename ${i} .bytes.txt)
-        >&2 echo $TESTCASEID
+        TESTCASEID=$(basename ${i} .hex.txt)
+        # >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_harvard_one_testcase.sh ${SRC} ${TESTCASEID}`
         echo "$var"
@@ -52,6 +52,6 @@ else
         fi
         totalcount=`expr $totalcount + 1`
     done
-    echo "Number of Passes = $passesnum out of $totalcount"
+    >&2 echo "Number of Passes = $passesnum out of $totalcount"
 
 fi
