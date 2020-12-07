@@ -14,12 +14,12 @@ module instruction_memory(
 
 	assign mapped_address = (instr_address != 0) ? instr_address[address_bit_size-1:0] - 32'hBFBFFFE0 : 0;
 
-	logic[7:0] bytes [0: (2**address_bit_size-1)];
-	assign instr_readdata = {bytes[mapped_address+3], bytes[mapped_address+2], bytes[mapped_address+1], bytes[mapped_address]};
+	logic[31:0] memory [0: (2**address_bit_size)/4-1];
+	assign instr_readdata = memory[mapped_address[address_bit_size-1:2]];
 
 	initial begin
 		if (ROM_INIT_FILE != "") begin
-			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
+			$readmemh(ROM_INIT_FILE, memory, reset_vector); // multiply by 4 to get byte addressing
 		end
 	end
 

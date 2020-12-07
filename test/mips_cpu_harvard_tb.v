@@ -19,17 +19,15 @@ module mips_cpu_harvard_tb;
     logic[31:0]  data_readdata;
 
     logic [31:0] register_v0;
-    logic [1:0] check_state;
-    logic[31:0] check_pcout;
 
     instruction_memory #(ROM_INIT_FILE) romInst(clk, instr_address, instr_readdata);
     data_memory ramInst(clk, data_address, data_read, data_write, data_writedata, data_readdata);
     mips_cpu_harvard cpuInst(clk, reset, active, register_v0, clk_enable, instr_address, instr_readdata,
-                    data_address, data_write, data_read, data_writedata, data_readdata, check_state, check_pcout);
+                    data_address, data_write, data_read, data_writedata, data_readdata);
 
     // Generate clock
     initial begin
-        $dumpfile("mips_cpu_harvard_tb.vcd");
+        $dumpfile("./test/mips_cpu_harvard_tb.vcd");
         $dumpvars(0, mips_cpu_harvard_tb);
         clk=0;
 
@@ -47,21 +45,19 @@ module mips_cpu_harvard_tb;
         reset <= 0;
         @(posedge clk);
         reset <= 1;
-        // $display("check state before reset=%d", check_state);
+
         @(posedge clk);
         reset <= 0;
-        @(posedge clk);
-        $display("check state after reset=%d", check_state);
-        clk_enable = 1;
 
-        assert(active==1)
-        else $display("TB : CPU did not set active=1 after reset.");
+        @(posedge clk);
+        clk_enable = 1;
+        assert(active==1) else $display("TB : CPU did not set active=1 after reset.");
 
         while (active) begin
             @(posedge clk);
-            // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
         end
+        
         $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
 

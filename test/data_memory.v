@@ -17,7 +17,7 @@ module data_memory(
 
 	assign mapped_address = data_address[address_bit_size-1:0] - 32'hBFBFFFE0 ;
 
-	logic[7:0] bytes [0: (2**address_bit_size-1)];
+	logic[31:0] memory [0: (2**address_bit_size)/4-1];
 
   initial begin
     if (RAM_INIT_FILE != "") begin
@@ -25,14 +25,11 @@ module data_memory(
     end
   end
 
-  assign data_readdata = data_read ? {bytes[mapped_address+3], bytes[mapped_address+2], bytes[mapped_address+1], bytes[mapped_address]} : 32'hxxxx;
+  assign data_readdata = data_read ? memory[mapped_address[address_bit_size-1:2]] : 32'hxxxx;
 
   always_ff @(posedge clk) begin
     if (data_write == 1) begin
-      bytes[mapped_address] <= data_writedata[7:0];
-      bytes[mapped_address+1] <= data_writedata[15:8];
-      bytes[mapped_address+2] <= data_writedata[23:16];
-      bytes[mapped_address+3] <= data_writedata[31:24];
+      memory[mapped_address[address_bit_size-1:2]] <= data_writedata;
     end
   end
 
