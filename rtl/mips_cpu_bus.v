@@ -14,14 +14,15 @@ module mips_cpu_bus(
     output logic[3:0] byteenable,
     input logic[31:0] readdata
 );
-
 //cpu state
-typedef enum logic[1:0] {
-        FETCH = 2'b00,
-        EXEC = 2'b01,
-        HALTED = 2'b11
+typedef enum logic[2:0] {
+        FETCH = 3'b000,
+        STALL = 3'b001,
+        EXEC = 3'b010,
+        MEM = 3'b011,
+        HALTED = 3'b100
 } state_t;
-logic[1:0] state;
+logic[2:0] state;
 
 //Wire Definition
 logic[31:0] pcin;
@@ -52,9 +53,10 @@ logic delay;
 
 logic[31:0] data_address_temp;
 logic[1:0] byte_addressing;
-
-assign instr_address = pcout;
-assign data_writedata = read_data_b;
+logic clk_enable;
+// Registers
+assign address = pcout;
+assign writedata = read_data_b;
 assign data_address_temp = alu_out;
 assign data_address = {data_address_temp[31:2], 2'b00};
 assign byte_addressing = data_address_temp[1:0];
@@ -64,25 +66,39 @@ initial begin
     state = HALTED;
     active = 0;
     delay = 0;
+    clk_enable = 0;
 end
 
 always @(posedge clk) begin
     // $display("-------------------------------");
     if (reset) begin
-        // $display("CPU : INFO  : Resetting.");
-        state <= EXEC;
+        $display("CPU : INFO  : Resetting.");
+        state <= FETCH;
         active <= 1;
     end
-    else if (state == EXEC) begin
-        // $display("CPU : INFO  : Executing.");
+    else if (state == FETCH) begin
+        $display("CPU : INFO  : Fetching.");
+        $display("current PC address =%h", pcout);
+        state <= STALL;
+    end
+    else if (state == STALL) begin
+        $display("CPU : INFO  : Stalling.");
+        $display("waitrequest=%h",waitrequest);
+        if (waitrequest == 0) begin
+          state <= EXEC;
+          clk_enable <= 1;
+        end
 
-        // //Current address
-        // $display("current PC address =%h", pcout);
-        // $display("current inst address =%h", instr_address);
-        // $display("current inst =%h", instr_readdata);
+    end
+    else if (state == EXEC) begin
+        $display("CPU : INFO  : Executing.");
+        //Current address
+        $display("current PC address =%h", pcout);
+        $display("current inst address =%h", address);
+        $display("current inst =%h", readdata);
 
         // //Branch/Jump Related
-        // $display("opcode = %d", instr_readdata[31:26]);
+        // $display("opcode = %d", readdata[31:26]);
         // $display("branch = %h", branch);
         // $display("jump1 = %h", jump1);
         // $display("jump2 = %h", jump2);
@@ -94,8 +110,8 @@ always @(posedge clk) begin
         // $display("jump address = %h", jump_addr);
 
         // //Register Related
-        // $display("Reading Register A = %d", instr_readdata[25:21]);
-        // $display("Reading Register B = %d", instr_readdata[20:16]);
+        // $display("Reading Register A = %d", readdata[25:21]);
+        // $display("Reading Register B = %d", readdata[20:16]);
         // $display("Data from Reg A = %h", read_data_a);
         // $display("Data from Reg B = %h", read_data_b);
         // $display("Register being written to = %d", write_reg_rd);
@@ -113,7 +129,7 @@ always @(posedge clk) begin
         // $display("data_readdata = %h", data_readdata);
         // $display("data read signal = %h", data_read);
         // $display("data write signal = %h", data_write);
-        // $display("Write Data to data mem = %h", data_writedata);
+        // $display("Write Data to data mem = %h", writedata);
 
         // $display("immediate = %h", immdt_32);
 
@@ -122,9 +138,9 @@ always @(posedge clk) begin
         // $display("alu out = %h", alu_out);
         // // $display("value going into hi = %h", hi);
         // // $display("value going into lo = %h", lo);
-
-
-        if (instr_address == 0) begin
+        state <= FETCH;
+        clk_enable <= 0;
+        if (address == 0) begin
             state <= HALTED;
             active <= 0;
         end
@@ -157,7 +173,8 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .opcode(instr_readdata[31:26]), .function_code(instr_readdata[5:0]), .b_code(instr_readdata[20:16]),
+  .opcode(readdata[31:26]), .function_code(readdata[5:0]), .b_code(readdata[20:16]), 
+  .state(state), .waitrequest(waitrequest),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
@@ -165,8 +182,8 @@ control control_inst(
   .jump2(jump2),
   .alu_op(alu_op),
   .alu_src(alu_src),
-  .data_read(data_read),
-  .data_write(data_write),
+  .read(read),
+  .write(write),
   .reg_write_enable(reg_write_enable),
   .hi_wren(hi_wren),
   .lo_wren(lo_wren),
@@ -179,7 +196,7 @@ control control_inst(
 //mux_5bit rd_mux
 mux_5bit rd_mux(
   .select(rd_select),
-  .in_0(instr_readdata[20:16]), .in_1(instr_readdata[15:11]),
+  .in_0(readdata[20:16]), .in_1(readdata[15:11]),
   .out(write_reg_rd)
 );
 
@@ -188,7 +205,7 @@ register_file regfile_inst(
   .clk(clk),
   .clk_enable(clk_enable),
   .reset(reset),
-  .read_reg_a(instr_readdata[25:21]), .read_reg_b(instr_readdata[20:16]),
+  .read_reg_a(readdata[25:21]), .read_reg_b(readdata[20:16]),
   .read_data_a(read_data_a), .read_data_b(read_data_b),
   .write_reg_rd(write_reg_rd),
   .reg_write_data(reg_write_data),
@@ -199,7 +216,7 @@ register_file regfile_inst(
 
 //immdt_extender
 immdt_extender imdtextd_inst(
-  .immdt_16(instr_readdata[15:0]),
+  .immdt_16(readdata[15:0]),
   .sign_immdt_32(signed_32), .zero_immdt_32(zero_32)
 );
 
@@ -220,8 +237,8 @@ mux_32bit alumux(
 //alu_ctrl
 alu_ctrl aluctrl_inst(
   .alu_op(alu_op),
-  .opcode(instr_readdata[31:26]),
-  .function_code(instr_readdata[5:0]),
+  .opcode(readdata[31:26]),
+  .function_code(readdata[5:0]),
   .alu_ctrl_in(alu_ctrl_in)
 );
 
@@ -230,7 +247,7 @@ alu alu_inst(
   .alu_ctrl_in(alu_ctrl_in),
   .A(read_data_a),
   .B(alu_in),
-  .shamt(instr_readdata[10:6]),
+  .shamt(readdata[10:6]),
   .alu_out(alu_out),
   .zero(zero),
   .lo(lo),
@@ -258,7 +275,7 @@ reg_lo reglo_inst(
 // branch_cond
 branch_cond branchcond_inst(
   .branch(branch),
-  .opcode(instr_readdata[31:26]), .b_code(instr_readdata[20:16]),
+  .opcode(readdata[31:26]), .b_code(readdata[20:16]),
   .equal(zero),
   .read_data_a(read_data_a),
   .condition_met(condition_met)
@@ -266,7 +283,7 @@ branch_cond branchcond_inst(
 
 //jump_addressor
 jump_addressor j_calc(
-  .j_immdt(instr_readdata[25:0]),
+  .j_immdt(readdata[25:0]),
   .pc_4msb(pc_plus4[31:28]),
   .jump_addr(jump_addr)
 );
@@ -278,7 +295,7 @@ branch_addressor b_calc(
   .branch_addr(branch_addr)
 );
 
-//PC_address_selector
+//PC_address_selector -> Manages which target address to store into register
 PC_address_selector pcsel_inst(
   .branch_addr(branch_addr),
   .jump_addr(jump_addr),
@@ -290,12 +307,14 @@ PC_address_selector pcsel_inst(
   .tgt_addr_0(tgt_addr_0)
 );
 
+//Register to hold target address from PC_address_selector
 target_addr_holder taddr_inst(
   .clk(clk),
   .tgt_addr_0(tgt_addr_0),
   .tgt_addr_1(tgt_addr_1)
 );
 
+//PC Mux to choose PC + 4 or target address 
 mux_32bit pcmux(
   .select(delay),
   .in_0(pc_plus4), .in_1(tgt_addr_1),
@@ -303,7 +322,7 @@ mux_32bit pcmux(
 );
 
 reg_writedata_selector regwritedata_sel(
-  .alu_out(alu_out), .data_readdata(data_readdata), .pc_plus4(pc_plus4),
+  .alu_out(alu_out), .data_readdata(readdata), .pc_plus4(pc_plus4),
   .hi_readdata(hi_readdata), .lo_readdata(lo_readdata),
   .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
   .mfhi(mfhi), .mflo(mflo), .byte_addressing(byte_addressing),

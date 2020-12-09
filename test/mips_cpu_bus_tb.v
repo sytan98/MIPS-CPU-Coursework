@@ -1,7 +1,7 @@
 module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
-    parameter RAM_INIT_FILE = "";
+    parameter ROM_INIT_FILE = "";
     parameter TIMEOUT_CYCLES = 100;
 
     logic clk;
@@ -14,16 +14,15 @@ module mips_cpu_bus_tb;
 //============================================ INITIALISATIONS OF MEMORY LOGIC =============================================//
     logic[31:0] address;
     logic[31:0] readdata;
-    logic[31:0] byteenable;
+    logic[3:0] byteenable;
     logic[31:0] writedata;
+    logic[1:0] check_state; //debug
 //============================================= INITIALISATIONS OF CPU LOGIC ===============================================//
     logic[31:0] register_v0;
-    logic[1:0] check_state;
-    logic[31:0] check_pcout;
 //======================================= INITIALISATIONS OF MEMORIES AND CPU BUS ==========================================//
-    bus_memory ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
+    bus_memory #(ROM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata, check_state);
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata,
-                    byteenable, readdata, check_state, check_pcout);
+                    byteenable, readdata);
 //==========================================================================================================================//
     
     // Generate clock
@@ -50,7 +49,6 @@ module mips_cpu_bus_tb;
         @(posedge clk);
         reset <= 0;
         @(posedge clk);
-        $display("check state after reset=%d", check_state);
 
         assert(active==1)
         else $display("TB : CPU did not set active=1 after reset.");
