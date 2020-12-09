@@ -79,16 +79,10 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
-        state <= STALL;
-    end
-    else if (state == STALL) begin
-        $display("CPU : INFO  : Stalling.");
-        $display("waitrequest=%h",waitrequest);
         if (waitrequest == 0) begin
           state <= EXEC;
           clk_enable <= 1;
         end
-
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
