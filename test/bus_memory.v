@@ -24,7 +24,7 @@ module bus_memory(
 
 	logic[address_bit_size - 1: 0] mapped_address;		
 
-	assign mapped_instr_address = (address >=32'hBFC00000) ? address[address_bit_size-1:0] - 32'hBFC00000+32'h00000080 : address[address_bit_size-1:0];
+	assign mapped_address = (address >=32'hBFC00000) ? address[address_bit_size-1:0] - 32'hBFC00000+32'h00000080 : address[address_bit_size-1:0];
 
 
 	// Update readdata - only available one cycle after read request
@@ -48,7 +48,7 @@ module bus_memory(
       		stall<=0;
     	end
     	if (read == 1 && stall==1) begin // read
-      		readdata <= {bytes[mapped_instr_address+3], bytes[mapped_instr_address+2], bytes[mapped_instr_address+1], bytes[mapped_instr_address]};
+      		readdata <= {bytes[mapped_address+3], bytes[mapped_address+2], bytes[mapped_address+1], bytes[mapped_address]};
       		stall<=0;
     	end
   	end
