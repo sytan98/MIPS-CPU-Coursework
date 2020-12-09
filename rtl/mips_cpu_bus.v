@@ -70,7 +70,7 @@ initial begin
 end
 
 always @(posedge clk) begin
-    // $display("-------------------------------");
+    $display("-------------------------------");
     if (reset) begin
         $display("CPU : INFO  : Resetting.");
         state <= FETCH;
@@ -91,30 +91,30 @@ always @(posedge clk) begin
         $display("current inst address =%h", address);
         $display("current inst =%h", readdata);
 
-        // //Branch/Jump Related
-        // $display("opcode = %d", readdata[31:26]);
-        // $display("branch = %h", branch);
-        // $display("jump1 = %h", jump1);
-        // $display("jump2 = %h", jump2);
-        // $display("condition_met = %h", condition_met);
-        // $display("tgt_addr_0 = %h", tgt_addr_0);
-        // $display("tgt_addr_1 = %h", tgt_addr_1);
-        // $display("delay = %h", delay);
-        // $display("branch address = %h", branch_addr);
-        // $display("jump address = %h", jump_addr);
+        //Branch/Jump Related
+        $display("opcode = %d", readdata[31:26]);
+        $display("branch = %h", branch);
+        $display("jump1 = %h", jump1);
+        $display("jump2 = %h", jump2);
+        $display("condition_met = %h", condition_met);
+        $display("tgt_addr_0 = %h", tgt_addr_0);
+        $display("tgt_addr_1 = %h", tgt_addr_1);
+        $display("delay = %h", delay);
+        $display("branch address = %h", branch_addr);
+        $display("jump address = %h", jump_addr);
 
-        // //Register Related
-        // $display("Reading Register A = %d", readdata[25:21]);
-        // $display("Reading Register B = %d", readdata[20:16]);
-        // $display("Data from Reg A = %h", read_data_a);
-        // $display("Data from Reg B = %h", read_data_b);
-        // $display("Register being written to = %d", write_reg_rd);
-        // $display("Reg Write Data = %h", reg_write_data);
-        // $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
-        // $display("Link to reg for links = %d", link_to_reg);
-        // $display("Reg Write Enable = %h", reg_write_enable);
+        //Register Related
+        $display("Reading Register A = %d", readdata[25:21]);
+        $display("Reading Register B = %d", readdata[20:16]);
+        $display("Data from Reg A = %h", read_data_a);
+        $display("Data from Reg B = %h", read_data_b);
+        $display("Register being written to = %d", write_reg_rd);
+        $display("Reg Write Data = %h", reg_write_data);
+        $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
+        $display("Link to reg for links = %d", link_to_reg);
+        $display("Reg Write Enable = %h", reg_write_enable);
 
-        // //Data Memory Related
+        //Data Memory Related
         // $display("Data address = %h", data_address);
         // $display("Data address temp = %h", data_address_temp);
         // $display("lwl signal = %b", lwl);
@@ -127,11 +127,11 @@ always @(posedge clk) begin
 
         // $display("immediate = %h", immdt_32);
 
-        // //ALU
-        // $display("alu_src = %b", alu_src);
-        // $display("alu out = %h", alu_out);
-        // // $display("value going into hi = %h", hi);
-        // // $display("value going into lo = %h", lo);
+        //ALU
+        $display("alu_src = %b", alu_src);
+        $display("alu out = %h", alu_out);
+        // $display("value going into hi = %h", hi);
+        // $display("value going into lo = %h", lo);
         state <= FETCH;
         clk_enable <= 0;
         if (address == 0) begin
@@ -304,6 +304,7 @@ PC_address_selector pcsel_inst(
 //Register to hold target address from PC_address_selector
 target_addr_holder taddr_inst(
   .clk(clk),
+  .clk_enable(clk_enable),
   .tgt_addr_0(tgt_addr_0),
   .tgt_addr_1(tgt_addr_1)
 );

@@ -29,9 +29,6 @@ always @(*) begin
     read = 1;
     reg_write_enable = 0;
   end
-  else if (state == 1) begin
-    read = 1;
-  end
   else if (state == 2) begin
     
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
