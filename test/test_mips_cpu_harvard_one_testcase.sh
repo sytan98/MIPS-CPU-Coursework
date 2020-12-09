@@ -51,7 +51,7 @@ set -e
 
 # Check whether the simulator returned a failure code, and immediately quit
 if [[ "${RESULT}" -ne 0 ]] ; then
-    echo "${SRC}, ${TESTCASE_ID}, FAIL"
+    echo "${TESTCASE_ID}, ${INST}, FAIL"
     exit
 fi
 

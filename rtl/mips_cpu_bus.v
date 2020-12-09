@@ -17,10 +17,9 @@ module mips_cpu_bus(
 //cpu state
 typedef enum logic[2:0] {
         FETCH = 3'b000,
-        STALL = 3'b001,
-        EXEC = 3'b010,
-        MEM = 3'b011,
-        HALTED = 3'b100
+        EXEC = 3'b001,
+        MEM = 3'b010,
+        HALTED = 3'b011
 } state_t;
 logic[2:0] state;
 
@@ -132,7 +131,7 @@ always @(posedge clk) begin
         $display("alu out = %h", alu_out);
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
-        state <= FETCH;
+        state <= MEM;
         clk_enable <= 0;
         if (address == 0) begin
             state <= HALTED;
@@ -144,6 +143,9 @@ always @(posedge clk) begin
         else begin
             delay <= 0;
         end
+    end
+    else if (state == MEM) begin
+      state <= FETCH;
     end
     else if (state == HALTED) begin
         //do nothing
