@@ -17,10 +17,9 @@ module mips_cpu_bus(
 //cpu state
 typedef enum logic[2:0] {
         FETCH = 3'b000,
-        STALL = 3'b001,
-        EXEC = 3'b010,
-        MEM = 3'b011,
-        HALTED = 3'b100
+        EXEC = 3'b001,
+        MEM = 3'b010,
+        HALTED = 3'b011
 } state_t;
 logic[2:0] state;
 
@@ -70,7 +69,7 @@ initial begin
 end
 
 always @(posedge clk) begin
-    // $display("-------------------------------");
+    $display("-------------------------------");
     if (reset) begin
         $display("CPU : INFO  : Resetting.");
         state <= FETCH;
@@ -79,16 +78,10 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
-        state <= STALL;
-    end
-    else if (state == STALL) begin
-        $display("CPU : INFO  : Stalling.");
-        $display("waitrequest=%h",waitrequest);
         if (waitrequest == 0) begin
           state <= EXEC;
           clk_enable <= 1;
         end
-
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
@@ -97,30 +90,30 @@ always @(posedge clk) begin
         $display("current inst address =%h", address);
         $display("current inst =%h", readdata);
 
-        // //Branch/Jump Related
-        // $display("opcode = %d", readdata[31:26]);
-        // $display("branch = %h", branch);
-        // $display("jump1 = %h", jump1);
-        // $display("jump2 = %h", jump2);
-        // $display("condition_met = %h", condition_met);
-        // $display("tgt_addr_0 = %h", tgt_addr_0);
-        // $display("tgt_addr_1 = %h", tgt_addr_1);
-        // $display("delay = %h", delay);
-        // $display("branch address = %h", branch_addr);
-        // $display("jump address = %h", jump_addr);
+        //Branch/Jump Related
+        $display("opcode = %d", readdata[31:26]);
+        $display("branch = %h", branch);
+        $display("jump1 = %h", jump1);
+        $display("jump2 = %h", jump2);
+        $display("condition_met = %h", condition_met);
+        $display("tgt_addr_0 = %h", tgt_addr_0);
+        $display("tgt_addr_1 = %h", tgt_addr_1);
+        $display("delay = %h", delay);
+        $display("branch address = %h", branch_addr);
+        $display("jump address = %h", jump_addr);
 
-        // //Register Related
-        // $display("Reading Register A = %d", readdata[25:21]);
-        // $display("Reading Register B = %d", readdata[20:16]);
-        // $display("Data from Reg A = %h", read_data_a);
-        // $display("Data from Reg B = %h", read_data_b);
-        // $display("Register being written to = %d", write_reg_rd);
-        // $display("Reg Write Data = %h", reg_write_data);
-        // $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
-        // $display("Link to reg for links = %d", link_to_reg);
-        // $display("Reg Write Enable = %h", reg_write_enable);
+        //Register Related
+        $display("Reading Register A = %d", readdata[25:21]);
+        $display("Reading Register B = %d", readdata[20:16]);
+        $display("Data from Reg A = %h", read_data_a);
+        $display("Data from Reg B = %h", read_data_b);
+        $display("Register being written to = %d", write_reg_rd);
+        $display("Reg Write Data = %h", reg_write_data);
+        $display("Datamem to Reg signal for loads = %d", datamem_to_reg);
+        $display("Link to reg for links = %d", link_to_reg);
+        $display("Reg Write Enable = %h", reg_write_enable);
 
-        // //Data Memory Related
+        //Data Memory Related
         // $display("Data address = %h", data_address);
         // $display("Data address temp = %h", data_address_temp);
         // $display("lwl signal = %b", lwl);
@@ -131,14 +124,14 @@ always @(posedge clk) begin
         // $display("data write signal = %h", data_write);
         // $display("Write Data to data mem = %h", writedata);
 
-        // $display("immediate = %h", immdt_32);
+        $display("immediate = %h", immdt_32);
 
-        // //ALU
-        // $display("alu_src = %b", alu_src);
-        // $display("alu out = %h", alu_out);
-        // // $display("value going into hi = %h", hi);
-        // // $display("value going into lo = %h", lo);
-        state <= FETCH;
+        //ALU
+        $display("alu_src = %b", alu_src);
+        $display("alu out = %h", alu_out);
+        // $display("value going into hi = %h", hi);
+        // $display("value going into lo = %h", lo);
+        state <= MEM;
         clk_enable <= 0;
         if (address == 0) begin
             state <= HALTED;
@@ -150,6 +143,9 @@ always @(posedge clk) begin
         else begin
             delay <= 0;
         end
+    end
+    else if (state == MEM) begin
+      state <= FETCH;
     end
     else if (state == HALTED) begin
         //do nothing
@@ -173,7 +169,7 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .opcode(readdata[31:26]), .function_code(readdata[5:0]), .b_code(readdata[20:16]), 
+  .opcode(readdata[31:26]), .function_code(readdata[5:0]), .b_code(readdata[20:16]),
   .state(state), .waitrequest(waitrequest),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
@@ -310,11 +306,12 @@ PC_address_selector pcsel_inst(
 //Register to hold target address from PC_address_selector
 target_addr_holder taddr_inst(
   .clk(clk),
+  .clk_enable(clk_enable),
   .tgt_addr_0(tgt_addr_0),
   .tgt_addr_1(tgt_addr_1)
 );
 
-//PC Mux to choose PC + 4 or target address 
+//PC Mux to choose PC + 4 or target address
 mux_32bit pcmux(
   .select(delay),
   .in_0(pc_plus4), .in_1(tgt_addr_1),

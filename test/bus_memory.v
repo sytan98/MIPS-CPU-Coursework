@@ -16,7 +16,7 @@ module bus_memory(
 	parameter RAM_INIT_FILE = "";
 	parameter address_bit_size = 10; 
 	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000 
-	parameter num_stalls = 3;
+	parameter num_stalls = 1;
 	// instructions start at word 128
 	// this divides memory equally between data(first half excluding address 0) and instructions (second half starting at word 128)
 
