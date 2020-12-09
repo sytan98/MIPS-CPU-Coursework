@@ -1,17 +1,23 @@
 module memory_tb(
 );
-    logic clk;
-    logic[31:0] instr_address;
-    logic[31:0] instr_readdata;
+	logic clk;
+	logic[31:0] address;
+	logic write;
+    logic read;
+    logic waitrequest;
+    logic[31:0] writedata;
+    logic[3:0] byteenable;
+    logic[31:0] readdata;
+    logic[1:0] check_state;
 
     /* The number of cycles we want to actually test. Increasing the number will make the test-bench
         take longer, but may also uncover edge-cases. */
     localparam TEST_CYCLES = 100;
-    parameter ROM_INIT_FILE = "../test/cases/addiu_1.byte.txt";
+    parameter ROM_INIT_FILE = "./cases/addiu_1.bytes.txt";
     /* Constant used to track how many cycles we want to run for before declarating a timeout. */
     localparam TIMEOUT_CYCLES = TEST_CYCLES + 10;
 
-    instruction_memory #(ROM_INIT_FILE) romInst(clk, instr_address, instr_readdata);
+    bus_memory #(ROM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata, check_state);
 
     /* Clock generation process. Starts at the beginning of simulation. */
     initial begin
@@ -40,43 +46,112 @@ module memory_tb(
     /* Input stimulus and checking process. This starts at the beginning of time, and   
         is synchronised to the same clock as DUT. */
     initial begin
-        instr_address = 0;
         @(posedge clk);
+        @(negedge clk);
+        address = 32'hBFC00000;
+        #2
+        read = 1;
+        @(posedge clk);
+        @(negedge clk);
+        $display("State=%h", check_state);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
         
-        $display("Instruction=%h", instr_readdata);
+        @(posedge clk);
         @(negedge clk);
-        instr_address =20;
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+        
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+        address = 32'hBFC00004;
+        #5
+        read = 0;
 
         @(posedge clk);
-        $display("Instruction=%h", instr_readdata);
         @(negedge clk);
-        instr_address = 24;
+        read = 1;
 
         @(posedge clk);
-        $display("Instruction=%h", instr_readdata);
         @(negedge clk);
-        instr_address = 28;
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+        
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
 
         @(posedge clk);
-        $display("Instruction=%h", instr_readdata);
         @(negedge clk);
-        instr_address = 32;
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
 
         @(posedge clk);
-        $display("Instruction=%h", instr_readdata);
         @(negedge clk);
-        instr_address = 36;
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+        address = 32'hBFC0000C;
+        #5
+        read = 0;
+        @(posedge clk);
+        @(negedge clk);
+        read = 1;
 
         @(posedge clk);
-        $display("Instruction=%h", instr_readdata);
         @(negedge clk);
-        instr_address = 12;
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
 
-        // while (active) begin
-        //     @(posedge clk);
-        //     $display("Register v0=%h", register_v0);
-        //     $display("current instruction address=%d", instr_address);
-        // end
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+
+        @(posedge clk);
+        @(negedge clk);
+        $display("Instruction=%h", readdata);
+        $display("Wait Request=%h", waitrequest);
+
+        
+
+        // address = 32'hBFC00008;
+
+        // @(posedge clk);
+        
+        // @(negedge clk);
+        // $display("Wait Request=%h", waitrequest);
+        // $display("Instruction=%h", readdata);
+        // 
+
+        // @(posedge clk);
+        
+        // @(negedge clk);
+        // $display("Wait Request=%h", waitrequest);
+        // $display("Instruction=%h", readdata);
+        // address = 32'hBFC00010;
+
 
         $display("TB : finished; running=0");
 
