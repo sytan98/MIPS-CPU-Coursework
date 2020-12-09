@@ -13,8 +13,6 @@ if [ -z INSTRUCTION_TYPE ]
 then
     >&2 echo "Instruction not given, running all instructions."
     TESTCASES="test/cases/*.bytes.txt"
-    echo test
-    echo $TESTCASES
     passesnum=0
     totalcount=0
     # Loop over every test in cases folder
@@ -38,8 +36,6 @@ else
     
     TESTCASES="./test/cases/${INSTRUCTION_TYPE}*.bytes.txt"
     # Loop over every file matching the TESTCASES pattern
-    echo test
-    echo "$TESTCASES"
     passesnum=0
     totalcount=0
     for i in ${TESTCASES} ; do
