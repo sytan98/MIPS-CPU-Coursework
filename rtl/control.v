@@ -46,7 +46,7 @@ always @(*) begin
       read=1;
       write=0;
     end
-    else begin 
+    else begin
       read=0;
       write=0;
     end
