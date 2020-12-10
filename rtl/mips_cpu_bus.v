@@ -61,9 +61,10 @@ logic[31:0] data_address;
 logic[31:0] data_address_temp;
 logic[1:0] byte_addressing;
 logic clk_enable;
+logic [4:0] write_data_sel;
 // Registers
 //assign address = pcout;
-assign writedata = read_data_b;
+// assign writedata = read_data_b;
 assign data_address_temp = alu_out;
 assign data_address = {data_address_temp[31:2], 2'b00};
 assign byte_addressing = data_address_temp[1:0];
@@ -188,7 +189,7 @@ pc_adder pcadder_inst(
 // control
 control control_inst(
   .address(address), .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
-  .state(state), .waitrequest(waitrequest),
+  .state(state), .waitrequest(waitrequest), .data_address_temp(data_address_temp), .write_data_sel(write_data_sel),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
@@ -349,6 +350,12 @@ reg_writedata_selector regwritedata_sel(
   .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
   .mfhi(mfhi), .mflo(mflo), .byte_addressing(byte_addressing),
   .reg_write_data(reg_write_data)
+);
+
+writedata_selector writedata_sel(
+  .read_data_b(read_data_b), 
+  .write_data_sel(write_data_sel),
+  .writedata(writedata)
 );
 
 endmodule
