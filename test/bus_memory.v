@@ -16,7 +16,7 @@ module bus_memory(
 	parameter RAM_INIT_FILE = "";
 	parameter address_bit_size = 10; 
 	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000 
-	parameter num_stalls = 3;
+	parameter num_stalls = 0;
 	// instructions start at word 128
 	// this divides memory equally between data(first half excluding address 0) and instructions (second half starting at word 128)
 
@@ -45,7 +45,6 @@ module bus_memory(
 
 	initial begin
 		state = IDLE;
-		
 		stall = 0;
 	end
 		
@@ -71,13 +70,13 @@ module bus_memory(
 		$display("From bus memory, write=%h", write);
 		$display("From bus memory, state=%h", state);
 
-		if (state == IDLE) begin
+		if (state == IDLE & num_stalls != 0) begin
 			if (stall==0 && (write==1 || read==1)) begin // if read/write are asserted, start waitrequest
 				stall<=1;
 				state <= BUSY;
 			end
 		end
-		else if (state == BUSY) begin
+		else if (state == BUSY | num_stalls == 0) begin
 			if ((write == 1 || read == 1) && stall != num_stalls) begin
 				stall <= stall + 1;
 			end

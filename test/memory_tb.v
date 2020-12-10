@@ -46,6 +46,7 @@ module memory_tb(
     /* Input stimulus and checking process. This starts at the beginning of time, and   
         is synchronised to the same clock as DUT. */
     initial begin
+        byteenable = 4'b1111;
         @(posedge clk);
         @(negedge clk);
         address = 32'hBFC00000;
