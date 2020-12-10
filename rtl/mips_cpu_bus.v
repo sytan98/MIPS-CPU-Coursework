@@ -144,11 +144,14 @@ always @(posedge clk) begin
         $display("alu out = %h", alu_out);
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
-        state <= FETCH;
-        clk_enable <= 0;
+        
         if (address == 0) begin
             state <= HALTED;
             active <= 0;
+        end
+        else begin
+          state <= FETCH;
+        clk_enable <= 0;
         end
         if (branch|jump1|jump2) begin
             delay <= 1;

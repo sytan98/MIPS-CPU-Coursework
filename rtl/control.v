@@ -33,6 +33,7 @@ always @(*) begin
   //Fetch
   else if (state == 0) begin
     read = 1;
+    write = 0;
     reg_write_enable = 0;
   end
   //mem
@@ -40,9 +41,14 @@ always @(*) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
     end
-    else begin
+    else if (opcode==35) begin
       read=1;
     end
+    else begin 
+      read=0;
+      write=0;
+    end
+    
     alu_op = 2'b00;
     alu_src = 1;
 
@@ -51,6 +57,7 @@ always @(*) begin
   //Exec
   else if (state == 2) begin
     read = 0;
+    write = 0;
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
     case (opcode)
       0: rd_select = 1;
