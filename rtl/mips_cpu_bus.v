@@ -187,7 +187,7 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
+  .address(address), .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
   .state(state), .waitrequest(waitrequest),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
