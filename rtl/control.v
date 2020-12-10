@@ -41,7 +41,7 @@ always @(*) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
     end
-    else if (opcode==35) begin
+    else if (opcode==35 | opcode==32 | opcode==33 | opcode==34 | opcode==36 | opcode== 37 | opcode==38 ) begin
       read=1;
     end
     else begin 
