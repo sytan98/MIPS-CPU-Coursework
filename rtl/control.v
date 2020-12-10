@@ -1,4 +1,5 @@
 module control(
+  input logic reset,
   input logic[5:0] opcode,
   input logic[5:0] function_code,
   input logic[4:0] b_code,
@@ -25,13 +26,30 @@ module control(
 );
 
 always @(*) begin
+  //reset
+  if (reset) begin
+    read = 1;
+  end
   //Fetch
-  if (state == 0) begin
+  else if (state == 0) begin
     read = 1;
     reg_write_enable = 0;
   end
-  //Exec
+  //mem
   else if (state == 1) begin
+    if(opcode==40 | opcode==41 | opcode==43) begin
+      write=1;
+    end
+    else begin
+      read=1;
+    end
+    alu_op = 2'b00;
+    alu_src = 1;
+
+  end
+
+  //Exec
+  else if (state == 2) begin
     read = 0;
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
     case (opcode)
