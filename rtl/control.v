@@ -5,7 +5,6 @@ module control(
   input logic[4:0] b_code,
   input logic[2:0] state,
   input waitrequest,
-  input logic 
   output logic [1:0] rd_select,
   output logic imdt_sel,
   output logic branch,
@@ -23,7 +22,8 @@ module control(
   output logic mfhi,
   output logic mflo,
   output logic multdiv,
-  output logic lwl, lwr
+  output logic lwl, lwr,
+  output logic[3:0] byteenable
 );
 
 always @(*) begin
