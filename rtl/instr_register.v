@@ -11,9 +11,9 @@ module instr_register(
     if(reset) begin
       ir <= 0;
     end
-    else if ( (state == 0) & (waitrequest == 0) ) begin
+    else if ( state == 4 ) begin
         ir <= ir_writedata; //load the IR
-      
+
     end
   end
 

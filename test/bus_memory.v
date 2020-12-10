@@ -10,13 +10,13 @@ module bus_memory(
 	output logic[1:0] check_state
 );
 	// Memory (256 x 4 x 8-bit bytes) address is 32 bits (used only 10), word is 32 bits
-	// Full memory supposed to be able to store 2^30 words but we reduce it to store 2^8 (256) words. 
+	// Full memory supposed to be able to store 2^30 words but we reduce it to store 2^8 (256) words.
 	// 10 bits used for address as it is byte addressing.
 	parameter ROM_INIT_FILE = "";
 	parameter RAM_INIT_FILE = "";
-	parameter address_bit_size = 10; 
-	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000 
-	parameter num_stalls = 0;
+	parameter address_bit_size = 10;
+	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000
+	parameter num_stalls = 2;
 	// instructions start at word 128
 	// this divides memory equally between data(first half excluding address 0) and instructions (second half starting at word 128)
 
@@ -24,7 +24,7 @@ module bus_memory(
 	// If address > BFC00000, it is instruction address and needs to be mapped to start at word 128
 	// otherwise, it is a data address (keep the same)
 
-	logic[address_bit_size - 1: 0] mapped_address;		
+	logic[address_bit_size - 1: 0] mapped_address;
 
 	assign mapped_address = (address >=32'hBFC00000) ? address[address_bit_size-1:0] - 32'hBFC00000+32'h00000200 : address[address_bit_size-1:0];
 
@@ -47,13 +47,13 @@ module bus_memory(
 		state = IDLE;
 		stall = 0;
 	end
-		
+
 	// end
 	always_comb begin
 		if (read == 1 || write==1) begin
 			if (state != CHILL) begin
 				waitrequest = 1;
-			end 
+			end
 			else begin
 				waitrequest = 0;
 			end
@@ -93,9 +93,9 @@ module bus_memory(
 				state <= CHILL;
 			end
 			else if (read == 1 && stall==num_stalls) begin // read
-				readdata <= {byteenable[3] ? bytes[mapped_address+3] : 8'h00, 
-							byteenable[2] ? bytes[mapped_address+2] : 8'h00, 
-							byteenable[1] ? bytes[mapped_address+1] : 8'h00, 
+				readdata <= {byteenable[3] ? bytes[mapped_address+3] : 8'h00,
+							byteenable[2] ? bytes[mapped_address+2] : 8'h00,
+							byteenable[1] ? bytes[mapped_address+1] : 8'h00,
 							byteenable[0] ? bytes[mapped_address] : 8'h00};
 				stall<=0;
 				state <= CHILL;
@@ -134,5 +134,5 @@ module bus_memory(
     	// end
 	end
 
-	
+
 endmodule

@@ -19,7 +19,8 @@ typedef enum logic[2:0] {
         FETCH = 3'b000,
         MEM = 3'b001,
         EXEC = 3'b010,
-        HALTED = 3'b011
+        HALTED = 3'b011,
+        LOAD = 3'b100
 } state_t;
 logic[2:0] state;
 
@@ -87,8 +88,12 @@ always @(posedge clk) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
         if (waitrequest == 0) begin
-          state <= MEM;
+          state <= LOAD;
         end
+    end
+    else if (state == LOAD) begin
+      state <= MEM;
+
     end
     else if (state == MEM) begin
       if (waitrequest == 0) begin
@@ -144,7 +149,7 @@ always @(posedge clk) begin
         $display("alu out = %h", alu_out);
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
-        
+
         if (address == 0) begin
             state <= HALTED;
             active <= 0;
@@ -353,7 +358,7 @@ reg_writedata_selector regwritedata_sel(
 );
 
 writedata_selector writedata_sel(
-  .read_data_b(read_data_b), 
+  .read_data_b(read_data_b),
   .write_data_sel(write_data_sel),
   .writedata(writedata)
 );
