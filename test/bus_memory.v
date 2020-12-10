@@ -41,11 +41,10 @@ module bus_memory(
 			stall<=1;
 		end
     	if (write == 1 && stall==1) begin // write
-    		if (byteenable[0]==1)
-      		bytes[mapped_address] <= writedata[7:0] & byteenable[0]; 
-      		bytes[mapped_address+1] <= writedata[15:8] & byteenable[1];
-      		bytes[mapped_address+2] <= writedata[23:16] & byteenable[2];
-      		bytes[mapped_address+3] <= writedata[31:24] & byteenable[3];
+      		if (byteenable[0]) bytes[mapped_address] <=  writedata[7:0];
+      		if (byteenable[1]) bytes[mapped_address+1] <= writedata[15:8];
+      		if (byteenable[2]) bytes[mapped_address+2] <= writedata[23:16];
+      		if (byteenable[3]) bytes[mapped_address+3] <= writedata[31:24];
       		stall<=0;
     	end
     	if (read == 1 && stall==1) begin // read
