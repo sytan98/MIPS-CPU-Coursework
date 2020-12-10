@@ -7,6 +7,6 @@ for file in ${C}
 do
 	# printf ${file} | ./assemble
 	TESTCASE=$(basename ${file} .c)
-	make ${TESTCASE}.mips.bin
-	mv ${TESTCASE}.mips.bin ../cases/
+	make testbench/${TESTCASE}.mips.bin
+	mv testbench/${TESTCASE}.mips.bin cases/${TESTCASE}.hex.txt
 done

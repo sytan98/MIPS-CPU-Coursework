@@ -31,6 +31,10 @@ MIPS_LDFLAGS = -nostdlib -Wl,-melf32btsmip -march=mips1 -nostartfiles -mno-check
 %.mips.bin: %.mips.elf
 	$(MIPS_OBJCOPY) -O binary --only-section=.text $< $@
 
+# Extract binary instructions as text only from linked object file (.elf)
+%.mips.bin.txt: %.mips.elf
+	$(MIPS_OBJCOPY) -O srec --only-section=.text $< $@
+
 # Disassemble linked object file (.elf), pulling out instructions as MIPS assembly file (.s)
 %.mips.s : %.mips.elf
 	$(MIPS_OBJDUMP) -j .text -D $< > $@
