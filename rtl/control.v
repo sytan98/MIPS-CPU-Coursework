@@ -40,15 +40,17 @@ always @(*) begin
   else if (state == 1) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
+      read=0;
     end
     else if (opcode==35 | opcode==32 | opcode==33 | opcode==34 | opcode==36 | opcode== 37 | opcode==38 ) begin
       read=1;
+      write=0;
     end
     else begin 
       read=0;
       write=0;
     end
-    
+
     alu_op = 2'b00;
     alu_src = 1;
 
