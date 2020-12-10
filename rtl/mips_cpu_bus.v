@@ -67,7 +67,6 @@ assign writedata = read_data_b;
 assign data_address_temp = alu_out;
 assign data_address = {data_address_temp[31:2], 2'b00};
 assign byte_addressing = data_address_temp[1:0];
-assign byteenable = 4'b1111;
 
 initial begin
     state = HALTED;
@@ -205,7 +204,7 @@ control control_inst(
   .datamem_to_reg(datamem_to_reg),
   .link_to_reg(link_to_reg),
   .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv),
-  .lwl(lwl), .lwr(lwr)
+  .lwl(lwl), .lwr(lwr), .byteenable(byteenable)
 );
 
 //mux_5bit rd_mux
