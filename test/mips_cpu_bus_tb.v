@@ -2,7 +2,7 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "";
-    parameter TIMEOUT_CYCLES = 100;
+    parameter TIMEOUT_CYCLES = 1000;
 
     logic clk;
     logic reset;
@@ -24,7 +24,7 @@ module mips_cpu_bus_tb;
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata,
                     byteenable, readdata);
 //==========================================================================================================================//
-    
+
     // Generate clock
     initial begin
         $dumpfile("mips_cpu_bus_tb.vcd");
