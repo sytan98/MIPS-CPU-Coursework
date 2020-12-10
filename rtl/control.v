@@ -1,4 +1,5 @@
 module control(
+  input[31:0] address,
   input logic reset,
   input logic[5:0] opcode,
   input logic[5:0] function_code,
@@ -30,11 +31,13 @@ always @(*) begin
   //reset
   if (reset) begin
     read = 1;
+    byteenable = 4'b1111;
   end
   //Fetch
   else if (state == 0) begin
     read = 1;
     write = 0;
+    byteenable = 4'b1111;
     reg_write_enable = 0;
   end
   //mem
@@ -42,15 +45,32 @@ always @(*) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
       read=0;
+      if(opcode==40) begin 
+        if(address[1:0] == 2'b00) begin byteenable=4'b0001; end
+        else if(address[1:0] == 2'b01) begin byteenable=4'b0010; end
+        else if(address[1:0] == 2'b10) begin byteenable=4'b0100; end
+        else if(address[1:0] == 2'b11) begin byteenable=4'b1000; end
+      end
+      else if(opcode==41) begin 
+        if(address[1] == 0) begin byteenable=4'b0011; end
+        else if(address[1] == 1) begin byteenable=4'b1100; end
+        end
+      else begin
+        byteenable = 4'b1111;
+      end
+
     end
     else if (opcode==35 | opcode==32 | opcode==33 | opcode==34 | opcode==36 | opcode== 37 | opcode==38 ) begin
       read=1;
       write=0;
+      byteenable = 4'b1111;
     end
     else begin 
       read=0;
       write=0;
+      byteenable = 4'b1111;
     end
+    
 
     alu_op = 2'b00;
     alu_src = 1;
@@ -59,6 +79,7 @@ always @(*) begin
 
   //Exec
   else if (state == 2) begin
+    byteenable = 4'b1111;
     read = 0;
     write = 0;
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
