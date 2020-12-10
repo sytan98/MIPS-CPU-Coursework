@@ -5,6 +5,7 @@ module control(
   input logic[4:0] b_code,
   input logic[2:0] state,
   input waitrequest,
+  input logic 
   output logic [1:0] rd_select,
   output logic imdt_sel,
   output logic branch,
@@ -102,18 +103,6 @@ always @(*) begin
     alu_op[1:0] = (opcode==0) ? 2'd2 :
                   (opcode==4|opcode==5) ? 2'd1 :
                   (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 0;
-
-    //write: write enable signal to datamem for store instructions (storing from register into memory)
-    case (opcode)
-      40,41,43: write = 1;
-      default: write = 0;
-    endcase
-
-    //read: read enable signal to datamem. for load instructions (loading from memory into register)
-    case (opcode)
-      32,33,34,35,36,37,38: read = 1;
-      default: read = 0;
-    endcase
 
     //reg_write_enable: write enable signal to register_file. for instructions that write into a register so arithmetic, logical operations, shifts, setting etc
     case (opcode)
