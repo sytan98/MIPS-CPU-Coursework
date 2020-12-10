@@ -19,7 +19,8 @@ typedef enum logic[2:0] {
         FETCH = 3'b000,
         MEM = 3'b001,
         EXEC = 3'b010,
-        HALTED = 3'b011
+        HALTED = 3'b011,
+        LOAD = 3'b100
 } state_t;
 logic[2:0] state;
 
@@ -52,7 +53,7 @@ logic delay;
 
 logic[31:0] ir_readdata;
 logic[31:0] instruction;
-assign instruction = (~state[2]&~state[1]&state[0]) | (~state[2]&~state[1]&~state[0]&~waitrequest) ? readdata : ir_readdata;
+assign instruction = (~state[2]&~state[1]&state[0]&waitrequest) | (~state[2]&~state[1]&~state[0]&~waitrequest) ? readdata : ir_readdata;
 
 logic address_sel;
 assign address_sel = (~state[2]&~state[1]&state[0]) ? 1 : 0;
@@ -61,13 +62,13 @@ logic[31:0] data_address;
 logic[31:0] data_address_temp;
 logic[1:0] byte_addressing;
 logic clk_enable;
+logic [4:0] write_data_sel;
 // Registers
 //assign address = pcout;
-assign writedata = read_data_b;
+// assign writedata = read_data_b;
 assign data_address_temp = alu_out;
 assign data_address = {data_address_temp[31:2], 2'b00};
 assign byte_addressing = data_address_temp[1:0];
-assign byteenable = 4'b1111;
 
 initial begin
     state = HALTED;
@@ -87,8 +88,12 @@ always @(posedge clk) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
         if (waitrequest == 0) begin
-          state <= MEM;
+          state <= LOAD;
         end
+    end
+    else if (state == LOAD) begin
+      state <= MEM;
+
     end
     else if (state == MEM) begin
       if (waitrequest == 0) begin
@@ -144,7 +149,7 @@ always @(posedge clk) begin
         $display("alu out = %h", alu_out);
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
-        
+
         if (address == 0) begin
             state <= HALTED;
             active <= 0;
@@ -188,8 +193,8 @@ pc_adder pcadder_inst(
 
 // control
 control control_inst(
-  .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
-  .state(state), .waitrequest(waitrequest),
+  .address(address), .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
+  .state(state), .waitrequest(waitrequest), .data_address_temp(data_address_temp), .write_data_sel(write_data_sel),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
@@ -205,7 +210,7 @@ control control_inst(
   .datamem_to_reg(datamem_to_reg),
   .link_to_reg(link_to_reg),
   .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv),
-  .lwl(lwl), .lwr(lwr)
+  .lwl(lwl), .lwr(lwr), .byteenable(byteenable)
 );
 
 //mux_5bit rd_mux
@@ -350,6 +355,12 @@ reg_writedata_selector regwritedata_sel(
   .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
   .mfhi(mfhi), .mflo(mflo), .byte_addressing(byte_addressing),
   .reg_write_data(reg_write_data)
+);
+
+writedata_selector writedata_sel(
+  .read_data_b(read_data_b),
+  .write_data_sel(write_data_sel),
+  .writedata(writedata)
 );
 
 endmodule

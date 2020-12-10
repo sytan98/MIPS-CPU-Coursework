@@ -1,10 +1,13 @@
 module control(
+  input[31:0] address,
   input logic reset,
   input logic[5:0] opcode,
   input logic[5:0] function_code,
   input logic[4:0] b_code,
   input logic[2:0] state,
-  input waitrequest,
+  input logic waitrequest,
+  input logic [31:0] data_address_temp,
+  output logic [4:0] write_data_sel,
   output logic [1:0] rd_select,
   output logic imdt_sel,
   output logic branch,
@@ -22,33 +25,58 @@ module control(
   output logic mfhi,
   output logic mflo,
   output logic multdiv,
-  output logic lwl, lwr
+  output logic lwl, lwr,
+  output logic[3:0] byteenable
 );
 
 always @(*) begin
   //reset
   if (reset) begin
     read = 1;
+    byteenable = 4'b1111;
   end
   //Fetch
   else if (state == 0) begin
     read = 1;
     write = 0;
+    byteenable = 4'b1111;
     reg_write_enable = 0;
   end
   //mem
   else if (state == 1) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
+      read=0;
+      //SB
+      if(opcode==40) begin 
+        if(data_address_temp[1:0] == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
+        else if(data_address_temp[1:0] == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
+        else if(data_address_temp[1:0] == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
+        else if(data_address_temp[1:0] == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
+      end
+      //SH
+      else if(opcode==41) begin 
+        if(data_address_temp[1] == 0) begin byteenable=4'b0011; write_data_sel= 5; end
+        else if(data_address_temp[1] == 1) begin byteenable=4'b1100; write_data_sel= 6; end
+        end
+      //SW
+      else begin
+        byteenable = 4'b1111;
+      end
+
     end
     else if (opcode==35 | opcode==32 | opcode==33 | opcode==34 | opcode==36 | opcode== 37 | opcode==38 ) begin
       read=1;
+      write=0;
+      byteenable = 4'b1111;
     end
-    else begin 
+    else begin
       read=0;
       write=0;
+      byteenable = 4'b1111;
     end
     
+
     alu_op = 2'b00;
     alu_src = 1;
 
@@ -56,8 +84,10 @@ always @(*) begin
 
   //Exec
   else if (state == 2) begin
+    byteenable = 4'b1111;
     read = 0;
     write = 0;
+    write_data_sel= 0;
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
     case (opcode)
       0: rd_select = 1;
@@ -100,18 +130,6 @@ always @(*) begin
     alu_op[1:0] = (opcode==0) ? 2'd2 :
                   (opcode==4|opcode==5) ? 2'd1 :
                   (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 0;
-
-    //write: write enable signal to datamem for store instructions (storing from register into memory)
-    case (opcode)
-      40,41,43: write = 1;
-      default: write = 0;
-    endcase
-
-    //read: read enable signal to datamem. for load instructions (loading from memory into register)
-    case (opcode)
-      32,33,34,35,36,37,38: read = 1;
-      default: read = 0;
-    endcase
 
     //reg_write_enable: write enable signal to register_file. for instructions that write into a register so arithmetic, logical operations, shifts, setting etc
     case (opcode)
