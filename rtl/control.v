@@ -5,7 +5,9 @@ module control(
   input logic[5:0] function_code,
   input logic[4:0] b_code,
   input logic[2:0] state,
-  input waitrequest,
+  input logic waitrequest,
+  input logic [31:0] data_address_temp,
+  output logic [4:0] write_data_sel,
   output logic [1:0] rd_select,
   output logic imdt_sel,
   output logic branch,
@@ -45,16 +47,19 @@ always @(*) begin
     if(opcode==40 | opcode==41 | opcode==43) begin
       write=1;
       read=0;
+      //SB
       if(opcode==40) begin 
-        if(address[1:0] == 2'b00) begin byteenable=4'b0001; end
-        else if(address[1:0] == 2'b01) begin byteenable=4'b0010; end
-        else if(address[1:0] == 2'b10) begin byteenable=4'b0100; end
-        else if(address[1:0] == 2'b11) begin byteenable=4'b1000; end
+        if(data_address_temp[1:0] == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
+        else if(data_address_temp[1:0] == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
+        else if(data_address_temp[1:0] == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
+        else if(data_address_temp[1:0] == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
       end
+      //SH
       else if(opcode==41) begin 
-        if(address[1] == 0) begin byteenable=4'b0011; end
-        else if(address[1] == 1) begin byteenable=4'b1100; end
+        if(data_address_temp[1] == 0) begin byteenable=4'b0011; write_data_sel= 5; end
+        else if(data_address_temp[1] == 1) begin byteenable=4'b1100; write_data_sel= 6; end
         end
+      //SW
       else begin
         byteenable = 4'b1111;
       end
@@ -82,6 +87,7 @@ always @(*) begin
     byteenable = 4'b1111;
     read = 0;
     write = 0;
+    write_data_sel= 0;
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
     case (opcode)
       0: rd_select = 1;
