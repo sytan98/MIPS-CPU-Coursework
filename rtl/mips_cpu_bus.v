@@ -52,7 +52,7 @@ logic delay;
 
 logic[31:0] ir_readdata;
 logic[31:0] instruction;
-assign instruction = ~state[2]&~state[1]&state[0] ? readdata : ir_readdata;
+assign instruction = (~state[2]&~state[1]&state[0]) | (~state[2]&~state[1]&~state[0]&~waitrequest) ? readdata : ir_readdata;
 
 logic address_sel;
 assign address_sel = (~state[2]&~state[1]&state[0]) ? 1 : 0;
