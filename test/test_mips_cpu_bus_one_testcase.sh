@@ -25,12 +25,28 @@ done
 # -s specifies exactly which testbench should be top-level
 # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
 
+# for 
+# srcfilestocompile=`ls "${SRC}"/mips_cpu/*.v`
+# set +e
+# srcfilestocompile+=`ls "${SRC}"/mips_cpu_*.v`
+# set -e
+# echo test
 srcfilestocompile=""
-srcfiles="./"${SRC}"/*.v"
-for i in ${srcfiles} ; do
-    # Extract just the testcase name from the filename. See `man basename` for what this command does.
-    srcfilestocompile="$srcfilestocompile $i"
-done
+srcfiles1="./"${SRC}"/mips_cpu/*.v"
+if ls ${srcfiles1} 1> /dev/null 2>&1; then
+    for i in ${srcfiles1} ; do
+        # Extract just the testcase name from the filename. See `man basename` for what this command does.
+        srcfilestocompile="$srcfilestocompile $i"
+    done
+fi
+srcfiles2="./"${SRC}"/mips_cpu_*.v"
+if ls ${srcfiles2} 1> /dev/null 2>&1; then
+    for i in ${srcfiles2} ; do
+        # Extract just the testcase name from the filename. See `man basename` for what this command does.
+        srcfilestocompile="$srcfilestocompile $i"
+    done
+fi
+
 
 iverilog -g 2012 \
 ./test/mips_cpu_bus_tb.v ./test/bus_memory.v \

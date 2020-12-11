@@ -9,7 +9,7 @@ SRC="$1"
 INSTRUCTION_TYPE="$2"
 # Second parameter to script determines instruction. If no instruction given, run all test cases.
 # -z checks if variable is empty
-if [ -z INSTRUCTION_TYPE ]
+if [ -z $INSTRUCTION_TYPE ]
 then
     >&2 echo "Instruction not given, running all instructions."
     TESTCASES="test/cases/*.bytes.txt"
