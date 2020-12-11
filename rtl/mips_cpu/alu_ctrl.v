@@ -1,3 +1,5 @@
+// alu control module. sends signal alu_cltr_in to alu.v wihch decides what
+// operation to do in the alu based on alu_op coming from control.v.
 module alu_ctrl(
     input logic [1:0] alu_op,
     input logic [5:0] function_code,
@@ -5,12 +7,12 @@ module alu_ctrl(
     output logic [4:0] alu_ctrl_in
 );
     always_comb begin
-        if (alu_op == 0) begin  
+        if (alu_op == 0) begin
             alu_ctrl_in = 5'b00000;
-        end    
+        end
         else if (alu_op == 1) begin
             alu_ctrl_in = 5'b00001;
-        end 
+        end
         else if (alu_op == 2) begin
             case(function_code)
                 33: alu_ctrl_in = 5'b00010; //addu
@@ -31,7 +33,7 @@ module alu_ctrl(
                 26: alu_ctrl_in = 5'b10001; //div
                 27: alu_ctrl_in = 5'b10010; //divu
             endcase
-        end 
+        end
         else begin
             case(opcode)
                 9: alu_ctrl_in = 5'b10011; //addiu

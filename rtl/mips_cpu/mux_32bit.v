@@ -1,3 +1,4 @@
+//2-input mux of width 32 bits.
 module mux_32bit(
   input logic[31:0] in_0, in_1,
   input logic select,

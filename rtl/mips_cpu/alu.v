@@ -1,11 +1,15 @@
+// alu module. based on alu_ctrl_in coming from alu_ctrl.v, does operations on
+// A: data read from register A and/or B: either data read from register B or the sign/zero-extended immediate.
+// operations include addition, subtraction, shifting, multiplication, division,
+// logical operations such as and, or, xor, and comparing values in registers for set/branch instructions.
 module alu(
-    input logic[4:0] alu_ctrl_in,
-    input logic[31:0] A,
-    input logic[31:0] B,
+    input logic[4:0] alu_ctrl_in, //from alu_ctrl_in
+    input logic[31:0] A,          //data read from register A
+    input logic[31:0] B,          //either data read from register A or sign/zero-extended immediate - selected by control signal alu_src
     input logic[4:0] shamt,
     output logic[31:0] alu_out,
-    output logic zero,
-    output logic[31:0] lo, hi
+    output logic zero,            //signal to branch_cond.v. if zero is high, it means that the values in two registers are equal.
+    output logic[31:0] lo, hi     //outputs to the lo and hi registers respectively for mult and div instructions.
 );
     logic[63:0] mult_div_out;
     assign lo = mult_div_out[31:0];
@@ -29,8 +33,7 @@ module alu(
             15: mult_div_out = $signed(A) * $signed(B);//mult
             16: mult_div_out = A * B;//multu
             17: mult_div_out = {32'h00000000, $signed(A)/$signed(B)} | {$signed(A)%$signed(B), 32'h00000000};//div
-            //TODO:how does it handle divide by zero?
-			18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000}; //divu
+			      18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000}; //divu
             25: alu_out = B << 16; //lui
 
 			default: alu_out = 0;

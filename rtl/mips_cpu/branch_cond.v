@@ -1,31 +1,32 @@
+// used to check if the conditions for a branch to be taken has been met.
+// takes in the different opcodes and b_codes (instruction[20:16], needed as some branch instructions have same opcode)
+// to tell which branch instruction is happening and hence check for the different conditions.
+// depending on the branch instruction, condition_met will go to high if the appropriate conditions have been met.
 module branch_cond(
   input logic branch,
   input logic[5:0] opcode,
   input logic[4:0] b_code,
-  input logic equal, //zero flag from alu.v
+  input logic equal,             //zero flag from alu.v, if values in two registers are equal
   input logic[31:0] read_data_a, //data read from register rs.
-  output logic condition_met //will be used as a control signal to branchmux that selects btwn 0:PC+4 or 1:branch target address
+  output logic condition_met     //control signal to PC_address_selector.v to select the branch target address.
 );
 
   logic zero;
   logic neg;
 
   assign zero = (read_data_a[31:0]==32'h00000000) ? 1 : 0; //if value of rs = 0
-  assign neg = (read_data_a[31]==1) ? 1 : 0; //if value of rs < 0
+  assign neg = (read_data_a[31]==1) ? 1 : 0;               //if value of rs < 0
 
 
   always@(*) begin
     case(opcode)
-      4: condition_met = (branch &  equal) ? 1 : 0; //BEQ
-      5: condition_met = (branch & !equal) ? 1 : 0; //BNE
-      7: condition_met = (branch & !zero & !neg) ? 1 : 0;//BGTZ
-      6: condition_met = (branch & (zero | neg)) ? 1 : 0; //BLEZ
-      1: condition_met = ( ((b_code==1|b_code==17)&(branch&!neg)) | ((b_code==0|b_code==16)&(branch&neg)) ) ? 1 : 0; //BGEZ,BGEZAL, BLTZ,BLTZAL
-         // case(b_code)
-         //  1, 17: condition_met = (branch & !neg) ? 1 : 0; //BGEZ, BGEZAL
-         //  0, 16: condition_met = (branch &  neg) ? 1 : 0; //BLTZ, BLTZAL
-         // endcase
-      default: condition_met = 0;
+      4: condition_met = (branch &  equal) ? 1 : 0;        //BEQ
+      5: condition_met = (branch & !equal) ? 1 : 0;        //BNE
+      7: condition_met = (branch & !zero & !neg) ? 1 : 0;  //BGTZ
+      6: condition_met = (branch & (zero | neg)) ? 1 : 0;  //BLEZ
+      1: condition_met = ( ((b_code==1|b_code==17)&(branch&!neg)) | ((b_code==0|b_code==16)&(branch&neg)) ) ? 1 : 0;
+                                                           //BGEZ, BGEZAL, BLTZ, BLTZAL
+      default: condition_met = 0;                          //condition for branch to be taken has not been met, branch will not be taken
     endcase
   end
 

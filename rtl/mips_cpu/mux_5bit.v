@@ -1,3 +1,4 @@
+//2-input mux of width 5 bits
 module mux_5bit(
   input logic[4:0] in_0, in_1,
   input logic[1:0] select,
