@@ -31,6 +31,7 @@ then
         fi
         totalcount=`expr $totalcount + 1`
     done
+    >&2 echo "Number of Passes = $passesnum out of $totalcount"
 else
     >&2 echo "${INSTRUCTION_TYPE} instructions to be tested."
     
