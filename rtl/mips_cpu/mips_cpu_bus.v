@@ -24,49 +24,48 @@ typedef enum logic[2:0] {
 } state_t;
 logic[2:0] state;
 
-//Wire Definition
-logic[31:0] pcin;
-logic[31:0] pcout;
-logic[31:0] pc_plus4;
-logic [1:0] rd_select;
-logic imdt_sel, branch, jump, jumpreg, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv, lwl, lwr;
-logic [2:0] datamem_to_reg;
+// Wire Definition
+logic       clk_enable;
+// PC related
+logic[31:0] pcin, pcout, pc_plus4, jump_addr, branch_addr, tgt_addr_0, tgt_addr_1;
+logic       condition_met;
+logic       delay;
+// control signals
+logic[1:0] rd_select;
+logic      imdt_sel, branch, jump, jumpreg, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv, lwl, lwr;
+logic[2:0] datamem_to_reg;
 logic[1:0] alu_op;
-logic[4:0] write_reg_rd;
+// register_file related
+logic[4:0]  write_reg_rd;
 logic[31:0] read_data_a, read_data_b, reg_write_data;
-logic[31:0] signed_32, zero_32;
-logic[31:0] immdt_32;
-logic[31:0] alu_in;
-logic[4:0] alu_ctrl_in;
-logic[31:0] alu_out, lo, hi;
-logic zero;
-
+// reg_hi, reg_lo
 logic[31:0] hi_readdata;
 logic[31:0] lo_readdata;
-logic condition_met;
-logic[31:0] jump_addr;
-logic[31:0] branch_addr;
-logic[31:0] tgt_addr_0;
-logic[31:0] tgt_addr_1;
+// alu related
+logic[31:0] signed_32, zero_32, immdt_32;
+logic[4:0]  alu_ctrl_in;
+logic[31:0] alu_in, alu_out, lo, hi;
+logic       zero;
 
-logic delay;
-
+// bus related
 logic[31:0] ir_readdata;
 logic[31:0] instruction;
-assign instruction = (~state[2]&~state[1]&state[0]&waitrequest) | (~state[2]&~state[1]&~state[0]&~waitrequest) ? readdata : ir_readdata;
+// assign instruction = ( ( (state==FETCH) & (waitrequest==1) ) | ( (state==MEM) & (waitrequest==0) ) ) ? readdata : ir_readdata;
+// assign instruction = (state==MEM) ? readdata : ir_readdata;
+assign instruction = ir_readdata;
 
+// to ensure that the memory address is output from the CPU into bus_memory.v during MEM stage, important for load/store instructions
 logic address_sel;
-assign address_sel = (~state[2]&~state[1]&state[0]) ? 1 : 0;
+assign address_sel = (state==MEM) ? 1 : 0;
 
-logic[31:0] data_address;
-logic[31:0] data_address_temp;
-logic[1:0] byte_addressing;
-logic clk_enable;
+logic[31:0] memory_address;
+logic[31:0] memory_address_temp;
+logic[1:0]  byte_addressing;
 logic [4:0] write_data_sel;
 
-assign data_address_temp = alu_out;
-assign data_address = {data_address_temp[31:2], 2'b00};
-assign byte_addressing = data_address_temp[1:0];
+assign memory_address_temp = alu_out;                       // alu_out calculates address in memory based on read_data_a and immediate
+assign memory_address = {memory_address_temp[31:2], 2'b00};   // to ensure that word output from memory is always word aligned
+assign byte_addressing = memory_address_temp[1:0];          // last 2 LSB of memory address
 
 initial begin
     state = HALTED;
@@ -130,8 +129,8 @@ always @(posedge clk) begin
         $display("Reg Write Enable = %h", reg_write_enable);
 
         //Data Memory Related
-        $display("Data address = %h", data_address);
-        $display("Data address temp = %h", data_address_temp);
+        $display("Data address = %h", memory_address);
+        $display("Data address temp = %h", memory_address_temp);
         // $display("lwl signal = %b", lwl);
         // $display("lwr signal = %b", lwr);
         // $display("byte_addressing = %b", byte_addressing);
@@ -178,7 +177,8 @@ instr_register ir_inst(
 
 //PC
 pc pc_inst(
-  .clk(clk), .reset(reset), .clk_enable(clk_enable),
+  .clk(clk), .reset(reset),
+  .clk_enable(clk_enable),
   .pcin(pcin),
   .pcout(pcout)
 );
@@ -255,7 +255,7 @@ mux_32bit alumux(
 //memory address mux
 mux_32bit addressmux(
   .select(address_sel),
-  .in_0(pcout), .in_1(data_address),
+  .in_0(pcout), .in_1(memory_address),
   .out(address)
 );
 
@@ -281,7 +281,8 @@ alu alu_inst(
 
 //reg_hi
 reg_hi reghi_inst(
-  .clk(clk), .reset(reset), .clk_enable(clk_enable),
+  .clk(clk), .reset(reset),
+  .clk_enable(clk_enable),
   .hi_wren(hi_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .hi(hi),
@@ -290,7 +291,8 @@ reg_hi reghi_inst(
 
 //reg_lo
 reg_lo reglo_inst(
-  .clk(clk), .reset(reset), .clk_enable(clk_enable),
+  .clk(clk), .reset(reset),
+  .clk_enable(clk_enable),
   .lo_wren(lo_wren), .multdiv(multdiv),
   .read_data_a(read_data_a),
   .lo(lo),
