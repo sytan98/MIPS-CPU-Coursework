@@ -19,21 +19,17 @@ module PC_address_selector(
 );
 
   always @(*) begin
-    // if conditions for branch has been met
     if (condition_met & !jump & !jumpreg) begin
-      tgt_addr_0 = branch_addr;
+      tgt_addr_0 = branch_addr;       // if conditions for branch has been met, select branch target address
     end
-    // if instruction is J or JAL
     else if (!condition_met & jump & !jumpreg) begin
-      tgt_addr_0 = jump_addr;
+      tgt_addr_0 = jump_addr;         // if instruction is J or JAL, select jump target address
     end
-    // if instruction is JR and JALR
     else if (!condition_met & !jump & jumpreg) begin
-      tgt_addr_0 = read_data_a;
+      tgt_addr_0 = read_data_a;       // if instruction is JR and JALR, select read_data_a
     end
-    // if branch is not taken
     else begin
-      tgt_addr_0 = pc_plus4 + 4;
+      tgt_addr_0 = pc_plus4 + 4;      // if branch is not taken, select PC+8
     end
   end
 endmodule

@@ -211,13 +211,6 @@ control control_inst(
   .lwl(lwl), .lwr(lwr), .byteenable(byteenable)
 );
 
-// //mux_5bit rd_mux
-// mux_5bit rd_mux(
-//   .select(rd_select),
-//   .in_0(instruction[20:16]), .in_1(instruction[15:11]),
-//   .out(write_reg_rd)
-// );
-
 destination_reg_selector rd_selector(
   .read_reg_b(instruction[20:16]),          // register rt, instruction[20:16]
   .rtype_rd(instruction[15:11]),            // register rd, instruction[15:11]
