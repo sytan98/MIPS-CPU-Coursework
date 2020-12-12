@@ -1,14 +1,15 @@
 // used to check if the conditions for a branch to be taken has been met.
-// takes in the different opcodes and b_codes (instruction[20:16], needed as some branch instructions have same opcode)
+// takes in the different opcodes and b_codes (needed as some branch instructions have same opcode)
 // to tell which branch instruction is happening and hence check for the different conditions.
 // depending on the branch instruction, condition_met will go to high if the appropriate conditions have been met.
+
 module branch_cond(
-  input logic branch,
-  input logic[5:0] opcode,
-  input logic[4:0] b_code,
-  input logic equal,             //zero flag from alu.v, if values in two registers are equal
-  input logic[31:0] read_data_a, //data read from register rs.
-  output logic condition_met     //control signal to PC_address_selector.v to select the branch target address.
+  input logic branch,            // from control.v for branch instructions
+  input logic[5:0] opcode,       // instruction[31:26]
+  input logic[4:0] b_code,       // instruction[20:16]
+  input logic equal,             // zero flag from alu.v, will be high if values in two registers are equal
+  input logic[31:0] read_data_a, // data read from register rs.
+  output logic condition_met     // control signal to PC_address_selector.v to select the branch target address.
 );
 
   logic zero;

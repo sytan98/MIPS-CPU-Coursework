@@ -1,3 +1,5 @@
+// register that holds onto the instruction output from the memory.
+
 module instr_register(
   input logic clk, reset, waitrequest,
   input logic[2:0] state,

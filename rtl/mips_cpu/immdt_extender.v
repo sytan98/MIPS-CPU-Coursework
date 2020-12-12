@@ -1,10 +1,11 @@
 // sign extends and zero extends the 16-bit immediate in i-type instructions to 32 bits.
 // the two outputs will be connected to a mux (imdtmux) and control signal imdt_sel from control.v
 // will select between either the sign extended immediate or the zero extended immediate (for XORI, ANDI, ORI).
+
 module immdt_extender(
-  input logic[15:0] immdt_16,
-  output logic [31:0] sign_immdt_32,
-  output logic [31:0] zero_immdt_32
+  input logic[15:0] immdt_16,         // instruction[15:0], 16-bit immediate
+  output logic [31:0] sign_immdt_32,  // sign-extended immediate
+  output logic [31:0] zero_immdt_32   // zero-extended immediate
 );
   logic msb;
   assign msb = immdt_16[15];

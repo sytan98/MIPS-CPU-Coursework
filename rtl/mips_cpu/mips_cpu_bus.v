@@ -63,9 +63,7 @@ logic[31:0] data_address_temp;
 logic[1:0] byte_addressing;
 logic clk_enable;
 logic [4:0] write_data_sel;
-// Registers
-//assign address = pcout;
-// assign writedata = read_data_b;
+
 assign data_address_temp = alu_out;
 assign data_address = {data_address_temp[31:2], 2'b00};
 assign byte_addressing = data_address_temp[1:0];
@@ -247,7 +245,7 @@ mux_32bit imdtmux(
   .out(immdt_32)
 );
 
-//mux_32bit alumux
+//alumux
 mux_32bit alumux(
   .select(alu_src),
   .in_0(read_data_b), .in_1(immdt_32),
@@ -318,7 +316,7 @@ jump_addressor j_calc(
 // branch_addressor
 branch_addressor b_calc(
   .immdt_32(immdt_32),
-  .PCnext(pc_plus4),
+  .pc_plus4(pc_plus4),
   .branch_addr(branch_addr)
 );
 

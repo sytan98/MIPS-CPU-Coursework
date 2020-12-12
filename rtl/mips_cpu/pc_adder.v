@@ -1,4 +1,5 @@
 // module to increment the PC by 4 due to byte addressing.
+
 module pc_adder(
   input logic[31:0] pcout,
   output logic[31:0] pc_plus4
