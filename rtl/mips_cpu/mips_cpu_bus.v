@@ -63,9 +63,9 @@ logic[31:0] memory_address_temp;
 logic[1:0]  byte_addressing;
 logic [4:0] write_data_sel;
 
-assign memory_address_temp = alu_out;                       // alu_out calculates address in memory based on read_data_a and immediate
+assign memory_address_temp = alu_out;                         // alu_out calculates address in memory based on read_data_a and immediate
 assign memory_address = {memory_address_temp[31:2], 2'b00};   // to ensure that word output from memory is always word aligned
-assign byte_addressing = memory_address_temp[1:0];          // last 2 LSB of memory address
+assign byte_addressing = memory_address_temp[1:0];            // last 2 LSB of memory address
 
 initial begin
     state = HALTED;
