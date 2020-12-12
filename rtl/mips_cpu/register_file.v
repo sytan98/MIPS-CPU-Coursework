@@ -8,8 +8,8 @@ module register_file(
   input logic[4:0]    read_reg_a,          // register rs, instruction[25:21]
   input logic[4:0]    read_reg_b,          // register rt, instruction[20:16]
 
-  input logic[4:0]    write_reg_rd,        // destination register, either register rt for I-type instructions or register rd, instruction[15:11] for R-type instructions
-                                           // output of mux is selected by control signal rd_select from control.v which goes to high for R-type instructions.
+  input logic[4:0]    write_reg_rd,        // destination register, from destination_reg_selector.v
+
   input logic         reg_write_enable,    // write enable signal for register from control.v
   input logic[31:0]   reg_write_data,      // data to be written into destination reigster, comes from reg_writedata_selector.v
 
@@ -22,7 +22,6 @@ module register_file(
   output logic[31:0] register_v0           // data read from register 2 / v0.
 );
   logic[31:0] regfile[31:0];               // instantiating 32 32-bit wide registers
-
   initial begin
     regfile[0] = 0;                        // hardwiring register 0 to contain 0
   end

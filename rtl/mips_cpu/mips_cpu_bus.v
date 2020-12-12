@@ -14,7 +14,7 @@ module mips_cpu_bus(
     output logic[3:0] byteenable,
     input logic[31:0] readdata
 );
-//cpu state
+// cpu state
 typedef enum logic[2:0] {
         FETCH = 3'b000,
         MEM = 3'b001,
@@ -29,7 +29,7 @@ logic[31:0] pcin;
 logic[31:0] pcout;
 logic[31:0] pc_plus4;
 logic [1:0] rd_select;
-logic imdt_sel, branch, jump1, jump2, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv, lwl, lwr;
+logic imdt_sel, branch, jump, jumpreg, alu_src, reg_write_enable, hi_wren, lo_wren, link_to_reg, mfhi, mflo, multdiv, lwl, lwr;
 logic [2:0] datamem_to_reg;
 logic[1:0] alu_op;
 logic[4:0] write_reg_rd;
@@ -109,8 +109,8 @@ always @(posedge clk) begin
         //Branch/Jump Related
         $display("opcode = %d", readdata[31:26]);
         $display("branch = %h", branch);
-        $display("jump1 = %h", jump1);
-        $display("jump2 = %h", jump2);
+        $display("jump = %h", jump);
+        $display("jumpreg = %h", jumpreg);
         $display("condition_met = %h", condition_met);
         $display("tgt_addr_0 = %h", tgt_addr_0);
         $display("tgt_addr_1 = %h", tgt_addr_1);
@@ -156,7 +156,7 @@ always @(posedge clk) begin
           state <= FETCH;
         clk_enable <= 0;
         end
-        if (branch|jump1|jump2) begin
+        if (branch|jump|jumpreg) begin
             delay <= 1;
         end
         else begin
@@ -189,15 +189,15 @@ pc_adder pcadder_inst(
   .pc_plus4(pc_plus4)
 );
 
-// control
+// control.v
 control control_inst(
-  .address(address), .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
-  .state(state), .waitrequest(waitrequest), .data_address_temp(data_address_temp), .write_data_sel(write_data_sel),
+  .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
+  .state(state), .waitrequest(waitrequest), .byte_addressing(byte_addressing), .write_data_sel(write_data_sel),
   .rd_select(rd_select),
   .imdt_sel(imdt_sel),
   .branch(branch),
-  .jump1(jump1),
-  .jump2(jump2),
+  .jump(jump),
+  .jumpreg(jumpreg),
   .alu_op(alu_op),
   .alu_src(alu_src),
   .read(read),
@@ -211,11 +211,18 @@ control control_inst(
   .lwl(lwl), .lwr(lwr), .byteenable(byteenable)
 );
 
-//mux_5bit rd_mux
-mux_5bit rd_mux(
-  .select(rd_select),
-  .in_0(instruction[20:16]), .in_1(instruction[15:11]),
-  .out(write_reg_rd)
+// //mux_5bit rd_mux
+// mux_5bit rd_mux(
+//   .select(rd_select),
+//   .in_0(instruction[20:16]), .in_1(instruction[15:11]),
+//   .out(write_reg_rd)
+// );
+
+destination_reg_selector rd_selector(
+  .read_reg_b(instruction[20:16]),          // register rt, instruction[20:16]
+  .rtype_rd(instruction[15:11]),            // register rd, instruction[15:11]
+  .rd_select(rd_select),                    // from control.v, select signal to select destination register
+  .write_reg_rd(write_reg_rd)               // destinatoin register, connected to register_file.v
 );
 
 //register_file
@@ -327,8 +334,8 @@ PC_address_selector pcsel_inst(
   .read_data_a(read_data_a),
   .pc_plus4(pc_plus4),
   .condition_met(condition_met), //from branch_cond block
-  .jump1(jump1), //from control, for J and JAL
-  .jump2(jump2), //from control, for JR and JALR
+  .jump(jump), //from control, for J and JAL
+  .jumpreg(jumpreg), //from control, for JR and JALR
   .tgt_addr_0(tgt_addr_0)
 );
 

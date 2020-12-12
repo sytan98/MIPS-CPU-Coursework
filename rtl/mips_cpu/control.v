@@ -1,32 +1,40 @@
 module control(
-  input[31:0] address,
+  // inputs
   input logic reset,
-  input logic[5:0] opcode,
-  input logic[5:0] function_code,
-  input logic[4:0] b_code,
-  input logic[2:0] state,
-  input logic waitrequest,
-  input logic [31:0] data_address_temp,
-  output logic [4:0] write_data_sel,
-  output logic [1:0] rd_select,
-  output logic imdt_sel,
-  output logic branch,
-  output logic jump1,
-  output logic jump2,
-  output logic[1:0] alu_op,
-  output logic alu_src,
-  output logic read,
-  output logic write,
-  output logic reg_write_enable,
-  output logic hi_wren,
-  output logic lo_wren,
-  output logic[2:0] datamem_to_reg,
-  output logic link_to_reg,
-  output logic mfhi,
-  output logic mflo,
-  output logic multdiv,
-  output logic lwl, lwr,
-  output logic[3:0] byteenable
+  input logic[5:0] opcode,            // instruction[31:26]
+  input logic[5:0] function_code,     // instruction[5:0]
+  input logic[4:0] b_code,            // instruction[20:16]
+  input logic[2:0] state,             // cpu state from mips_cpu_bus.v
+  input logic waitrequest,            // from bus_memory.v
+  input logic[1:0] byte_addressing,  // last 2 LSB of data address
+
+  // register_file related
+  output logic[1:0] rd_select,        // select signal to destination_reg_selector.v to select destination register
+  output logic reg_write_enable,      // write enable signal for register in register_file.v
+  output logic[2:0] datamem_to_reg,   // control signal to reg_writedata_selector.v, for load instructions
+  output logic link_to_reg,           // control signal to reg_writedata_selector.v, for link instructions
+  output logic mfhi, mflo,            // control signal to reg_writedata_selector.v, for mfhi and mflo instructions
+  output logic lwl, lwr,              // signal to register_file.v for lwl and lwr instructions
+  // hi and lo registers related
+  output logic hi_wren,               // write enable signal for reg_hi.v, for mthi, multiplication and division instructions
+  output logic lo_wren,               // write enable signal for reg_lo.v, for mtlo, multiplication and division instructions
+  output logic multdiv,               // control signal to reg_hi.v and reg_lo.v, for multiplication and divison instructions
+
+  // memory related
+  output logic read,                  // read enable signal to bus_memory.v
+  output logic write,                 // write enable signal to bus_memory.v
+  output logic[4:0] write_data_sel,  // control signal to writedata_selector.v, for store instructions
+  output logic[3:0] byteenable,      // control signal to bus_memory.v for sb and sh instructions
+
+  // alu related
+  output logic imdt_sel,              // control signal to imdtmux, selects between sign extended or zero extended immediate for andi, ori, xori
+  output logic alu_src,               // control signal to alumux, selects between read_data_b for R-type instructions or immdt_32 for I-type instructions
+  output logic[1:0] alu_op,           // control signal to alu_ctrl.v, 0 for load/store instructions, 1 for BEQ/BNE, 2 for R-type/I-type instructions
+
+  // PC address related
+  output logic branch,                // control signal to branch_cond.v, for branch instructions
+  output logic jump,                  // control signal to PC_address_selector.v for J and JAL
+  output logic jumpreg              // control signal to PC_address_selector.v for JR and JALR
 );
 
 always @(*) begin
@@ -48,16 +56,16 @@ always @(*) begin
       write=1;
       read=0;
       //SB
-      if(opcode==40) begin 
-        if(data_address_temp[1:0] == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
-        else if(data_address_temp[1:0] == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
-        else if(data_address_temp[1:0] == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
-        else if(data_address_temp[1:0] == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
+      if(opcode==40) begin
+        if(byte_addressing[1:0] == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
+        else if(byte_addressing[1:0] == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
+        else if(byte_addressing[1:0] == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
+        else if(byte_addressing[1:0] == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
       end
       //SH
-      else if(opcode==41) begin 
-        if(data_address_temp[1] == 0) begin byteenable=4'b0011; write_data_sel= 5; end
-        else if(data_address_temp[1] == 1) begin byteenable=4'b1100; write_data_sel= 6; end
+      else if(opcode==41) begin
+        if(byte_addressing[1] == 0) begin byteenable=4'b0011; write_data_sel= 5; end
+        else if(byte_addressing[1] == 1) begin byteenable=4'b1100; write_data_sel= 6; end
         end
       //SW
       else begin
@@ -75,7 +83,7 @@ always @(*) begin
       write=0;
       byteenable = 4'b1111;
     end
-    
+
 
     alu_op = 2'b00;
     alu_src = 1;
@@ -91,7 +99,7 @@ always @(*) begin
     //rd_select: selects either 0:rt for i-type instructions or 1:rd for r-type instructions to be the destination register that we write to.
     case (opcode)
       0: rd_select = 1;
-      1: rd_select = (b_code==16|b_code==17) ? 2:0;
+      1: rd_select = (b_code==16|b_code==17) ? 2 : 0;   //BLTZAL, BGEZAL
       3: rd_select = 2;
       default: rd_select = 0;
     endcase
@@ -108,16 +116,16 @@ always @(*) begin
       default: branch = 0;
     endcase
 
-    //jump1: goes to high for J and JAL instructions. control signal to PC_address_selector.v to select jump_addr calculated by jump_addressor
+    //jump: goes to high for J and JAL instructions. control signal to PC_address_selector.v to select jump_addr calculated by jump_addressor
     case (opcode)
-      2,3: jump1 = 1;
-      default: jump1 = 0;
+      2,3: jump = 1;
+      default: jump = 0;
     endcase
 
-    //jump2: goes to high for JR and JALR instructions. control signal to PC_address_selector.v to select read_data_a
+    //jumpreg: goes to high for JR and JALR instructions. control signal to PC_address_selector.v to select read_data_a
     case (function_code)
-      8,9: jump2 = (opcode == 0) ? 1 : 0;
-      default: jump2 = 0;
+      8,9: jumpreg = (opcode == 0) ? 1 : 0;
+      default: jumpreg = 0;
     endcase
 
     //alu_src: selects between 0:read_data_b for r-type instructions and 1:immediate for i-type instructions to be the 2nd input to the ALU
