@@ -3,7 +3,9 @@ module register_file_tb(
     logic clk;
     logic clk_enable;
     logic reset;
+    logic lwl, lwr;
     logic[4:0] write_reg_rd, read_reg_a, read_reg_b;
+    logic[1:0] byte_addressing;
     logic[31:0] reg_write_data, read_data_a, read_data_b;
     logic reg_write_enable;
 
@@ -16,8 +18,8 @@ module register_file_tb(
 
     /* Clock generation process. Starts at the beginning of simulation. */
     initial begin
-        $dumpfile("register_file_tb.vcd");
-        $dumpvars(0, register_file_tb);
+        // $dumpfile("./register_file_tb.vcd");
+        // $dumpvars(0, register_file_tb);
 
         /* Send clock low right at the start of the simulation. */
         clk = 0;
@@ -101,11 +103,13 @@ module register_file_tb(
         $finish;
     end
 
-    register_file regs(
+    register_file dut(
         .clk(clk),
         .clk_enable(clk_enable),
         .reset(reset),
         .read_reg_a(read_reg_a), .read_reg_b(read_reg_b),
+        .lwl(lwl), .lwr(lwr),
+        .byte_addressing(byte_addressing),
         .read_data_a(read_data_a), .read_data_b(read_data_b),
         .write_reg_rd(write_reg_rd), .reg_write_data(reg_write_data),
         .reg_write_enable(reg_write_enable)

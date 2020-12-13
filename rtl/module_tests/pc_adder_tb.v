@@ -4,18 +4,21 @@ module pc_adder_tb();
   initial begin
     pcout = 0;
     #1;
-    $display("input=%d, output=%d", pcout, pc_plus4);
+    // $display("input=%d, output=%d", pcout, pc_plus4);
     assert(pc_plus4 == 4);
 
     pcout = 4;
     #1;
-    $display("input=%d, output=%d", pcout, pc_plus4);
+    // $display("input=%d, output=%d", pcout, pc_plus4);
     assert(pc_plus4 == 8);
 
     pcout = 8;
     #1;
-    $display("input=%d, output=%d", pcout, pc_plus4);
+    // $display("input=%d, output=%d", pcout, pc_plus4);
     assert(pc_plus4 == 12);
+    
+    $display("Finished. Total time = %t", $time);
+    $finish;
   end
 
   pc_adder pcadder_inst(

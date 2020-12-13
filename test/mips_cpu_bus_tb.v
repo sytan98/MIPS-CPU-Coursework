@@ -16,11 +16,10 @@ module mips_cpu_bus_tb;
     logic[31:0] readdata;
     logic[3:0] byteenable;
     logic[31:0] writedata;
-    logic[1:0] check_state; //debug
 //============================================= INITIALISATIONS OF CPU LOGIC ===============================================//
     logic[31:0] register_v0;
 //======================================= INITIALISATIONS OF MEMORIES AND CPU BUS ==========================================//
-    bus_memory #(ROM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata, check_state);
+    bus_memory #(ROM_INIT_FILE) ramInst(clk, address, write, read, waitrequest, writedata, byteenable, readdata);
     mips_cpu_bus cpuInst(clk, reset, active, register_v0, address, write, read, waitrequest, writedata,
                     byteenable, readdata);
 //==========================================================================================================================//

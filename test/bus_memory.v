@@ -6,8 +6,7 @@ module bus_memory(
     output logic waitrequest,
     input logic[31:0] writedata,
     input logic[3:0] byteenable,
-    output logic[31:0] readdata,
-	output logic[1:0] check_state
+    output logic[31:0] readdata
 );
 	// Memory (256 x 4 x 8-bit bytes) address is 32 bits (used only 10), word is 32 bits
 	// Full memory supposed to be able to store 2^30 words but we reduce it to store 2^8 (256) words.

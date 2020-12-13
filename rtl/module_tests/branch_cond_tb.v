@@ -122,10 +122,11 @@ module branch_cond_tb();
     reg_value[31:0] = -32'd3140314;
     #1;
     assert(out == 1);
-
+    $display("Finished. Total time = %t", $time);
+    $finish;
   end
 
-  branch_cond inst0(
+  branch_cond dut(
     .branch(branch), .opcode(opcode), .b_code(b_code),
     .equal(equal), .read_data_a(reg_value), .condition_met(out)
   );

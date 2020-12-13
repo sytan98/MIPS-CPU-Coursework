@@ -323,7 +323,7 @@ branch_addressor b_calc(
 );
 
 //PC_address_selector -> Manages which target address to store into register
-PC_address_selector pcsel_inst(
+pc_address_selector pcsel_inst(
   .branch_addr(branch_addr),
   .jump_addr(jump_addr),
   .read_data_a(read_data_a),

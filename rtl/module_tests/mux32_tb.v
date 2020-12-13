@@ -7,24 +7,27 @@ module mux32_tb();
     b = 32'd100;
     sel = 0;
     #1;
-    $display("output=%d", out);
+    // $display("output=%d", out);
     assert(out == 32'd4);
 
     a = 32'd10;
     b = 32'd110;
     sel = 0;
     #1;
-    $display("output=%d", out);
+    // $display("output=%d", out);
     assert(out == 32'd10);
 
     a = 32'd23210;
     b = 32'd17878710;
     sel = 1;
     #1;
-    $display("output=%d", out);
+    // $display("output=%d", out);
     assert(out == 32'd17878710);
+    
+    $display("Finished. Total time = %t", $time);
+    $finish;
   end
 
-  mux_32bit inst0(.in_0(a), .in_1(b), .out(out), .select(sel));
+  mux_32bit dut(.in_0(a), .in_1(b), .out(out), .select(sel));
 
 endmodule

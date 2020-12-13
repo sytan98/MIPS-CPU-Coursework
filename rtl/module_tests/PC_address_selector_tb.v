@@ -1,4 +1,4 @@
-module PC_address_selector_tb();
+module pc_address_selector_tb();
   logic[31:0] pc_plus4, branch_addr, jump_addr, read_data_a;
   logic condition_met, jump1, jump2;
   logic[31:0] pcin_0;
@@ -93,19 +93,20 @@ module PC_address_selector_tb();
     $display("branch?=%b, jump1?=%b, jump2?=%b, PC=%d", condition_met, jump1, jump2, pcin_0);
     assert(pcin_0 == pc_plus4);
 
-
+    $display("Finished. Total time = %t", $time);
+    $finish;
 
   end
 
 
-  PC_address_selector inst0(
+  pc_address_selector dut(
     .pc_plus4(pc_plus4),
     .branch_addr(branch_addr),
     .jump_addr(jump_addr),
     .read_data_a(read_data_a),
     .condition_met(condition_met), //from branch_cond block
-    .jump1(jump1), //from control, for J and JAL
-    .jump2(jump2), //from control, for JR and JALR
-    .pcin_0(pcin_0)
+    .jump(jump1), //from control, for J and JAL
+    .jumpreg(jump2), //from control, for JR and JALR
+    .tgt_addr_0(pcin_0)
   );
 endmodule

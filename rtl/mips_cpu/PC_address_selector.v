@@ -3,7 +3,7 @@
 // PC+8 (for branch not taken) based on select signals condition_met, jump and jumpreg.
 // output tgt_addr_0 will be connected to a register called target_addr_holder.v
 
-module PC_address_selector(
+module pc_address_selector(
   // possible values of PC address
   input logic[31:0] branch_addr,      // branch target address from branch_addressor.v
   input logic[31:0] jump_addr,        // jump target address from jump_addressor.v
