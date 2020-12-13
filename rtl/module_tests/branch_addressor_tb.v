@@ -17,31 +17,33 @@ module branch_addressor_tb();
     imdt = 32'd8;
     pc = 32'd16;
     #1;
-    $display("branch target address:%d", b_addr);
+    // $display("branch target address:%d", b_addr);
     assert($signed(b_addr) == 32'd48);
 
     //test for branching backwards
     imdt = 32'hFFFFFFF8;
     pc = 32'd40;
     #1;
-    $display("branch target address:%d", b_addr);
+    // $display("branch target address:%d", b_addr);
     assert($signed(b_addr) == 32'd8);
 
     //edgecase for forward branches, immediate in decimal is 32767
     imdt = 32'h00007FFF;
     pc = 32'd8;
     #1;
-    $display("branch target address:%d", b_addr);
+    // $display("branch target address:%d", b_addr);
     assert($signed(b_addr) == 32'd131076);
 
     //edgecase for backward branches, immediate in decimal is -32768
     imdt = 32'hFFFF8000;
     pc = 32'd160000;
     #1;
-    $display("branch target address:%d", b_addr);
+    // $display("branch target address:%d", b_addr);
     assert($signed(b_addr) == 32'd28928);
+    $display("Finished. Total time = %t", $time);
+    $finish;
   end
 
-  branch_addressor inst0(.immdt_32(imdt), .PCnext(pc), .branch_addr(b_addr));
+  branch_addressor dut(.immdt_32(imdt), .pc_plus4(pc), .branch_addr(b_addr));
 
 endmodule

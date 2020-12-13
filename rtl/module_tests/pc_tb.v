@@ -12,8 +12,7 @@ module pc_tb();
 
     /* Clock generation process. Starts at the beginning of simulation. */
     initial begin
-        $dumpfile("pc_tb.vcd");
-        $dumpvars(0, pc_tb);
+        // $dumpvars(0, pc_tb);
 
         /* Send clock low right at the start of the simulation. */
         clk = 0;
@@ -49,7 +48,7 @@ module pc_tb();
         #1;
 
         /* reset==1 -> Initialise PC to reset vector. */
-        shadow = 32'h00000008;
+        shadow = 32'hBFC00000;
 
 
         /* Run as many test cycles as were requested. */
@@ -62,7 +61,7 @@ module pc_tb();
             #1;
             /* Update the shadow regsiters according to the commands given to the PC */
             if (reset==1) begin
-              shadow = 32'h00000008;
+              shadow = 32'hBFC00000;
             end
             else if (clk_enable == 1) begin
               shadow = shadow + 4;
@@ -70,17 +69,18 @@ module pc_tb();
 
             /* Verify the returned results against the expected output from the shadow registers. */
             if (reset==1) begin
-                assert (pcout == 32'h00000008) else $error("PC not reset to reset vector.");
+                assert (pcout == 32'hBFC00000) else $error("PC not reset to reset vector.");
             end
             else begin
                 assert(pcout == shadow)
                 else $error("At time %t, PC=%h, shadow=%h", $time, pcout, shadow);
             end
 
-            $display("reset=%b, clk_enable=%b, PC=%d", reset, clk_enable, pcout);
+            // $display("reset=%b, clk_enable=%b, PC=%d", reset, clk_enable, pcout);
         end
 
         /* Exit successfully. */
+        $display("Finished. Total time = %t", $time);
         $finish;
     end
 
