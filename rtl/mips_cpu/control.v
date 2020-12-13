@@ -1,3 +1,5 @@
+// control logic block: sends control signals to different modules in the cpu based on the state and the instruction so cpu does what it is supposed to do.
+
 module control(
   // inputs
   input logic reset,
@@ -20,7 +22,7 @@ module control(
   output logic[2:0] datamem_to_reg,   // control signal to reg_writedata_selector.v, for load instructions
   output logic link_to_reg,           // control signal to reg_writedata_selector.v, for link instructions
   output logic mfhi, mflo,            // control signal to reg_writedata_selector.v, for mfhi and mflo instructions
-  output logic lwl, lwr,              // signal to register_file.v for lwl and lwr instructions
+  output logic lwl, lwr,              // control signals to register_file.v for lwl and lwr instructions
   // hi and lo registers related
   output logic hi_wren,               // write enable signal for reg_hi.v, for mthi, multiplication and division instructions
   output logic lo_wren,               // write enable signal for reg_lo.v, for mtlo, multiplication and division instructions
@@ -54,7 +56,7 @@ always @(*) begin
   end
 
   // cpu state = MEM
-  else if (state == 1) begin
+  else if (state == 2) begin
     // store instructions: writing into memory. SB SH SW
     if( opcode==40 | opcode==41 | opcode==43 ) begin
       write=1;
@@ -98,7 +100,7 @@ always @(*) begin
   end
 
   // cpu state = EXEC
-  else if (state == 2) begin
+  else if (state == 3) begin
     byteenable = 4'b1111;
     read = 0;
     write = 0;
@@ -207,7 +209,7 @@ always @(*) begin
       default: jumpreg = 0;
     endcase
   end
-  
+
 end
 
 endmodule

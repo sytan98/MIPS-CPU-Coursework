@@ -1,12 +1,12 @@
 // alu module. based on alu_ctrl_in coming from alu_ctrl.v, does operations on
 // A: data read from register A and/or B: either data read from register B or the sign/zero-extended immediate.
-// operations include addition, subtraction, shifting, multiplication, division,
+// operations include arithmetic operations such as addition, subtraction, shifting, multiplication, division,
 // logical operations such as and, or, xor, and comparing values in registers for set/branch instructions.
 
 module alu(
     input logic[4:0] alu_ctrl_in,       // control signal rom alu_ctrl.v
     input logic[31:0] A,                // from register_file.v. data read from register rs
-    input logic[31:0] B,                // either data read from register A or sign/zero-extended immediate, selected by control signal alu_src from control.v
+    input logic[31:0] B,                // either data read from register rt or sign/zero-extended immediate, selected by control signal alu_src from control.v
     input logic[4:0] shamt,             // shift amount. instruction[10:6]
     output logic[31:0] alu_out,         // output of alu.
     output logic zero,                  // zero flag. signal to branch_cond.v. if zero is high, it means that the values in two registers are equal.

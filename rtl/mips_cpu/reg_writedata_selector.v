@@ -3,7 +3,7 @@
 module reg_writedata_selector(
   // data to write into destination register
   input logic[31:0] alu_out,                  // output of alu from alu.v
-  input logic[31:0] data_readdata,            // data read from data memory for load instructions.
+  input logic[31:0] data_readdata,            // data read from memory for load instructions.
   input logic[31:0] pc_plus4,                 // PC+4 from pc_adder.v. will add 4 to this to be PC+8 for link instructions.
   input logic[31:0] hi_readdata, lo_readdata, // data read from hi and lo registers for mfhi and mflo instructions
 
