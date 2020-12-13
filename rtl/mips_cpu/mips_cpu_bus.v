@@ -221,7 +221,7 @@ jump_addressor j_calc(
 );
 
 // PC_address_selector: manages which target address to store into register for delay slot
-PC_address_selector pcsel_inst(
+pc_address_selector pcsel_inst(
   .branch_addr(branch_addr),              // branch target address from branch_addressor.v
   .jump_addr(jump_addr),                  // jump target address from jump_addressor.v
   .read_data_a(read_data_a),              // value stored in register rs from register_file.v
