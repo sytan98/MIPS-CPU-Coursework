@@ -17,6 +17,8 @@ echo "-----PC Test"
 ./test_pc.sh
 echo "-----PC Adder Test"
 ./test_pc_adder.sh
+echo "-----PC Address Selector Test"
+./test_pc_addressor.sh
 echo "-----Reg HI and Reg LO Test"
 ./test_reghilo.sh
 echo "-----Reg File Test"
