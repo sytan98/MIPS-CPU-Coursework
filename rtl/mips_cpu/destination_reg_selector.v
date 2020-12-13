@@ -4,7 +4,7 @@ module destination_reg_selector(
   input logic[4:0]    read_reg_b,          // register rt, instruction[20:16]
   input logic[4:0]    rtype_rd,            // register rd, instruction[15:11]
   input logic[1:0]    rd_select,           // from control.v, select signal to select destination register
-  output logic[4:0]   write_reg_rd
+  output logic[4:0]   write_reg_rd         // destination register, connected to register_file.v
 );
 
   always @(*) begin

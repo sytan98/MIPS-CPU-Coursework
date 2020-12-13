@@ -16,11 +16,11 @@ module mips_cpu_bus(
 );
 // cpu state
 typedef enum logic[2:0] {
-        FETCH = 3'b000,
-        MEM = 3'b001,
-        EXEC = 3'b010,
-        HALTED = 3'b011,
-        LOAD = 3'b100
+        FETCH = 3'b000,       // fetch the instruction from memory
+        LOAD = 3'b001,        // load instruction into intrustion register
+        MEM = 3'b010,         // calculate memory address for load/store instructions, otherwise do nothing for non load/store instructions
+        EXEC = 3'b011,        // for CPU to execute instructions
+        HALTED = 3'b100       // cpu halted
 } state_t;
 logic[2:0] state;
 
@@ -50,8 +50,6 @@ logic       zero;
 // bus related
 logic[31:0] ir_readdata;
 logic[31:0] instruction;
-// assign instruction = ( ( (state==FETCH) & (waitrequest==1) ) | ( (state==MEM) & (waitrequest==0) ) ) ? readdata : ir_readdata;
-// assign instruction = (state==MEM) ? readdata : ir_readdata;
 assign instruction = ir_readdata;
 
 // to ensure that the memory address is output from the CPU into bus_memory.v during MEM stage, important for load/store instructions
@@ -64,7 +62,7 @@ logic[1:0]  byte_addressing;
 logic [4:0] write_data_sel;
 
 assign memory_address_temp = alu_out;                         // alu_out calculates address in memory based on read_data_a and immediate
-assign memory_address = {memory_address_temp[31:2], 2'b00};   // to ensure that word output from memory is always word aligned
+assign memory_address = {memory_address_temp[31:2], 2'b00};   // last 2 bits forced to 00 to ensure that word output from memory is always word aligned
 assign byte_addressing = memory_address_temp[1:0];            // last 2 LSB of memory address
 
 initial begin
@@ -134,10 +132,7 @@ always @(posedge clk) begin
         // $display("lwl signal = %b", lwl);
         // $display("lwr signal = %b", lwr);
         // $display("byte_addressing = %b", byte_addressing);
-        // $display("data_readdata = %h", data_readdata);
-        // $display("data read signal = %h", data_read);
-        // $display("data write signal = %h", data_write);
-        // $display("Write Data to data mem = %h", writedata);
+        // $display("Write Data to memory = %h", writedata);
 
         $display("immediate = %h", immdt_32);
 
@@ -155,7 +150,7 @@ always @(posedge clk) begin
           state <= FETCH;
         clk_enable <= 0;
         end
-        if (branch|jump|jumpreg) begin
+        if (branch|jump|jumpreg) begin        // delay slot for branch and jump instructions
             delay <= 1;
         end
         else begin
@@ -164,61 +159,125 @@ always @(posedge clk) begin
     end
     else if (state == HALTED) begin
         //do nothing
-        //potential bug, still increments pc?
     end
 end
 
-//IR
+// instruction register: to hold onto the instruction output from the memory
 instr_register ir_inst(
   .clk(clk), .reset(reset), .waitrequest(waitrequest),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
 );
 
-//PC
-pc pc_inst(
-  .clk(clk), .reset(reset),
-  .clk_enable(clk_enable),
-  .pcin(pcin),
-  .pcout(pcout)
+// memory address mux: to ensure that the memory address is output from the cpu into the memory during MEM
+mux_32bit addressmux(
+  .select(address_sel),
+  .in_0(pcout), .in_1(memory_address),
+  .out(address)
 );
 
-//PCadder
+// module to select data to write into memory based on control signal write_data_sel.
+writedata_selector writedata_sel(
+  .read_data_b(read_data_b),          // from register_file.v, data from register rt
+  .write_data_sel(write_data_sel),    // control signal from control.v
+  .writedata(writedata)               // data to write into the memory, connceted to bus_memory.v
+);
+
+// pc
+pc pc_inst(
+  .clk(clk), .reset(reset),             // if reset is high, PC is reset to 0xBFC00000
+  .clk_enable(clk_enable),
+  .pcin(pcin),                          // the output of pcmux: either pc+4 or the target address stored in target_addr_holder
+  .pcout(pcout)                         // connected to bus_memory.v
+);
+
+// pc_adder: increments PC by 4
 pc_adder pcadder_inst(
   .pcout(pcout),
   .pc_plus4(pc_plus4)
 );
 
-// control.v
+// branch_cond: to check if conditions for branch to be taken has been met
+branch_cond branchcond_inst(
+  .branch(branch),                        // from control.v for branch instructions
+  .opcode(instruction[31:26]), .b_code(instruction[20:16]),
+  .equal(zero),                           // zero flag from alu.v, will be high if values in two registers are equal
+  .read_data_a(read_data_a),              // data read from register rs.
+  .condition_met(condition_met)           // control signal to PC_address_selector.v to select the branch target address.
+);
+
+// branch_addressor to calculate branch target address for branch instructions
+branch_addressor b_calc(
+  .immdt_32(immdt_32),                    // signed extended immediate: the output of imdtmux
+  .pc_plus4(pc_plus4),                    // output of pc_adder.v
+  .branch_addr(branch_addr)               // calculated branch target address, input to PC_address_selector.v
+);
+
+// jump_addressor to calculate jump target address for J and JAL instructions
+jump_addressor j_calc(
+  .j_immdt(instruction[25:0]),            // 26-bit immediate for J and JAL instructions.
+  .pc_4msb(pc_plus4[31:28]),              // first 4 MSB of PC+4
+  .jump_addr(jump_addr)                   // calculated jump target address, input to PC_address_selector.v
+);
+
+// PC_address_selector: manages which target address to store into register for delay slot
+PC_address_selector pcsel_inst(
+  .branch_addr(branch_addr),              // branch target address from branch_addressor.v
+  .jump_addr(jump_addr),                  // jump target address from jump_addressor.v
+  .read_data_a(read_data_a),              // value stored in register rs from register_file.v
+  .pc_plus4(pc_plus4),                    // PC+4 from pc_adder.v. will add 4 to this to get PC+8
+  .condition_met(condition_met),          // control signal from branch_cond.v, checks if conditions for branch has been met
+  .jump(jump),                            // control signal from control.v, for J or JAL instructions
+  .jumpreg(jumpreg),                      // control signal from control.v, for JR or JALR instructions
+  .tgt_addr_0(tgt_addr_0)                 // output. connected to tgt_addr_holder.v
+);
+
+// Register to hold target address from PC_address_selector
+target_addr_holder taddr_inst(
+  .clk(clk), .clk_enable(clk_enable),
+  .tgt_addr_0(tgt_addr_0),                // from PC_address_selector.v
+  .tgt_addr_1(tgt_addr_1)                 // connected to pcmux.
+);
+
+// pcmux to choose pcin to be either PC + 4 or target address for delay slot to work.
+mux_32bit pcmux(
+  .select(delay),                         // select signal delay, which goes to high for branch or J or JAL instructions
+  .in_0(pc_plus4),                        // from pc_addeer.v, PC+4
+  .in_1(tgt_addr_1),                      // target PC addresss stored in target_addr_holder.v, for delay slot
+  .out(pcin)                              // input to pc.v, effectively the next value of pc
+);
+
+// control logic block: sends control signals to different modules in the cpu based on the state and the instruction so cpu does what it is supposed to do.
 control control_inst(
+  // inputs
   .reset(reset), .opcode(instruction[31:26]), .function_code(instruction[5:0]), .b_code(instruction[20:16]),
-  .state(state), .waitrequest(waitrequest), .byte_addressing(byte_addressing), .write_data_sel(write_data_sel),
-  .rd_select(rd_select),
-  .imdt_sel(imdt_sel),
-  .branch(branch),
-  .jump(jump),
-  .jumpreg(jumpreg),
-  .alu_op(alu_op),
-  .alu_src(alu_src),
-  .read(read),
-  .write(write),
-  .reg_write_enable(reg_write_enable),
-  .hi_wren(hi_wren),
-  .lo_wren(lo_wren),
-  .datamem_to_reg(datamem_to_reg),
-  .link_to_reg(link_to_reg),
-  .mfhi(mfhi), .mflo(mflo), .multdiv(multdiv),
-  .lwl(lwl), .lwr(lwr), .byteenable(byteenable)
+  .state(state), .waitrequest(waitrequest), .byte_addressing(byte_addressing),
+  // memory related
+  .read(read), .write(write),             // read and write enable signals to bus_memory.v\
+  .write_data_sel(write_data_sel),        // control signal to writedata_selector.v, for store instructions
+  .byteenable(byteenable),                // control signal to bus_memory.v for sb and sh instructions
+  // register_file related
+  .rd_select(rd_select),                  // select signal to destination_reg_selector.v to select destination register
+  .reg_write_enable(reg_write_enable),    // write enable signal for register in register_file.v
+  .datamem_to_reg(datamem_to_reg),        // control signal to reg_writedata_selector.v, for load instructions
+  .link_to_reg(link_to_reg),              // control signal to reg_writedata_selector.v, for link instructions
+  .mfhi(mfhi), .mflo(mflo),               // control signal to reg_writedata_selector.v, for mfhi and mflo instructions
+  .lwl(lwl), .lwr(lwr),                   // control signals to register_file.v for lwl and lwr instructions
+  // hi and lo registers related
+  .hi_wren(hi_wren),                      // write enable signal for reg_hi.v, for mthi, multiplication and division instructions
+  .lo_wren(lo_wren),                      // write enable signal for reg_lo.v, for mtlo, multiplication and division instructions
+  .multdiv(multdiv),                      // control signal to reg_hi.v and reg_lo.v, for multiplication and divison instructions
+  // alu related
+  .imdt_sel(imdt_sel),                    // control signal to imdtmux, selects between sign extended or zero extended immediate for andi, ori, xori
+  .alu_src(alu_src),                      // control signal to alumux, selects between read_data_b for R-type instructions or immdt_32 for I-type instructions
+  .alu_op(alu_op),                        // control signal to alu_ctrl.v, 0 for load/store instructions, 1 for BEQ/BNE, 2 for R-type instructions, 3 for I-type instructions
+  // PC address related
+  .branch(branch),                        // control signal to branch_cond.v, for branch instructions
+  .jump(jump),                            // control signal to PC_address_selector.v for J and JAL
+  .jumpreg(jumpreg)                       // control signal to PC_address_selector.v for JR and JALR
 );
 
-destination_reg_selector rd_selector(
-  .read_reg_b(instruction[20:16]),          // register rt, instruction[20:16]
-  .rtype_rd(instruction[15:11]),            // register rd, instruction[15:11]
-  .rd_select(rd_select),                    // from control.v, select signal to select destination register
-  .write_reg_rd(write_reg_rd)               // destinatoin register, connected to register_file.v
-);
-
-//register_file
+// register_file: 32 registers, each register is 32 bits wide.
 register_file regfile_inst(
   .clk(clk),
   .clk_enable(clk_enable),
@@ -232,135 +291,88 @@ register_file regfile_inst(
   .byte_addressing(byte_addressing), .lwl(lwl), .lwr(lwr)
 );
 
-//immdt_extender
-immdt_extender imdtextd_inst(
-  .immdt_16(instruction[15:0]),
-  .sign_immdt_32(signed_32), .zero_immdt_32(zero_32)
+// module to select the destination register to write into based on the type of instructions.
+destination_reg_selector rd_selector(
+  .read_reg_b(instruction[20:16]),        // register rt, instruction[20:16]
+  .rtype_rd(instruction[15:11]),          // register rd, instruction[15:11]
+  .rd_select(rd_select),                  // from control.v, select signal to select destination register
+  .write_reg_rd(write_reg_rd)             // destination register, connected to register_file.v
 );
 
-//immdt mux
-mux_32bit imdtmux(
-  .select(imdt_sel),
-  .in_0(signed_32), .in_1(zero_32),
-  .out(immdt_32)
-);
-
-//alumux
-mux_32bit alumux(
-  .select(alu_src),
-  .in_0(read_data_b), .in_1(immdt_32),
-  .out(alu_in)
-);
-
-//memory address mux
-mux_32bit addressmux(
-  .select(address_sel),
-  .in_0(pcout), .in_1(memory_address),
-  .out(address)
-);
-
-//alu_ctrl
-alu_ctrl aluctrl_inst(
-  .alu_op(alu_op),
-  .opcode(instruction[31:26]),
-  .function_code(instruction[5:0]),
-  .alu_ctrl_in(alu_ctrl_in)
-);
-
-//alu
-alu alu_inst(
-  .alu_ctrl_in(alu_ctrl_in),
-  .A(read_data_a),
-  .B(alu_in),
-  .shamt(instruction[10:6]),
-  .alu_out(alu_out),
-  .zero(zero),
-  .lo(lo),
-  .hi(hi)
+// selects data to write into the destination register based on the different control signals.
+reg_writedata_selector regwritedata_sel(
+  // data to write into destination register
+  .alu_out(alu_out),                                    // output of alu from alu.v
+  .data_readdata(readdata),                             // data read from memory for load instructions.
+  .pc_plus4(pc_plus4),                                  // PC+4 from pc_adder.v. will add 4 to this to be PC+8 for link instructions.
+  .hi_readdata(hi_readdata), .lo_readdata(lo_readdata), // data read from hi and lo registers for mfhi and mflo instructions
+  // control signals
+  .datamem_to_reg(datamem_to_reg),                      // from control.v, for load instructions (lw, lb, lbu, lh, lhu)
+  .byte_addressing(byte_addressing),                    // last 2 LSB of data address to tell us which byte/halfword in the full word from the data memory to write into the destination register.
+  .link_to_reg(link_to_reg),                            // from control.v, for link instructions (JAL, JALR, BGEZAL, BLTZAL)
+  .mfhi(mfhi), .mflo(mflo),                             // from control.v, for mfhi and mflo instructions respectively
+  // output
+  .reg_write_data(reg_write_data)                       // data to write into destination register. connceted to register_file.v
 );
 
 //reg_hi
 reg_hi reghi_inst(
-  .clk(clk), .reset(reset),
-  .clk_enable(clk_enable),
-  .hi_wren(hi_wren), .multdiv(multdiv),
-  .read_data_a(read_data_a),
-  .hi(hi),
-  .hi_readdata(hi_readdata)
+  .clk(clk), .reset(reset), .clk_enable(clk_enable),
+  .hi_wren(hi_wren),                 // from control.v, write enable signal for hi register
+  .multdiv(multdiv),                 // from control.v, for multiply and divison instructions
+  .read_data_a(read_data_a),         // from register_file.v, data read from register rs. for mthi instruction
+  .hi(hi),                           // from alu.v. either the high-order 32-bit result of multiply instructions or 32-bit remainder of division instructions.
+  .hi_readdata(hi_readdata)          // output of the hi register. connected to register_file.v for mfhi instruction.
 );
-
 //reg_lo
 reg_lo reglo_inst(
-  .clk(clk), .reset(reset),
-  .clk_enable(clk_enable),
-  .lo_wren(lo_wren), .multdiv(multdiv),
-  .read_data_a(read_data_a),
-  .lo(lo),
-  .lo_readdata(lo_readdata)
+  .clk(clk), .reset(reset), .clk_enable(clk_enable),
+  .lo_wren(lo_wren),                 // from control.v, write enable signal for lo register
+  .multdiv(multdiv),                 // from control.v, for multiply and divison instructions
+  .read_data_a(read_data_a),         // from register_file.v, data read from register rs. for mtlo instruction
+  .lo(lo),                           // from alu.v. either the low-order 32-bit result of multiply instructions or 32-bit quotient of division instructions.
+  .lo_readdata(lo_readdata)          // output of the lo register. connected to register_file.v for mflo instruction.
 );
 
-// branch_cond
-branch_cond branchcond_inst(
-  .branch(branch),
-  .opcode(instruction[31:26]), .b_code(instruction[20:16]),
-  .equal(zero),
-  .read_data_a(read_data_a),
-  .condition_met(condition_met)
+// sign extends and zero extends the 16-bit immediate in i-type instructions to 32 bits. outputs will be connected to imdtmux.
+immdt_extender imdtextd_inst(
+  .immdt_16(instruction[15:0]),      // 16-bit immediate in I-type instructions
+  .sign_immdt_32(signed_32),         // sign-extended immediate
+  .zero_immdt_32(zero_32)            // zero-extended immediate
+);
+// mux to select between the sign-extended immediate or zero-extended immediate
+mux_32bit imdtmux(
+  .select(imdt_sel),                 // control signal from control.v
+  .in_0(signed_32),                  // sign-extended immediate
+  .in_1(zero_32),                    // zero-extended immediate
+  .out(immdt_32)                     // either the sign or zero extended immediate. connected to alumux and branch_addressor.v
 );
 
-//jump_addressor
-jump_addressor j_calc(
-  .j_immdt(instruction[25:0]),
-  .pc_4msb(pc_plus4[31:28]),
-  .jump_addr(jump_addr)
+// mux to select the 2nd input to the ALU
+mux_32bit alumux(
+  .select(alu_src),                  // control signal from control.v
+  .in_0(read_data_b),                // data read from register rt from register_file.v
+  .in_1(immdt_32),                   // either the sign or zero extended immediate.
+  .out(alu_in)                       // connected to alu.v
 );
 
-// branch_addressor
-branch_addressor b_calc(
-  .immdt_32(immdt_32),
-  .pc_plus4(pc_plus4),
-  .branch_addr(branch_addr)
+// alu control module. sends signal alu_cltr_in to alu.v, which decides what operation to do in the alu based on alu_op coming from control.v.
+alu_ctrl aluctrl_inst(
+  .alu_op(alu_op),                    // control signal from control.v
+  .opcode(instruction[31:26]),
+  .function_code(instruction[5:0]),
+  .alu_ctrl_in(alu_ctrl_in)           // control signal to alu.v
 );
 
-//PC_address_selector -> Manages which target address to store into register
-pc_address_selector pcsel_inst(
-  .branch_addr(branch_addr),
-  .jump_addr(jump_addr),
-  .read_data_a(read_data_a),
-  .pc_plus4(pc_plus4),
-  .condition_met(condition_met), //from branch_cond block
-  .jump(jump), //from control, for J and JAL
-  .jumpreg(jumpreg), //from control, for JR and JALR
-  .tgt_addr_0(tgt_addr_0)
-);
-
-//Register to hold target address from PC_address_selector
-target_addr_holder taddr_inst(
-  .clk(clk),
-  .clk_enable(clk_enable),
-  .tgt_addr_0(tgt_addr_0),
-  .tgt_addr_1(tgt_addr_1)
-);
-
-//PC Mux to choose PC + 4 or target address
-mux_32bit pcmux(
-  .select(delay),
-  .in_0(pc_plus4), .in_1(tgt_addr_1),
-  .out(pcin)
-);
-
-reg_writedata_selector regwritedata_sel(
-  .alu_out(alu_out), .data_readdata(readdata), .pc_plus4(pc_plus4),
-  .hi_readdata(hi_readdata), .lo_readdata(lo_readdata),
-  .datamem_to_reg(datamem_to_reg), .link_to_reg(link_to_reg),
-  .mfhi(mfhi), .mflo(mflo), .byte_addressing(byte_addressing),
-  .reg_write_data(reg_write_data)
-);
-
-writedata_selector writedata_sel(
-  .read_data_b(read_data_b),
-  .write_data_sel(write_data_sel),
-  .writedata(writedata)
+// alu: does arithmetic, logical operations, shifts, comparing values in registers for set/branch instructions.
+alu alu_inst(
+  .alu_ctrl_in(alu_ctrl_in),          // control signal rom alu_ctrl.v
+  .A(read_data_a),                    // from register_file.v. data read from register rs
+  .B(alu_in),                         // either data read from register A or sign/zero-extended immediate, selected by control signal alu_src from control.v
+  .shamt(instruction[10:6]),          // shift amount. instruction[10:6]
+  .alu_out(alu_out),                  // output of alu.
+  .zero(zero),                        // zero flag. signal to branch_cond.v. if zero is high, it means that the values in two registers are equal.
+  .lo(lo), .hi(hi)                    // outputs to the lo and hi registers respectively for multiply and divide instructions.
 );
 
 endmodule

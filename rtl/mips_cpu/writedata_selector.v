@@ -3,7 +3,7 @@
 module writedata_selector(
   input logic[31:0] read_data_b,     // from register_file.v, data from register rt
   input logic [4:0] write_data_sel,  // from control.v,
-  output logic[31:0] writedata       // output, connceted to memory
+  output logic[31:0] writedata       // data to write into the memory, connceted to bus_memory.v
 );
 
   always @(*) begin
