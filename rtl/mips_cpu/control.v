@@ -13,7 +13,7 @@ module control(
   // memory related
   output logic read,                  // read enable signal to bus_memory.v
   output logic write,                 // write enable signal to bus_memory.v
-  output logic[4:0] write_data_sel,   // control signal to writedata_selector.v, for store instructions
+  output logic[2:0] write_data_sel,   // control signal to writedata_selector.v, for store instructions
   output logic[3:0] byteenable,       // control signal to bus_memory.v for sb and sh instructions
 
   // register_file related

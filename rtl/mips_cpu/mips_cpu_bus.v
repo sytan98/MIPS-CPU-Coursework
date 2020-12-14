@@ -59,7 +59,7 @@ assign address_sel = (state==MEM) ? 1 : 0;
 logic[31:0] memory_address;
 logic[31:0] memory_address_temp;
 logic[1:0]  byte_addressing;
-logic [4:0] write_data_sel;
+logic [2:0] write_data_sel;
 
 assign memory_address_temp = alu_out;                         // alu_out calculates address in memory based on read_data_a and immediate
 assign memory_address = {memory_address_temp[31:2], 2'b00};   // last 2 bits forced to 00 to ensure that word output from memory is always word aligned
