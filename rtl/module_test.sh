@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "-----Alu CTRL Test"
+./test_alu_ctrl.sh
 echo "-----Alu Test"
 ./test_alu.sh
 echo "-----MUX32 Test"
