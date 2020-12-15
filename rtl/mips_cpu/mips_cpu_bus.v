@@ -164,7 +164,7 @@ end
 
 // instruction register: to hold onto the instruction output from the memory
 instr_register ir_inst(
-  .clk(clk), .reset(reset), .waitrequest(waitrequest),
+  .clk(clk), .reset(reset),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
 );
