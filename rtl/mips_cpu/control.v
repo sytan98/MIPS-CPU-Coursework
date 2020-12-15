@@ -55,6 +55,14 @@ always @(*) begin
     reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
   end
 
+  // cpu state = LOAD
+  else if (state == 1) begin
+    read = 1;                         // only reading of memory is enabled.
+    write = 0;                        // write is disabled.
+    byteenable = 4'b1111;
+    reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
+  end
+
   // cpu state = MEM
   else if (state == 2) begin
     // store instructions: writing into memory. SB SH SW

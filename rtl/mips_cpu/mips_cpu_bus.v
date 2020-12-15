@@ -82,15 +82,28 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
-        if (waitrequest == 0) begin
-          state <= LOAD;
-        end
+        state <= LOAD;
+        // if (waitrequest == 0) begin
+        //   state <= LOAD;
+        // end
     end
     else if (state == LOAD) begin
-      state <= MEM;
-
+        $display("CPU : INFO  : LOAD.");
+        //Current address
+        $display("current PC address =%h", pcout);
+        $display("current inst address =%h", address);
+        $display("current inst =%h", readdata);
+        if (waitrequest == 0) begin
+          state <= MEM;
+        end
+      // state <= MEM;
     end
     else if (state == MEM) begin
+      $display("CPU : INFO  : MEM.");
+      //Current address
+      $display("current PC address =%h", pcout);
+      $display("current inst address =%h", address);
+      $display("current inst =%h", readdata);
       if (waitrequest == 0) begin
           state <= EXEC;
           clk_enable <= 1;
@@ -141,14 +154,14 @@ always @(posedge clk) begin
         $display("alu out = %h", alu_out);
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
-
+        clk_enable <= 0;
         if (address == 0) begin
             state <= HALTED;
             active <= 0;
         end
         else begin
           state <= FETCH;
-        clk_enable <= 0;
+        
         end
         if (branch|jump|jumpreg) begin        // delay slot for branch and jump instructions
             delay <= 1;

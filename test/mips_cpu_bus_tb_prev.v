@@ -45,8 +45,7 @@ module mips_cpu_bus_tb;
     end
 
     initial begin
-        num_stalls = $urandom_range(0,8);
-        
+        num_stalls = 0;
         reset <= 0;
         @(posedge clk);
         reset <= 1;
@@ -59,9 +58,6 @@ module mips_cpu_bus_tb;
         else $display("TB : CPU did not set active=1 after reset.");
 
         while (active) begin
-            num_stalls = $urandom_range(0,8);
-            $display("num stalls:%d", num_stalls);
-        
             @(posedge clk);
             // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);

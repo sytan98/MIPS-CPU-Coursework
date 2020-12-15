@@ -3,6 +3,7 @@ module bus_memory(
 	input logic[31:0] address,
 	input logic write,
     input logic read,
+	input logic[3:0] num_stalls,
     output logic waitrequest,
     input logic[31:0] writedata,
     input logic[3:0] byteenable,
@@ -15,7 +16,8 @@ module bus_memory(
 	parameter RAM_INIT_FILE = "";
 	parameter address_bit_size = 10;
 	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000
-	parameter num_stalls = 0;
+
+	logic[3:0] num_stall_reg;
 	// instructions start at word 128
 	// this divides memory equally between data(first half excluding address 0) and instructions (second half starting at word 128)
 
@@ -40,7 +42,7 @@ module bus_memory(
 
 	logic[1:0] state;
  	// Stall stores the value of waitrequest
- 	logic[1:0] stall;
+ 	logic[3:0] stall;
 
 	initial begin
 		state = IDLE;
@@ -68,18 +70,40 @@ module bus_memory(
 		$display("From bus memory, read=%h", read);
 		$display("From bus memory, write=%h", write);
 		$display("From bus memory, state=%h", state);
+		$display("From bus memory, num_stall_reg=%h", num_stall_reg);
+		$display("From bus memory, stall=%h", stall);
 
 		if (state == IDLE & num_stalls != 0) begin
-			if (stall==0 && (write==1 || read==1)) begin // if read/write are asserted, start waitrequest
+			if (stall==0 & (write==1 || read==1)) begin // if read/write are asserted, start waitrequest
 				stall<=1;
 				state <= BUSY;
+				num_stall_reg <= num_stalls;
 			end
 		end
-		else if (state == BUSY | num_stalls == 0) begin
-			if ((write == 1 || read == 1) && stall != num_stalls) begin
+		else if (num_stalls == 0 & state != BUSY) begin
+			$display("From bus memory, perfect memory");
+			if (write == 1) begin // write
+				if (byteenable[0]) bytes[mapped_address] <=  writedata[7:0];
+	      		if (byteenable[1]) bytes[mapped_address+1] <= writedata[15:8];
+	      		if (byteenable[2]) bytes[mapped_address+2] <= writedata[23:16];
+	      		if (byteenable[3]) bytes[mapped_address+3] <= writedata[31:24];
+				stall<=0;
+				state <= CHILL;
+			end
+			else if (read == 1) begin // read
+				readdata <= {byteenable[3] ? bytes[mapped_address+3] : 8'h00,
+							byteenable[2] ? bytes[mapped_address+2] : 8'h00,
+							byteenable[1] ? bytes[mapped_address+1] : 8'h00,
+							byteenable[0] ? bytes[mapped_address] : 8'h00};
+				stall<=0;
+				state <= CHILL;
+			end
+		end
+		else if (state == BUSY) begin
+			if ((write == 1 | read == 1) & stall != num_stall_reg) begin
 				stall <= stall + 1;
 			end
-			else if (write == 1 && stall==num_stalls) begin // write
+			else if (write == 1 & stall==num_stall_reg) begin // write
 				if (byteenable[0]) bytes[mapped_address] <=  writedata[7:0];
 	      		if (byteenable[1]) bytes[mapped_address+1] <= writedata[15:8];
 	      		if (byteenable[2]) bytes[mapped_address+2] <= writedata[23:16];
@@ -91,7 +115,7 @@ module bus_memory(
 				stall<=0;
 				state <= CHILL;
 			end
-			else if (read == 1 && stall==num_stalls) begin // read
+			else if (read == 1 & stall==num_stall_reg) begin // read
 				readdata <= {byteenable[3] ? bytes[mapped_address+3] : 8'h00,
 							byteenable[2] ? bytes[mapped_address+2] : 8'h00,
 							byteenable[1] ? bytes[mapped_address+1] : 8'h00,
