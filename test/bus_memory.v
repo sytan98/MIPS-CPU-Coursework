@@ -14,7 +14,7 @@ module bus_memory(
 	// 10 bits used for address as it is byte addressing.
 	parameter ROM_INIT_FILE = "";
 	parameter RAM_INIT_FILE = "";
-	parameter address_bit_size = 10;
+	parameter address_bit_size = 11;
 	parameter reset_vector = 128; // this is word addressing, technically should be 0xbfc00000
 
 	logic[3:0] num_stall_reg;
