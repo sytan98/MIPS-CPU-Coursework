@@ -78,10 +78,10 @@ module reg_writedata_selector(
     end
 
     // mfhi and mflo: move values stored in hi or lo registers into one of the 32 registers in register_file
-    else if (mfhi) begin
+    else if ((mfhi == 1)) begin
       reg_write_data = hi_readdata;
     end
-    else if (mflo) begin
+    else if ((mflo == 1)) begin
       reg_write_data = lo_readdata;
     end
 

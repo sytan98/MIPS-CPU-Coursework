@@ -29,3 +29,5 @@ echo "-----Destination Register Selector Test"
 ./test_destination_reg_selector.sh
 echo "-----Writedata Selector Test"
 ./test_writedata_selector.sh
+echo "-----Register Writedata Selector Test"
+./test_reg_writedata_selector.sh
