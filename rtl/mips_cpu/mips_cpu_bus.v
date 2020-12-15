@@ -59,7 +59,7 @@ assign address_sel = (state==MEM) ? 1 : 0;
 logic[31:0] memory_address;
 logic[31:0] memory_address_temp;
 logic[1:0]  byte_addressing;
-logic [4:0] write_data_sel;
+logic [2:0] write_data_sel;
 
 assign memory_address_temp = alu_out;                         // alu_out calculates address in memory based on read_data_a and immediate
 assign memory_address = {memory_address_temp[31:2], 2'b00};   // last 2 bits forced to 00 to ensure that word output from memory is always word aligned
@@ -177,7 +177,7 @@ end
 
 // instruction register: to hold onto the instruction output from the memory
 instr_register ir_inst(
-  .clk(clk), .reset(reset), .waitrequest(waitrequest),
+  .clk(clk), .reset(reset),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
 );
@@ -247,7 +247,7 @@ pc_address_selector pcsel_inst(
 
 // Register to hold target address from PC_address_selector
 target_addr_holder taddr_inst(
-  .clk(clk), .clk_enable(clk_enable),
+  .clk(clk), .clk_enable(clk_enable), .reset(reset),
   .tgt_addr_0(tgt_addr_0),                // from PC_address_selector.v
   .tgt_addr_1(tgt_addr_1)                 // connected to pcmux.
 );

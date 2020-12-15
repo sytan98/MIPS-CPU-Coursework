@@ -14,6 +14,7 @@ module alu_ctrl(
             alu_ctrl_in = 1;
         end
         else if (alu_op == 2) begin       // R-type and I-type instructions
+          if (opcode == 0) begin
             case(function_code)           // R-type instructions
                 33: alu_ctrl_in = 2;      // addu
                 35: alu_ctrl_in = 3;      // subu
@@ -33,8 +34,9 @@ module alu_ctrl(
                 26: alu_ctrl_in = 17;     // div
                 27: alu_ctrl_in = 18;     // divu
             endcase
+          end
         end
-        else begin
+        else if (alu_op == 3) begin
             case(opcode)                  // I-type instructions
                 9:  alu_ctrl_in = 19;     // addiu
                 10: alu_ctrl_in = 20;     // slti
