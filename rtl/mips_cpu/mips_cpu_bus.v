@@ -234,7 +234,7 @@ pc_address_selector pcsel_inst(
 
 // Register to hold target address from PC_address_selector
 target_addr_holder taddr_inst(
-  .clk(clk), .clk_enable(clk_enable),
+  .clk(clk), .clk_enable(clk_enable), .reset(reset),
   .tgt_addr_0(tgt_addr_0),                // from PC_address_selector.v
   .tgt_addr_1(tgt_addr_1)                 // connected to pcmux.
 );

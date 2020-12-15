@@ -14,8 +14,7 @@ module instr_register(
       ir <= 0;
     end
     else if ( state == 1 ) begin
-        ir <= ir_writedata;            //load the IR
-
+        ir <= ir_writedata;            //load the IR during LOAD state
     end
   end
 

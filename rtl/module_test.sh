@@ -33,3 +33,5 @@ echo "-----Register Writedata Selector Test"
 ./test_reg_writedata_selector.sh
 echo "-----Target Address Holder Test"
 ./test_target_addr_holder.sh
+echo "-----Instruction Register Test"
+./test_instr_register.sh

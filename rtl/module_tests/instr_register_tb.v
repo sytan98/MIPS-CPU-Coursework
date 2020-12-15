@@ -22,7 +22,7 @@ module instr_register_tb();
       if (reset == 1) begin
         assert (ir_readdata == 0);
       end
-      if(state == 1) begin
+      else if(state == 1) begin
         assert (ir_readdata == ir_writedata)
         else $error("At time %t, ir_writedata=%h, but ir_readdata=%h", $time, ir_writedata, ir_readdata);
       end
