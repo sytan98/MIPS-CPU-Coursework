@@ -13,12 +13,14 @@ elec50010-mips-coursework
 |   |   |    alu_ctrl.v     
 |   |   |    alu.v          
 |   |   |    ...            
+|   |
 |   └───module_tests        
 |   |   |    alu_ctrl_tb.v  
 |   |   |    alu_tb.v       
 |   |   |    ...            
+|   |   
 |   |   mips_cpu_bus.v      
-│   │   module_test.sh      
+│   |   module_test.sh      
 │   |   test_alu_ctrl.sh    
 |   |   ...                 
 │   
@@ -29,6 +31,7 @@ elec50010-mips-coursework
     └───reference
     └───simulator
     |   test_mips_cpu_bus.sh
+    |   ...   
 ```
 ## How to use:
 To test:\
