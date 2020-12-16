@@ -46,6 +46,7 @@ module mips_cpu_bus_tb;
 
     initial begin
         num_stalls = $urandom_range(0,8);
+        // num_stalls=2;
         
         reset <= 0;
         @(posedge clk);
