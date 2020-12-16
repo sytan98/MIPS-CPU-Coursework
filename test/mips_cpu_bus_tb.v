@@ -2,7 +2,7 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "";
-    parameter TIMEOUT_CYCLES = 10000;
+    parameter TIMEOUT_CYCLES = 100000;
 
     logic clk;
     logic reset;
@@ -45,8 +45,9 @@ module mips_cpu_bus_tb;
     end
 
     initial begin
-        num_stalls = $urandom_range(0,8);
-        
+        // num_stalls = 15;
+        num_stalls = $urandom_range(8,13);
+
         reset <= 0;
         @(posedge clk);
         reset <= 1;
@@ -59,7 +60,8 @@ module mips_cpu_bus_tb;
         else $display("TB : CPU did not set active=1 after reset.");
 
         while (active) begin
-            num_stalls = $urandom_range(0,8);
+            // num_stalls = 15;
+            num_stalls = $urandom_range(8,13);
             $display("num stalls:%d", num_stalls);
 
             @(posedge clk);

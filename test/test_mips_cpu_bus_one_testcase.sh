@@ -48,12 +48,12 @@ if ls ${srcfiles2} 1> /dev/null 2>&1; then
 fi
 
 
-iverilog -g 2012 \
+(iverilog -g 2012 \
 ./test/mips_cpu_bus_tb.v ./test/bus_memory.v \
 $srcfilestocompile \
 -s mips_cpu_bus_tb \
 -P mips_cpu_bus_tb.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
--o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}.sim
+-o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}.sim) 2> /dev/null
 
 # >&2 echo "  2 - Running test-bench"
 # Run the simulator, and capture all output to a file
