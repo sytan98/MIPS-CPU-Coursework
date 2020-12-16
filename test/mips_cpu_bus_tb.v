@@ -2,7 +2,7 @@ module mips_cpu_bus_tb;
     timeunit 1ns / 10ps;
 
     parameter ROM_INIT_FILE = "";
-    parameter TIMEOUT_CYCLES = 100000;
+    parameter TIMEOUT_CYCLES = 10000;
 
     logic clk;
     logic reset;
@@ -20,11 +20,11 @@ module mips_cpu_bus_tb;
 //============================================= INITIALISATIONS OF CPU LOGIC ===============================================//
     logic[31:0] register_v0;
 //======================================= INITIALISATIONS OF MEMORIES AND CPU BUS ==========================================//
-    bus_memory #(ROM_INIT_FILE) ramInst(.clk(clk), .address(address), .write(write), .read(read), 
-                                        .num_stalls(num_stalls), .waitrequest(waitrequest), .writedata(writedata), 
+    bus_memory #(ROM_INIT_FILE) ramInst(.clk(clk), .address(address), .write(write), .read(read),
+                                        .num_stalls(num_stalls), .waitrequest(waitrequest), .writedata(writedata),
                                         .byteenable(byteenable), .readdata(readdata));
-    mips_cpu_bus cpuInst(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0), 
-                         .address(address), .write(write), .read(read), .waitrequest(waitrequest), 
+    mips_cpu_bus cpuInst(.clk(clk), .reset(reset), .active(active), .register_v0(register_v0),
+                         .address(address), .write(write), .read(read), .waitrequest(waitrequest),
                          .writedata(writedata), .byteenable(byteenable), .readdata(readdata));
 //==========================================================================================================================//
 
@@ -46,7 +46,7 @@ module mips_cpu_bus_tb;
 
     initial begin
         num_stalls = $urandom_range(0,8);
-        
+
         reset <= 0;
         @(posedge clk);
         reset <= 1;
@@ -61,7 +61,7 @@ module mips_cpu_bus_tb;
         while (active) begin
             num_stalls = $urandom_range(0,8);
             $display("num stalls:%d", num_stalls);
-        
+
             @(posedge clk);
             // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
