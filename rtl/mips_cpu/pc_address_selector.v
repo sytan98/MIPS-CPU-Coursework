@@ -18,7 +18,7 @@ module pc_address_selector(
   output logic[31:0] tgt_addr_0       // output. connected to tgt_addr_holder.v
 );
 
-  always @(*) begin
+  always_comb begin
     if (condition_met & !jump & !jumpreg) begin
       tgt_addr_0 = branch_addr;       // if conditions for branch has been met, select branch target address
     end

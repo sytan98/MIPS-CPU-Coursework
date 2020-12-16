@@ -10,11 +10,11 @@ module mux_32bit(
   output logic[31:0] out
 );
 
-  always @(*)begin
+  always_comb begin
     if(select) begin
       out = in_1;
     end
-    else if(!select)begin
+    else begin
       out = in_0;
     end
   end

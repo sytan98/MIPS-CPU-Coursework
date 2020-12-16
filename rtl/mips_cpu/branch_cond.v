@@ -19,7 +19,7 @@ module branch_cond(
   assign neg = (read_data_a[31]==1) ? 1 : 0;               //if value of rs < 0
 
 
-  always@(*) begin
+  always_comb begin
     case(opcode)
       4: condition_met = (branch &  equal) ? 1 : 0;        //BEQ
       5: condition_met = (branch & !equal) ? 1 : 0;        //BNE

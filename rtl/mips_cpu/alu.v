@@ -17,27 +17,34 @@ module alu(
     assign hi = mult_div_out[63:32];    // high-order 32 bits of 64-bit result of multiplication instructions or 32-bit remainder for division instructions
     assign zero = (alu_out == 0);       // zero flag that goes to high if alu_out is zero.
 
-    always@(*) begin
+    logic[4:0] A_4;
+    assign A_4 = A[4:0];
+    always_comb begin
         case (alu_ctrl_in)
             0,2,19: alu_out = A + B;                            // load/store instructions, addu, addiu
             1,3: alu_out = A - B;                               // branch instructions, subu
             4,22: alu_out = A & B;                              // and, andi
             5,23: alu_out = A | B;                              // or, ori
             6,24: alu_out = A ^ B;                              // xor, xori
-			      7: alu_out = B << shamt;                            // sll
-            8: alu_out = B << A[4:0];                           // sllv
+			7: alu_out = B << shamt;                            // sll
+            8: alu_out = B << A_4;                           // sllv
             9: alu_out = B >> shamt;                            // srl
-            10: alu_out = B >> A[4:0];                          // srlv
+            10: alu_out = B >> A_4;                          // srlv
             11: alu_out = $signed(B) >>> shamt;                 // sra
-            12: alu_out = $signed(B) >>> A[4:0];                // srav
+            12: alu_out = $signed(B) >>> A_4;                // srav
             13,20: alu_out = $signed(A) < $signed(B) ? 1:0;     // slt, slti
-            14,21: alu_out = A < B ? 1:0;                       // sltu, sltiu
+            14,21: alu_out = A < B ? 1:0;                       // sltu, sltiu                                // divu
+            25: alu_out = B << 16;                              // lui
+			default: alu_out = 0;
+        endcase
+    end
+    always_comb begin
+        case (alu_ctrl_in)
             15: mult_div_out = $signed(A) * $signed(B);         // mult
             16: mult_div_out = A * B;                           // multu
             17: mult_div_out = {32'h00000000, $signed(A)/$signed(B)} | {$signed(A)%$signed(B), 32'h00000000}; // div
-			      18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000};                                     // divu
-            25: alu_out = B << 16;                              // lui
-			      default: alu_out = 0;
+			18: mult_div_out = {32'h00000000, A/B} | {A%B, 32'h00000000};                                     // divu
+			default: mult_div_out = 0;
         endcase
     end
 endmodule

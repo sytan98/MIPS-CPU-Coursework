@@ -9,7 +9,7 @@ module branch_addressor(
   output logic[31:0] branch_addr  // bracnh target address. connected to PC_address_selector.v
 );
 
-  always@(*) begin
+  always_comb begin
     branch_addr = $signed(immdt_32 << 2) + $signed(pc_plus4);
   end
 

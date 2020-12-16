@@ -10,7 +10,7 @@ module jump_addressor(
 
   logic[27:0] shifted;
 
-  always@(*) begin
+  always_comb begin
     shifted[27:0] = {j_immdt, 2'b00};
     jump_addr[31:28] = pc_4msb;
     jump_addr[27:0] = shifted;

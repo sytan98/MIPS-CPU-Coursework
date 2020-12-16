@@ -7,7 +7,7 @@ module destination_reg_selector(
   output logic[4:0]   write_reg_rd         // destination register, connected to register_file.v
 );
 
-  always @(*) begin
+  always_comb begin
     case (rd_select)
       0: write_reg_rd = read_reg_b;        // register rt for I-type instructions
       1: write_reg_rd = rtype_rd;          // register rd for R-type instructions

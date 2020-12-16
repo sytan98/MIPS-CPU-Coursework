@@ -39,30 +39,26 @@ module control(
   output logic jumpreg                // control signal to PC_address_selector.v for JR and JALR
 );
 
-always @(*) begin
+logic [1:0] byte_addressing_2;
+logic byte_addressing_1;
+assign byte_addressing_2 = byte_addressing[1:0];
+assign byte_addressing_1 = byte_addressing[1];
 
+always_comb begin
   //reset
   if (reset) begin
     read = 1;
+    write = 0;                        // write is disabled.
     byteenable = 4'b1111;
+    write_data_sel= 0;
   end
-
-  // cpu state = FETCH
-  else if (state == 0) begin
+  // cpu state = FETCH or LOAD
+  else if (state == 0 | state == 1) begin
     read = 1;                         // only reading of memory is enabled.
     write = 0;                        // write is disabled.
     byteenable = 4'b1111;
-    reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
+    write_data_sel= 0;
   end
-
-  // cpu state = LOAD
-  else if (state == 1) begin
-    read = 1;                         // only reading of memory is enabled.
-    write = 0;                        // write is disabled.
-    byteenable = 4'b1111;
-    reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
-  end
-
   // cpu state = MEM
   else if (state == 2) begin
     // store instructions: writing into memory. SB SH SW
@@ -71,19 +67,22 @@ always @(*) begin
       read=0;
       // SB
       if(opcode==40) begin
-        if(byte_addressing[1:0] == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
-        else if(byte_addressing[1:0] == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
-        else if(byte_addressing[1:0] == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
-        else if(byte_addressing[1:0] == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
+        if(byte_addressing_2 == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
+        else if(byte_addressing_2 == 2'b01) begin byteenable=4'b0010; write_data_sel= 2; end
+        else if(byte_addressing_2 == 2'b10) begin byteenable=4'b0100; write_data_sel= 3; end
+        else if(byte_addressing_2 == 2'b11) begin byteenable=4'b1000; write_data_sel= 4; end
+        else begin byteenable=4'b1111; write_data_sel= 0; end
       end
       // SH
       else if(opcode==41) begin
-        if(byte_addressing[1] == 0) begin byteenable=4'b0011; write_data_sel= 5; end
-        else if(byte_addressing[1] == 1) begin byteenable=4'b1100; write_data_sel= 6; end
-        end
+        if(byte_addressing_1 == 0) begin byteenable=4'b0011; write_data_sel= 5; end
+        else if(byte_addressing_1 == 1) begin byteenable=4'b1100; write_data_sel= 6; end
+        else begin byteenable=4'b1111; write_data_sel= 0; end
+      end
       // SW
       else begin
         byteenable = 4'b1111;
+        write_data_sel= 0;
       end
     end
 
@@ -92,6 +91,7 @@ always @(*) begin
       read=1;
       write=0;
       byteenable = 4'b1111;
+      write_data_sel= 0;
     end
 
     // non load/store instructions: do nothing in MEM state
@@ -99,27 +99,48 @@ always @(*) begin
       read=0;
       write=0;
       byteenable = 4'b1111;
+      write_data_sel= 0;
+
     end
-
-    // to ensure that memory address is calculated in MEM state.
-    alu_op = 2'b00;
-    alu_src = 1;
-
   end
-
-  // cpu state = EXEC
-  else if (state == 3) begin
+  else begin
     byteenable = 4'b1111;
     read = 0;
     write = 0;
     write_data_sel= 0;
+  end
+end
 
+always_comb begin
+  if (reset| state == 0 | state  == 1 | state == 2) begin
+    reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
+    alu_op = 2'b00;                  // to ensure that memory address is calculated in MEM state.
+    alu_src = 1;
+    rd_select = 0;  
+    reg_write_enable = 1'd0;
+    datamem_to_reg = 0;
+    link_to_reg = 1'd0;
+    mfhi = 0;
+    mflo = 0;
+    lwl = 0;
+    lwr = 0;
+    hi_wren = 0;
+    lo_wren = 0;
+    multdiv = 0;
+    imdt_sel = 0;
+    alu_src = 1;
+    branch = 0;
+    jump = 0;
+    jumpreg = 0;
+  end
+  // cpu state = EXEC
+  else if (state == 3) begin
     // rd_select: select signal to destination_reg_selector.v to select destination register
     case (opcode)
-      0: rd_select = 1;                                       // R-type instructions
+      0: rd_select = 1;                                 // R-type instructions
       1: rd_select = (b_code==16|b_code==17) ? 2'd2 : 2'd0;   // BLTZAL, BGEZAL
-      3: rd_select = 2;                                       // JAL
-      default: rd_select = 0;                                 // I-type instructions
+      3: rd_select = 2;                                 // JAL
+      default: rd_select = 0;                           // I-type instructions
     endcase
 
     // reg_write_enable: write enable signal to register_file.v. for instructions that write into a register - arithmetic, logical operations, shifts, setting, loads etc
@@ -197,7 +218,7 @@ always @(*) begin
     // alu_op: control signal to alu_ctrl.v, 0 for load/store instructions, 1 for BEQ/BNE, 2 for R-type instructions, 3 for I-type instructions
     alu_op[1:0] = (opcode==0) ? 2'd2 :                                                                      // 2 for R-type instructions
                   (opcode==4|opcode==5) ? 2'd1 :                                                            // 1 for BEQ, BNE
-                  (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 0; // 3 for I-type instructions, 0 for anything else including load/store instructions
+                  (opcode==9|opcode==10|opcode==11|opcode==12|opcode==13|opcode==14|opcode==15) ? 2'd3 : 2'd0; // 3 for I-type instructions, 0 for anything else including load/store instructions
 
     //branch: control signal to branch_cond.v, for branch instructions.
     case (opcode)
@@ -217,7 +238,27 @@ always @(*) begin
       default: jumpreg = 0;
     endcase
   end
-
+  else begin
+    reg_write_enable = 0; 
+    alu_op = 2'b00;                  // to ensure that memory address is calculated in MEM state.
+    alu_src = 1;
+    rd_select = 0;  
+    reg_write_enable = 1'd0;
+    datamem_to_reg = 0;
+    link_to_reg = 1'd0;
+    mfhi = 0;
+    mflo = 0;
+    lwl = 0;
+    lwr = 0;
+    hi_wren = 0;
+    lo_wren = 0;
+    multdiv = 0;
+    imdt_sel = 0;
+    alu_src = 1;
+    branch = 0;
+    jump = 0;
+    jumpreg = 0;
+  end
 end
 
 endmodule
