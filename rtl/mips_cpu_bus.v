@@ -54,7 +54,7 @@ assign instruction = ir_readdata;
 
 // to ensure that the memory address is output from the CPU into bus_memory.v during MEM stage, important for load/store instructions
 logic address_sel;
-assign address_sel = (state==MEM) ? 1 : 0;
+assign address_sel = (state==MEM) ? 1'd1 : 1'd0;
 
 logic[31:0] memory_address;
 logic[31:0] memory_address_temp;

@@ -116,18 +116,18 @@ always @(*) begin
 
     // rd_select: select signal to destination_reg_selector.v to select destination register
     case (opcode)
-      0: rd_select = 1;                                 // R-type instructions
-      1: rd_select = (b_code==16|b_code==17) ? 2 : 0;   // BLTZAL, BGEZAL
-      3: rd_select = 2;                                 // JAL
-      default: rd_select = 0;                           // I-type instructions
+      0: rd_select = 1;                                       // R-type instructions
+      1: rd_select = (b_code==16|b_code==17) ? 2'd2 : 2'd0;   // BLTZAL, BGEZAL
+      3: rd_select = 2;                                       // JAL
+      default: rd_select = 0;                                 // I-type instructions
     endcase
 
     // reg_write_enable: write enable signal to register_file.v. for instructions that write into a register - arithmetic, logical operations, shifts, setting, loads etc
     case (opcode)
-      0: reg_write_enable = ( (function_code == 8) | (function_code == 17) |(function_code == 19) | (function_code == 24) | (function_code== 25) | (function_code==26) | (function_code== 27)) ? 0 : 1; //0 for R-type instructions that do not write into a register: JR, MTHI, MTLO, multiply and divide
-      1: reg_write_enable = ( (b_code == 17) | (b_code == 16) ) ? 1 : 0;    // for BGEZAL and BLTZAL
-      3,9,10,11,12,13,14,15,32,33,34,35,36,37,38: reg_write_enable = 1;     // for JAL, ADDIU, SLTI, SLTIU, ANDI, ORI, XORI, LUI, LB, LH, LWL, LW, LBU, LHU, LWR
-      default: reg_write_enable = 0;
+      0: reg_write_enable = ( (function_code == 8) | (function_code == 17) |(function_code == 19) | (function_code == 24) | (function_code== 25) | (function_code==26) | (function_code== 27)) ? 1'd0 : 1'd1; //0 for R-type instructions that do not write into a register: JR, MTHI, MTLO, multiply and divide
+      1: reg_write_enable = ( (b_code == 17) | (b_code == 16) ) ? 1'd1 : 1'd0;    // for BGEZAL and BLTZAL
+      3,9,10,11,12,13,14,15,32,33,34,35,36,37,38: reg_write_enable = 1'd1;     // for JAL, ADDIU, SLTI, SLTIU, ANDI, ORI, XORI, LUI, LB, LH, LWL, LW, LBU, LHU, LWR
+      default: reg_write_enable = 1'd0;
     endcase
 
     // datamem_to_reg: control signal to reg_writedata_selector.v, for load instructions.
@@ -141,15 +141,15 @@ always @(*) begin
     endcase
 
     // link_to_reg: control signal to reg_writedata_selector.v, for link instructions.
-    link_to_reg = ( opcode==3 | (opcode==0 & function_code==9) | (opcode==1 & (b_code==16|b_code==17)) ) ? 1 : 0;   // JAL, JALR, BGEZAL, BLTZAL
+    link_to_reg = ( opcode==3 | (opcode==0 & function_code==9) | (opcode==1 & (b_code==16|b_code==17)) ) ? 1'd1 : 1'd0;   // JAL, JALR, BGEZAL, BLTZAL
 
     // mfhi, mflo: control signal to reg_writedata_selector.v, for mfhi and mflo instructions.
     case (function_code)
-      16: mfhi = (opcode==0) ? 1 : 0;
+      16: mfhi = (opcode==0) ? 1'd1 : 1'd0;
       default: mfhi = 0;
     endcase
     case (function_code)
-      18: mflo = (opcode==0) ? 1 : 0;
+      18: mflo = (opcode==0) ? 1'd1 : 1'd0;
       default: mflo = 0;
     endcase
 
@@ -166,19 +166,19 @@ always @(*) begin
 
     // hi_wren: write enable signal for reg_hi.v, for mthi, multiplication and division instructions
     case(function_code)
-      17,24,25,26,27: hi_wren = (opcode==0) ? 1 : 0;   // for MTHI, MULT, MULTU, DIV, DIVU
+      17,24,25,26,27: hi_wren = (opcode==0) ? 1'd1 : 1'd0;   // for MTHI, MULT, MULTU, DIV, DIVU
       default: hi_wren = 0;
     endcase
 
     // lo_wren: write enable signal for reg_lo.v, for mtlo, multiplication and division instructions
     case(function_code)
-      19,24,25,26,27: lo_wren = (opcode==0) ? 1 : 0;   // for MTLO, MULT, MULTU, DIV, DIVU
+      19,24,25,26,27: lo_wren = (opcode==0) ? 1'd1 : 1'd0;   // for MTLO, MULT, MULTU, DIV, DIVU
       default: lo_wren = 0;
     endcase
 
     // multdiv: control signal to reg_hi.v and reg_lo.v, for multiplication and divison instructions
     case(function_code)
-      24,25,26,27: multdiv = (opcode==0) ? 1 : 0;      // for MULT, MULTU, DIV, DIVU
+      24,25,26,27: multdiv = (opcode==0) ? 1'd1 : 1'd0;      // for MULT, MULTU, DIV, DIVU
       default: multdiv = 0;
     endcase
 
@@ -213,7 +213,7 @@ always @(*) begin
 
     //jumpreg: goes to high for JR and JALR instructions. control signal to PC_address_selector.v to select read_data_a
     case (function_code)
-      8,9: jumpreg = (opcode == 0) ? 1 : 0;   // for JR, JALR
+      8,9: jumpreg = (opcode == 0) ? 1'd1 : 1'd0;   // for JR, JALR
       default: jumpreg = 0;
     endcase
   end
