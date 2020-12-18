@@ -18,28 +18,22 @@ for (( i=0; i<${#TESTCASE_ID}; i++ )); do
 done
 # Redirect output to stder (&2) so that it seperate from genuine outputs
 # Using ${SRC} substitures in the value of the variable VARIA T
-# >&2 echo "Test MIPS Bus CPU using test-case ${TESTCASE_ID}"
+>&2 echo "Test MIPS Bus CPU using test-case ${TESTCASE_ID}"
 
-# >&2 echo "  1 - Compiling test-bench"
+>&2 echo "  1 - Compiling test-bench"
 # Compile a specific simulator for this SRC and testbench.
 # -s specifies exactly which testbench should be top-level
 # The -P command is used to modify the RAM_INIT_FILE parameter on the test-bench at compile-time
 
-# for 
-# srcfilestocompile=`ls "${SRC}"/mips_cpu/*.v`
-# set +e
-# srcfilestocompile+=`ls "${SRC}"/mips_cpu_*.v`
-# set -e
-# echo test
 srcfilestocompile=""
-srcfiles1="./"${SRC}"/mips_cpu/*.v"
+srcfiles1="${SRC}/mips_cpu/*.v"
 if ls ${srcfiles1} 1> /dev/null 2>&1; then
     for i in ${srcfiles1} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
         srcfilestocompile="$srcfilestocompile $i"
     done
 fi
-srcfiles2="./"${SRC}"/mips_cpu_*.v"
+srcfiles2="${SRC}/mips_cpu_*.v"
 if ls ${srcfiles2} 1> /dev/null 2>&1; then
     for i in ${srcfiles2} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
@@ -47,15 +41,16 @@ if ls ${srcfiles2} 1> /dev/null 2>&1; then
     done
 fi
 
+>&2 echo $srcfilestocompile
 
-(iverilog -g 2012 \
+iverilog -g 2012 \
 ./test/mips_cpu_bus_tb.v ./test/bus_memory.v \
 $srcfilestocompile \
 -s mips_cpu_bus_tb \
 -P mips_cpu_bus_tb.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
--o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}.sim) 2> /dev/null
+-o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}.sim
 
-# >&2 echo "  2 - Running test-bench"
+>&2 echo "  2 - Running test-bench"
 # Run the simulator, and capture all output to a file
 # Use +e to disable automatic script failure if the command fails, as
 # it is possible the simulation might go wrong.
@@ -71,7 +66,7 @@ if [[ "${RESULT}" -ne 0 ]] ; then
     exit
 fi
 
-# >&2 echo "  3 - Extracting result of OUT instructions"
+>&2 echo "  3 - Extracting result of OUT instructions"
 # This is the prefix for simulation output lines containing result of OUT instruction
 PATTERN="Output at v0:"
 NOTHING=""
@@ -82,7 +77,7 @@ set -e
 # Use "sed" to replace "CPU : OUT   :" with nothing
 sed -e "s/${PATTERN}/${NOTHING}/g" ./test/output/mips_cpu_bus_tb_${TESTCASE_ID}.out-lines > ./test/output/mips_cpu_bus_tb_${TESTCASE_ID}.out
 
-# >&2 echo "  4 - Comparing output"
+>&2 echo "  4 - Comparing output"
 # Note the -w to ignore whitespace
 set +e
 diff -w -B -i ./test/reference/${TESTCASE_ID}.ref.txt ./test/output/mips_cpu_bus_tb_${TESTCASE_ID}.out &>/dev/null

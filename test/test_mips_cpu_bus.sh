@@ -12,20 +12,19 @@ INSTRUCTION_TYPE="$2"
 if [ -z $INSTRUCTION_TYPE ]
 then
     >&2 echo "Instruction not given, running all instructions."
-    TESTCASES="test/cases/*.bytes.txt"
+    TESTCASES="./test/cases/*.bytes.txt"
     passesnum=0
     totalcount=0
     # Loop over every test in cases folder
     for i in ${TESTCASES} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
         TESTCASEID=$(basename ${i} .bytes.txt)
-        # >&2 echo $TESTCASEID
+        >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_bus_one_testcase.sh ${SRC} ${TESTCASEID}`
         B=$(echo $var | cut -d " " -f 3-4)
         Pass='Pass'
         echo "$var"
-        Pass='Pass'
         if [[ "$B" == "$Pass" ]]; then
             passesnum=`expr $passesnum + 1`
         fi
@@ -42,7 +41,7 @@ else
     for i in ${TESTCASES} ; do
         # Extract just the testcase name from the filename. See `man basename` for what this command does.
         TESTCASEID=$(basename ${i} .bytes.txt)
-        # >&2 echo $TESTCASEID
+        >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_bus_one_testcase.sh ${SRC} ${TESTCASEID}`
         echo "$var"
