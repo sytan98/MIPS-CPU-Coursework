@@ -34,9 +34,9 @@ module bus_memory(
 
 	//mem state
 	typedef enum logic[1:0] {
-			IDLE = 2'b00, //
-			BUSY = 2'b01,
-			CHILL = 2'b10
+			IDLE = 2'b00, //IDLE state when awaiting for read or write request
+			BUSY = 2'b01, //BUSY state when waitrequest stays high
+			CHILL = 2'b10 //CHILL state is when data is available
 	} state_t;
 
 	logic[1:0] state;
