@@ -83,6 +83,10 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
+        if (address == 0) begin
+            state <= HALTED;
+            active <= 0;
+        end
         state <= LOAD;
 
     end
@@ -155,14 +159,9 @@ always @(posedge clk) begin
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
         clk_enable <= 0;
-        if (address == 0) begin
-            state <= HALTED;
-            active <= 0;
-        end
-        else begin
-          state <= FETCH;
 
-        end
+        state <= FETCH;
+
         if (branch|jump|jumpreg) begin        // delay slot for branch and jump instructions
             delay <= 1;
         end
