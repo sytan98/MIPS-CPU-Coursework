@@ -1,52 +1,52 @@
 addiu_1:Add positive numbers: 0x10080000 and 0x3092
-addiu_2:Add positive (0x1) and negative (0xFFFF or -1) to output 0
-addiu_3:Add positive (0x1) and negative (0xFFFE or -2) to output negative (0xFFFF or -1)
+addiu_2:Add positive (0x1) and negative (0xffff or -1) to output 0
+addiu_3:Add positive (0x1) and negative (0xfffe or -2) to output negative (0xffff or -1)
 addiu_4:Add numbers in lower 16 bits: 0x1672 and 0x8172
 addiu_5:Add 0x1672 and 0x3892
 addiu_sanity_1
-addiu_t0:Add to $0 results in 0
-addu_1:
-addu_2:
-addu_3:
-addu_4:
-addu_5:
-and_1:
-and_2:
-and_3:
-and_4:
-and_5:
-andi_1:
-andi_2:
-andi_3:
-andi_4:
-andi_5:
-beq_1:
-beq_2:
-beq_3:
-beq_4:
-beq_5:
-beq_fib_1:
-beq_finder:
-bgez_1:
-bgez_2:
-bgez_3:
-bgez_4:
-bgez_5:
-bgezal_1:
-bgezal_2:
-bgezal_3:
-bgezal_4:
-bgezal_5:
-bgtz_1:
-bgtz_2:
-bgtz_3:
-bgtz_4:
-bgtz_5:
-blez_1:
-blez_2:
-blez_3:
-blez_4:
-blez_5:
+addiu_t0:Add to $0 should not change $0
+addu_1:Load $4 and $5 with 0xFFFE0000 and 0x1 respectively. Add $4 and $5 into $2.
+addu_2:Add negative numbers: 0xffffffff and 0xffffffff
+addu_3:Add positive numbers: 0x1234 and 0x5678
+addu_4:Add negative number to $0
+addu_5:Add positive and negative numbers
+and_1:And 0xffffa5a5 and 0x5a6a
+and_2:And with 0 results in 0
+and_3:And 0xffffffff with itself to test all 32 bits
+and_4:And with 0xffffffff should not change the other register value
+and_5:And with 0xfffff000 should mask out least significant 12 bits
+andi_1:And 0x1aaa with 0x5555. And again with 0xdddf
+andi_2:And 0xffffffff with 0x0000
+andi_3:And 0xffffffff with 0xffffffff
+andi_4:And 0x8000 with 0xffffffff
+andi_5:And 0x1010 with 0x0101
+beq_1:Test it branches when equal
+beq_2:Test it doesn't branch when not equal
+beq_3:Test branch comparison with the same register results in a branch
+beq_4:Test branch comparison between 2 different registers with same value
+beq_5:Test branch comparison between 0xffffffff and 0x0000ffff results in no branch
+beq_fib_1:Find the 10th Fibonacci term
+beq_finder:Search through a list of 10 integers and find 0, return the index
+bgez_1:Test branch comparison: 0x00ff0000 > 0x0
+bgez_2:Test branch when greater than 0: 1 > 0
+bgez_3:Test it branches when equal to 0
+bgez_4:Test it does not branch when less than 0
+bgez_5:Test branching backwards
+bgezal_1:Test branch works for greater than 0
+bgezal_2:Test link register $31 updates correctly by moving value to $2
+bgezal_3:Test branch works for equal to 0
+bgezal_4:Test it doesn't branch when less than 0
+bgezal_5:Test it can branch backwards
+bgtz_1:Test it doesn't branch when equal to 0
+bgtz_2:Test it branches when greater than 0
+bgtz_3:Test it doesn't branch when equal to 0 and that registers are initialised to 0
+bgtz_4:Test it doesn't branch when less than 0
+bgtz_5:Test branching backwards
+blez_1:Test it branches when less than zero
+blez_2:Test it doesn't branch when greater than 0
+blez_3:Test it branches when equal to 0
+blez_4:Test it doesn't branch for value 0xffffffff
+blez_5:Test branching backwards
 bltz_1:
 bltz_2:
 bltz_3:
