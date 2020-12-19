@@ -35,3 +35,5 @@ echo "-----Target Address Holder Test"
 ./test_target_addr_holder.sh
 echo "-----Instruction Register Test"
 ./test_instr_register.sh
+echo "-----Data Register Test"
+./test_data_register.sh

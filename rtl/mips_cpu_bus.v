@@ -49,6 +49,7 @@ logic       zero;
 
 // bus related
 logic[31:0] ir_readdata;
+logic[31:0] dr_readdata;
 logic[31:0] instruction;
 assign instruction = ir_readdata;
 
@@ -82,15 +83,19 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
+        if (address == 0) begin
+            state <= HALTED;
+            active <= 0;
+        end
         state <= LOAD;
-        
+
     end
     else if (state == LOAD) begin
         $display("CPU : INFO  : LOAD.");
         //Current address
         $display("current PC address =%h", pcout);
         $display("current inst address =%h", address);
-        $display("current inst =%h", readdata);
+        $display("current inst =%h", instruction);
         if (waitrequest == 0) begin
           state <= MEM;
         end
@@ -100,7 +105,7 @@ always @(posedge clk) begin
       //Current address
       $display("current PC address =%h", pcout);
       $display("current inst address =%h", address);
-      $display("current inst =%h", readdata);
+      $display("current inst =%h", instruction);
       if (waitrequest == 0) begin
           state <= EXEC;
           clk_enable <= 1;
@@ -111,7 +116,7 @@ always @(posedge clk) begin
         //Current address
         $display("current PC address =%h", pcout);
         $display("current inst address =%h", address);
-        $display("current inst =%h", readdata);
+        $display("current inst =%h", instruction);
 
         //Branch/Jump Related
         $display("opcode = %d", readdata[31:26]);
@@ -126,8 +131,8 @@ always @(posedge clk) begin
         $display("jump address = %h", jump_addr);
 
         //Register Related
-        $display("Reading Register A = %d", readdata[25:21]);
-        $display("Reading Register B = %d", readdata[20:16]);
+        $display("Reading Register A = %d", instruction[25:21]);
+        $display("Reading Register B = %d", instruction[20:16]);
         $display("Data from Reg A = %h", read_data_a);
         $display("Data from Reg B = %h", read_data_b);
         $display("Register being written to = %d", write_reg_rd);
@@ -137,6 +142,8 @@ always @(posedge clk) begin
         $display("Reg Write Enable = %h", reg_write_enable);
 
         //Data Memory Related
+        $display("READ = %b", read);
+        $display("WRITE = %b", write);
         $display("Data address = %h", memory_address);
         $display("Data address temp = %h", memory_address_temp);
         // $display("lwl signal = %b", lwl);
@@ -152,14 +159,9 @@ always @(posedge clk) begin
         // $display("value going into hi = %h", hi);
         // $display("value going into lo = %h", lo);
         clk_enable <= 0;
-        if (address == 0) begin
-            state <= HALTED;
-            active <= 0;
-        end
-        else begin
-          state <= FETCH;
-        
-        end
+
+        state <= FETCH;
+
         if (branch|jump|jumpreg) begin        // delay slot for branch and jump instructions
             delay <= 1;
         end
@@ -177,6 +179,13 @@ instr_register ir_inst(
   .clk(clk), .reset(reset),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
+);
+
+// data register: to hold onto the data output from the memory
+data_register dr_inst(
+  .clk(clk), .reset(reset),
+  .state(state), .dr_writedata(readdata),
+  .dr_readdata(dr_readdata)
 );
 
 // memory address mux: to ensure that the memory address is output from the cpu into the memory during MEM
@@ -313,7 +322,7 @@ destination_reg_selector rd_selector(
 reg_writedata_selector regwritedata_sel(
   // data to write into destination register
   .alu_out(alu_out),                                    // output of alu from alu.v
-  .data_readdata(readdata),                             // data read from memory for load instructions.
+  .data_readdata(dr_readdata),                             // data read from memory for load instructions.
   .pc_plus4(pc_plus4),                                  // PC+4 from pc_adder.v. will add 4 to this to be PC+8 for link instructions.
   .hi_readdata(hi_readdata), .lo_readdata(lo_readdata), // data read from hi and lo registers for mfhi and mflo instructions
   // control signals
