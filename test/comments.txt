@@ -1,6 +1,6 @@
 addiu_1:Add positive numbers: 0x10080000 and 0x3092
-addiu_2:Add positive (0x1) and negative (0xffff or -1) to output 0
-addiu_3:Add positive (0x1) and negative (0xfffe or -2) to output negative (0xffff or -1)
+addiu_2:Add positive (0x1) and negative (0xffffffff or -1) to output 0
+addiu_3:Add positive (0x1) and negative (0xfffffffe or -2) to output negative (0xffffffff or -1)
 addiu_4:Add numbers in lower 16 bits: 0x1672 and 0x8172
 addiu_5:Add 0x1672 and 0x3892
 addiu_sanity_1
@@ -47,31 +47,31 @@ blez_2:Test it doesn't branch when greater than 0
 blez_3:Test it branches when equal to 0
 blez_4:Test it doesn't branch for value 0xffffffff
 blez_5:Test branching backwards
-bltz_1:
-bltz_2:
-bltz_3:
-bltz_4:
-bltz_5:
-bltzal_1:
-bltzal_2:
-bltzal_3:
-bltzal_4:
-bltzal_5:
-bne_1:
-bne_2:
-bne_3:
-bne_4:
-bne_5:
-bnez_binseq:
-div_1:
-div_2:
-div_3:
-div_4:
-div_5:
-divu_1:
-divu_2:
-divu_3:
-divu_4:
+bltz_1:Test it doesn't branch when greater than 0 for value 0x10
+bltz_2:Test it doesn't branch when greater than 0 for value 0x1
+bltz_3:Test it doesn't branch when equal to 0
+bltz_4:Test it branches when less than 0
+bltz_5:Test branching backwards
+bltzal_1:Branch when negative
+bltzal_2:No branch when equal to 0
+bltzal_3:No branch when positive
+bltzal_4:Test link register works
+bltzal_5:Branch backwards
+bne_1:Test it branches when not equal for 0xaa and 0xab
+bne_2:Test it branches when not equal for 0x0 and 0x1
+bne_3:Test it doesn't branch when they are equal (both zero)
+bne_4:Test it branches when comparing 0xffffffff and 0x0000ffff
+bne_5:Test branching backwards
+bnez_binseq:Shift left 15 times using bnez to branch back
+div_1:Divide 10/5 should result in lo=2
+div_2:Divide 11/5 should result in lo=2
+div_3:Divide 0xb0000 by 0x50000 should result in hi=0x10000
+div_4:Divide 5/10 should result in lo=0
+div_5:Dividing by -1 results in 0 remainder
+divu_1:Test division with remainder, results in correct quotient
+divu_2:Test division between 2 different halfs of word (larger division)
+divu_3:Test division with large quotient
+divu_4:Test complex division remainder
 divu_5:
 j_1:
 j_2:
@@ -123,7 +123,7 @@ mflo_2:
 mflo_3:
 mflo_4:
 mflo_5:
-mflo_t0:
+mflo_t0:Test that moving lo register value to $0 does not change $0
 mthi_1:
 mthi_2:
 mthi_3:
@@ -138,7 +138,7 @@ mult_2:
 mult_3:
 mult_4:
 mult_5:
-mult_factorial:
+mult_factorial:Find factorial of 5
 multu_1:
 multu_2:
 multu_3:
@@ -171,7 +171,7 @@ sll_4:
 sll_5:
 sll_6:
 sll_7:
-sll_power:
+sll_power:Shifts 2 to the left 4 times
 sll_sanity_1:
 sll_sanity_7:
 sllv_1:
@@ -242,4 +242,4 @@ xori_2:
 xori_3:
 xori_4:
 xori_5:
-xori_pseudo:
+xori_pseudo:Solves equation involving xori, multiplication and addition
