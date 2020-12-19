@@ -47,7 +47,7 @@ assign byte_addressing_1 = byte_addressing[1];
 always_comb begin
   //reset
   if (reset) begin
-    read = 1;
+    read = 0;
     write = 0;                        // write is disabled.
     byteenable = 4'b1111;
     write_data_sel= 0;
@@ -63,8 +63,8 @@ always_comb begin
   else if (state == 2) begin
     // store instructions: writing into memory. SB SH SW
     if( opcode==40 | opcode==41 | opcode==43 ) begin
-      write=1;
-      read=0;
+      write =1 ;
+      read = 0;
       // SB
       if(opcode==40) begin
         if(byte_addressing_2 == 2'b00) begin byteenable=4'b0001; write_data_sel= 1; end
@@ -74,7 +74,7 @@ always_comb begin
         else begin byteenable=4'b1111; write_data_sel= 0; end
       end
       // SH
-      else if(opcode==41) begin
+      else if(opcode == 41) begin
         if(byte_addressing_1 == 0) begin byteenable=4'b0011; write_data_sel= 5; end
         else if(byte_addressing_1 == 1) begin byteenable=4'b1100; write_data_sel= 6; end
         else begin byteenable=4'b1111; write_data_sel= 0; end
@@ -116,7 +116,7 @@ always_comb begin
     reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
     alu_op = 2'b00;                  // to ensure that memory address is calculated in MEM state.
     alu_src = 1;
-    rd_select = 0;  
+    rd_select = 0;
     reg_write_enable = 1'd0;
     datamem_to_reg = 0;
     link_to_reg = 1'd0;
@@ -239,10 +239,10 @@ always_comb begin
     endcase
   end
   else begin
-    reg_write_enable = 0; 
+    reg_write_enable = 0;
     alu_op = 2'b00;                  // to ensure that memory address is calculated in MEM state.
     alu_src = 1;
-    rd_select = 0;  
+    rd_select = 0;
     reg_write_enable = 1'd0;
     datamem_to_reg = 0;
     link_to_reg = 1'd0;
