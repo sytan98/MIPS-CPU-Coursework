@@ -22,7 +22,7 @@ then
         >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_bus_one_testcase.sh ${SRC} ${TESTCASEID}`
-        B=$(echo $var | cut -d " " -f 3-4)
+        B=$(echo $var | cut -d " " -f 3)
         Pass='Pass'
         echo "$var"
         if [[ "$B" == "$Pass" ]]; then
@@ -34,7 +34,7 @@ then
 else
     >&2 echo "${INSTRUCTION_TYPE} instructions to be tested."
     
-    TESTCASES="./test/cases/${INSTRUCTION_TYPE}_*.bytes.txt"
+    TESTCASES="./test/cases/${INSTRUCTION_TYPE}*.bytes.txt"
     # Loop over every file matching the TESTCASES pattern
     passesnum=0
     totalcount=0
@@ -45,7 +45,7 @@ else
         # Dispatch to the main test-case script
         var=`./test/test_mips_cpu_bus_one_testcase.sh ${SRC} ${TESTCASEID}`
         echo "$var"
-        B=$(echo $var | cut -d " " -f 3-4)
+        B=$(echo $var | cut -d " " -f 3)
         Pass='Pass'
         if [[ "$B" == "$Pass" ]]; then
             passesnum=`expr $passesnum + 1`

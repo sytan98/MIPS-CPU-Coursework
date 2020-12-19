@@ -17,7 +17,6 @@ for (( i=0; i<${#TESTCASE_ID}; i++ )); do
     INST="${INST}${TESTCASE_ID:$i:1}"
 done
 # Redirect output to stder (&2) so that it seperate from genuine outputs
-# Using ${SRC} substitures in the value of the variable VARIA T
 >&2 echo "Test MIPS Bus CPU using test-case ${TESTCASE_ID}"
 
 >&2 echo "  1 - Compiling test-bench"
@@ -62,9 +61,11 @@ set -e
 
 # Check whether the simulator returned a failure code, and immediately quit
 if [[ "${RESULT}" -ne 0 ]] ; then
-    echo "${TESTCASE_ID} ${INST} Fail"
+    echo "${TESTCASE_ID} ${INST} Fail   # CPU Failed to Simulate"
     exit
 fi
+# Save a copy of testcase waveform
+cp mips_cpu_bus_tb.vcd ./test/waveforms/mips_cpu_bus_tb_${TESTCASE_ID}.vcd
 
 >&2 echo "  3 - Extracting result of OUT instructions"
 # This is the prefix for simulation output lines containing result of OUT instruction
@@ -86,7 +87,10 @@ set -e
 
 # Based on whether differences were found, either pass or fail
 if [[ "${RESULT}" -ne 0 ]] ; then
-   echo "${TESTCASE_ID} ${INST} Fail"
+    EXPECTED_V0=`grep -E "*" ./test/reference/${TESTCASE_ID}.ref.txt`
+    RECEIVED_V0=`grep -E "*" ./test/output/mips_cpu_bus_tb_${TESTCASE_ID}.out`
+    echo "${TESTCASE_ID} ${INST} Fail   # Expected v0:${EXPECTED_V0} But got:${RECEIVED_V0}"
 else
-   echo "${TESTCASE_ID} ${INST} Pass"
+    COMMENT=`grep "${TESTCASE_ID}" ./test/comments.txt | cut -d ":" -f 2`
+    echo "${TESTCASE_ID} ${INST} Pass   # ${COMMENT}"
 fi
