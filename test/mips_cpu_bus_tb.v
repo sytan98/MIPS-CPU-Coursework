@@ -46,7 +46,7 @@ module mips_cpu_bus_tb;
 
     initial begin
         // num_stalls = 15;
-        num_stalls = $urandom_range(8,13);
+        num_stalls = $urandom_range(0,13);
 
         reset <= 0;
         @(posedge clk);
@@ -61,7 +61,7 @@ module mips_cpu_bus_tb;
 
         while (active) begin
             // num_stalls = 15;
-            num_stalls = $urandom_range(8,13);
+            num_stalls = $urandom_range(0,13);
             $display("num stalls:%d", num_stalls);
 
             @(posedge clk);
