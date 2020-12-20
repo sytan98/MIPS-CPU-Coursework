@@ -21,7 +21,7 @@ then
         TESTCASEID=$(basename ${i} .bytes.txt)
         >&2 echo $TESTCASEID
         # Dispatch to the main test-case script
-        var=`./test/test_mips_cpu_bus_one_testcase.sh ${SRC} ${TESTCASEID}`
+        var=`./test/test_mips_cpu_bus_one_testcase_v2.sh ${SRC} ${TESTCASEID}`
         B=$(echo $var | cut -d " " -f 3)
         Pass='Pass'
         echo "$var"
