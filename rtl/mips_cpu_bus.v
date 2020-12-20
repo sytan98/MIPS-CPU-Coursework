@@ -19,7 +19,7 @@ typedef enum logic[2:0] {
         FETCH = 3'b000,       // fetch the instruction from memory
         LOAD = 3'b001,        // load instruction into intrustion register
         MEM = 3'b010,         // calculate memory address for load/store instructions, otherwise do nothing for non load/store instructions
-        LOAD_DATA = 3'b011,   
+        LOAD_DATA = 3'b011,
         EXEC = 3'b100,        // for CPU to execute instructions
         HALTED = 3'b101       // cpu halted
 } state_t;
@@ -110,6 +110,7 @@ always @(posedge clk) begin
       if (waitrequest == 0) begin
         state <= LOAD_DATA;
       end
+      // state <= LOAD_DATA;
     end
     else if (state == LOAD_DATA) begin
       $display("CPU : INFO  : MEM.");
@@ -119,6 +120,10 @@ always @(posedge clk) begin
       $display("current inst =%h", instruction);
       clk_enable <= 1;
       state <= EXEC;
+      // if (waitrequest == 0) begin
+      //   clk_enable <= 1;
+      //   state <= EXEC;
+      // end
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
@@ -192,7 +197,7 @@ instr_register ir_inst(
 
 // data register: to hold onto the data output from the memory
 data_register dr_inst(
-  .clk(clk), .reset(reset),
+  .clk(clk), .reset(reset), .waitrequest(waitrequest),
   .state(state), .dr_writedata(readdata),
   .dr_readdata(dr_readdata)
 );

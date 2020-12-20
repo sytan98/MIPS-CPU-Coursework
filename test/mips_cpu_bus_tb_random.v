@@ -48,14 +48,22 @@ module mips_cpu_bus_tb_random;
         // num_stalls = 15;
         num_stalls = $urandom_range(0,13);
 
-        reset <= 0;
+        reset = 0;
+        #1;
+
         @(posedge clk);
-        reset <= 1;
+        #1;
+        reset = 1;
+        // @(posedge clk);
         @(negedge clk);
         assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         // $display("check state before reset=%d", check_state);
         @(posedge clk);
-        reset <= 0;
+        @(posedge clk);
+        @(posedge clk);
+        @(posedge clk);
+        #2;
+        reset = 0;
         @(posedge clk);
 
         assert(active==1)

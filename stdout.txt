@@ -73,8 +73,8 @@ bne_5 bne Pass   # Test branching backwards when 2 registers with 2 different va
 bne_6 bne Pass   # Test delay slot
 bne_7 bne Pass   #  Test branch not taken when register is compared with itself.
 bne_binseq bne Pass   # Shift left 15 times using bne to branch back
-div_1 div Pass   # Divide larger number by smaller number (both positive). 10/5 should result in lo=2. checking quotient in lo
 div_10 div Pass   # Divide 0xfffefff0 by 0x00000004. check quotient in lo, should be 0xffffbffc
+div_1 div Pass   # Divide larger number by smaller number (both positive). 10/5 should result in lo=2. checking quotient in lo
 div_2 div Pass   # Divide larger number by smaller number (both positive). 11/5 should result in lo=2. checking quotient in lo
 div_3 div Pass   # Divide larger number by smaller number (both positive). 0x000b0000/0x00050000 should result in hi=0x10000. checking remainder in hi
 div_4 div Pass   # Divide smaller number by larger number. 5/10 should result in lo=0. checking quotient in lo, should be 0.
@@ -83,7 +83,7 @@ div_6 div Pass   # Divide positive number with negative number. 0x0000fff by -1 
 div_7 div Pass   # Divide smaller number by larger number. 5/10 should result in hi=5. checking remainder in hi
 div_8 div Pass   # Divide 0 by a number. check quotient in lo, should be 0.
 div_9 div Pass   # Divide 0 by a number. check remainder in hi, should be 0.
-div_edge div Pass
+div_edge div Pass   # Divide 0x0fff by 0x0, should return undefined.
 divu_1 divu Pass   # Divide larger number by smaller number. checking quotient in lo
 divu_2 divu Pass   # Divide larger number (w/ least signifcant half 0000) by smaller number (w/ most significant half 0000). checking quotient in lo
 divu_3 divu Pass   # Divide smaller number by larger number. checking remainder in hi (should be equal to smaller number)
@@ -92,21 +92,21 @@ divu_5 divu Pass   # Divide larger number by smaller number with no remainder. c
 divu_6 divu Pass   # Divide 0xfffffff0 by 0x00000004. check quotient in lo, should be 0x3fffbffc
 divu_7 divu Pass   # Divide 0 by a number. check quotient in lo, should be 0.
 divu_8 divu Pass   # Divide 0 by a number. check remainder in hi, should be 0.
-divu_edge divu Pass
+divu_edge divu Pass   # Divide 0x60000000 by 0x0, should return undefined
 j_1 j Pass   # Test jumping forwards
 j_2 j Pass   # Test jumping backwards
-j_3 j Pass
-j_4 j Pass
+j_3 j Pass   # delay slot test
+j_4 j Pass   # delay slot test
 jal_1 jal Pass   # Test jumping forwards
 jal_2 jal Pass   # Test jumping backwards
-jal_3 jal Pass
-jal_4 jal Pass
-jal_edge jal Pass
+jal_3 jal Pass   # delay slot test
+jal_4 jal Pass   # delay slot test
+jal_edge jal Pass   # Test Linking of jal_2, stores value of $31 to v0, should be 0xbfc0002c
 jalr_1 jalr Pass   # Test jumping forwards
 jalr_2 jalr Pass   # Test jumping backwards
-jalr_3 jalr Pass
-jalr_4 jalr Pass
-jalr_edge jalr Pass
+jalr_3 jalr Pass   # delay slot test
+jalr_4 jalr Pass   # delay slot test
+jalr_edge jalr Pass   # Test Linking of jalr_2, stores value of $31 to v0, should be 0x0
 jr_1 jr Pass   # Test jumping forwards
 jr_2 jr Pass   # Test jumping backwards
 jr_3 jr Pass
@@ -116,11 +116,11 @@ lb_1 lb Pass   # Loading least significant byte by storing and loading from same
 lb_2 lb Pass   # Loads the byte after the most significant byte by adding 0x2 to the address offset in which the word was stored
 lb_3 lb Pass   # Test storing negative number and loading byte from unaligned address
 lb_4 lb Pass   # Test loading least significant byte of 0xfffd0000 from unaligned address
-lb_edge lb Pass
+lb_edge lb Pass   #  Test loading least significant byte of 0xfffd0000 from midpoint of aligned address
 lbu_1 lbu Pass   # Load byte after most significant byte
 lbu_2 lbu Pass   # Load byte after most significant byte from word aligned at address 0xc
 lbu_3 lbu Pass   # Load byte from negative number
-lbu_edge lbu Pass
+lbu_edge lbu Pass   # Tests loading least significant byte of 0xfffd0000 from odd unaligned address
 lh_1 lh Pass   # Load negative half word
 lh_2 lh Pass   # Load second half of word
 lh_3 lh Pass   # Load first half of 0xfffd0000 to make sure word is stored correctly
@@ -135,9 +135,7 @@ lw_1 lw Pass   # Load word into address 0xc($9), where 0x0ddd0000 is in $9
 lw_2 lw Pass   # Load word with data in most significant 2 bytes
 lw_3 lw Pass   # Load negative number in most significant 2 bytes
 lw_4 lw Pass   # Load byte from negative word, store it, and then load entire word
-lw_edge lw Pass
-lw_sanity_2 lw Pass
-lw_sanity_3 lw Pass
+lw_edge lw Pass   # Loads word into register $2 from instruction memory locations
 lwl_1 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b00 (load least significant byte into reg from the left)
 lwl_2 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b01 (load last 2 significant bytes into reg from the left)
 lwl_3 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b10 (load last 3 significant bytes into reg from the left)
@@ -146,6 +144,8 @@ lwr_1 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b00 (load en
 lwr_2 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b01 (load 3 most significant bytes into reg from the right)
 lwr_3 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b10 (load 2 most signifcant bytes into reg from the right)
 lwr_4 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b11 (load most significant byte into reg from the right)
+lw_sanity_2 lw Pass
+lw_sanity_3 lw Pass
 mfhi_1 mfhi Pass   # Move 0xffff0000 to $HI and then from $HI to $2
 mfhi_2 mfhi Pass   # Move 0x0000000f to $HI and then from $HI to $2
 mfhi_3 mfhi Pass   # Multiply 0x0000000a by 0x00000005 and then move the value from $HI to S2. Expected value of $HI = 0x0
@@ -166,9 +166,9 @@ mtlo_2 mtlo Pass   # Move 0x00000005 to $LO
 mtlo_3 mtlo Pass   # Move 0xfffff005 to $LO
 mtlo_4 mtlo Pass   # Move to $LO and then overwrite $LO with DIV instruction
 mtlo_5 mtlo Pass   # Move to $LO and then overwrite $LO with MULT instruction
-mult_1 mult Pass   # Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
 mult_10 mult Pass   #  Signed multiplication of 2 positive numbers and then MFHI. result is greater than 32 bits.
 mult_11 mult Pass   #  Signed multiplication of number with 0 and then MFLO. result should be 0.
+mult_1 mult Pass   # Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
 mult_2 mult Pass   # Signed multiplication of a positive number with a negative number and then MFLO. result is 32 bits or smaller.
 mult_3 mult Pass   # Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
 mult_4 mult Pass   # Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
@@ -196,13 +196,13 @@ ori_2 ori Pass   # bitwise logical or of 0xffffffff with 0x00000000 (immediate)
 ori_3 ori Pass   # bitwise logical or of 0xffff9000 with 0x00008000 (immediate)
 ori_4 ori Pass   # bitwise logical or of 0x00000000 with 0x00000000 (immediate)
 ori_5 ori Pass   # bitwise logical or of 0x00001010 with 0x00000101 (immediate)
-ori_6 ori Pass
+ori_6 ori Pass   # bitwise logical or of 0x000075a with 0xf012 (immediate) check for zero extension of immedidate)
 sb_1 sb Pass   # Store 8 least significant bits of 0x1234 to address of multiple 4, should only have 0x34 in address
 sb_2 sb Pass   # Store 8 least significant bits of 0xffffffff to address of multiple 4, should only have 0xFF in address
 sb_3 sb Pass   # Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
 sb_4 sb Pass   # Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
 sb_5 sb Pass   # Store 8 least significant bits of 0x1309 to address of multiple 4, should only have 0xF0000 in address
-sb_edge sb Pass
+sb_edge sb Pass   # Stores word in unaligned memory location and loads from aligned to load single byte from initial word
 sh_1 sh Pass   # Store half of 0x654321, should only have 0x4321 in address
 sh_2 sh Pass   # Store half of 0xffffffff to address of multiple 4, should only have 0xFFFF in address
 sh_3 sh Pass   # Store half of 0xffffffff to address of multiple 2, should only have 0xFFFF0000 in address
@@ -287,5 +287,5 @@ xori_2 xori Pass   # bitwise logical xor 0x0123 with 0 -> no change
 xori_3 xori Pass   # bitwise logical xor 0xffff000 with 0x00000fff
 xori_4 xori Pass   # bitwise logical xor 0x0101 with 0x1010
 xori_5 xori Pass   # bitwise logical xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
-xori_6 xori Pass
+xori_6 xori Pass   # xor 0xffff8000 with 0x8000 (check immediate zero-extension)
 xori_pseudo xori Pass   # Solves equation involving xori, multiplication and addition

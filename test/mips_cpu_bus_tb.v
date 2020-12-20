@@ -48,13 +48,13 @@ module mips_cpu_bus_tb;
         // num_stalls = 15;
         num_stalls = 3;
 
-        reset <= 0;
+        reset = 0;
         @(posedge clk);
-        reset <= 1;
+        reset = 1;
         @(negedge clk);
         assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
-        reset <= 0;
+        reset = 0;
 
         @(posedge clk);
 
