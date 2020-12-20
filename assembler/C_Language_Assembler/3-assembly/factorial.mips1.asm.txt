@@ -1,0 +1,19 @@
+
+5-elf/factorial.mips1.elf:     file format elf32-tradlittlemips
+
+
+Disassembly of section .text:
+
+bfc00000 <factorial>:
+bfc00000:	24020001 	li	v0,1
+bfc00004:	24030001 	li	v1,1
+bfc00008:	58440004 	bgec	v0,a0,bfc0001c <$L7>
+
+bfc0000c <$L2>:
+bfc0000c:	00441098 	mul	v0,v0,a0
+bfc00010:	2484ffff 	addiu	a0,a0,-1
+bfc00014:	6064fffd 	bnec	v1,a0,bfc0000c <$L2>
+bfc00018:	00000000 	nop
+
+bfc0001c <$L7>:
+bfc0001c:	d81f0000 	jrc	ra
