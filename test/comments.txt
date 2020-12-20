@@ -241,15 +241,15 @@ sltu_5:Testing rs w/ MSB=0 and rt w/ MSB=1 (so rs > rt)
 sra_1:Testing rs with MSB = 1
 sra_2:Testing rs with MSB = 1, shamt at maximum at 5'b11111
 sra_3:Testing rs with MSB = 0
-sra_4:Testing rs with MSB = 0, shamt at maximum at 5'b11111
+sra_4:Testing rs with MSB = 0, shamt at 5'b11110
 sra_5:Testing rs with MSB = 0
 srav_1:Testing rt with MSB = 0
 srav_2:Testing rt with MSB = 1
 srav_3:Testing rt with MSB = 1, with lower order 5 bits of rs = 5'b11111
-srav_4:Testing rt with MSB = 0, with lower order 5 bits of rs = 5'b11111
+srav_4:Testing rt with MSB = 0, with lower order 5 bits of rs = 5'b11110
 srl_1:right shift 0xabc00000 >> 0x8
 srl_2:right shift 0xffffffff >> 0x10
-srl_3:right shift 0x00001004 >> 0x1f (max shift) -> output is 0
+srl_3:right shift 0x80050000 >> 0x1f (max shift) -> output is 1
 srl_4:right shift 0xf00f0000 >> 0x1f (max shift)
 srl_5:right shift 0xfaaaa0b3 >> 0x1e
 srlv_1:right shift 0xabcd0000 >> 2 (register's value)
@@ -268,7 +268,7 @@ sw_4:storing (0x0-0x105) at mem[0xac3 (immediate) + 0x105 (register value)]
 sw_5:storing (0x105*0xfffff001)[31:0] at mem[0xac8 (immediate) + 0x0 (register value)]
 sw_addr0halt:Test cpu halts at address 0 by storing addiu $2, $0, 0x4 (or 0x24020004) in byte address 4 and making sure this instruction does not run
 xor_1:bitwise logical xor 0xabcd with 0xf0f0
-xor_2:bitwise logical xor 0x1010 with 0x1010
+xor_2:bitwise logical xor 0x1010 with 0x1011
 xor_3:bitwise logical xor 0xffffffff with 0x00001234
 xor_4:bitwise logical xor 0x0fff with 0 -> no change
 xor_5:bitwise logical xor 0xfffff00f with 0xfffff00f
