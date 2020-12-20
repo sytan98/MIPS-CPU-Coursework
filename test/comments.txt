@@ -117,7 +117,7 @@ lhu_3:Load second half of negative number 0xfffd0000
 lui_1:Load many positive numbers and add them
 lui_2:Load 0x703a
 lui_3:Load 0xffff
-lw_1:Load word into address 0xc($9), where 0x7bcd is in $9
+lw_1:Load word into address 0xc($9), where 0x0ddd0000 is in $9
 lw_2:Load word with data in most significant 2 bytes
 lw_3:Load negative number in most significant 2 bytes
 lw_4:Load byte from negative word, store it, and then load entire word
@@ -259,14 +259,14 @@ sw_5:storing (0x105*0xfffff001)[31:0] at mem[0xac8 (immediate) + 0x0 (register v
 sw_sanity_1:
 sw_sanity_2:
 sw_sanity_3:
-xor_1:xor 0xabcd with 0xf0f0
-xor_2:xor 0x1010 with 0x1010
-xor_3:xor 0xffffffff with 0x00001234
-xor_4:xor 0x0fff with 0 -> no change
-xor_5:xor 0xfffff00f with 0xfffff00f
-xori_1:xor (0xabcd0000^0xf0f00000)^0xffffffff -> all bits of first xor operation inverted
-xori_2:xor 0x0123 with 0 -> no change
-xori_3:xor 0xffff000 with 0x00000fff
-xori_4:xor 0x0101 with 0x1010
-xori_5:xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
+xor_1:bitwise logical xor 0xabcd with 0xf0f0
+xor_2:bitwise logical xor 0x1010 with 0x1010
+xor_3:bitwise logical xor 0xffffffff with 0x00001234
+xor_4:bitwise logical xor 0x0fff with 0 -> no change
+xor_5:bitwise logical xor 0xfffff00f with 0xfffff00f
+xori_1:bitwise logical xor (0xabcd0000^0xf0f00000)^0xffffffff -> all bits of first bitwise logical xor operation inverted
+xori_2:bitwise logical xor 0x0123 with 0 -> no change
+xori_3:bitwise logical xor 0xffff000 with 0x00000fff
+xori_4:bitwise logical xor 0x0101 with 0x1010
+xori_5:bitwise logical xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
 xori_pseudo:Solves equation involving xori, multiplication and addition
