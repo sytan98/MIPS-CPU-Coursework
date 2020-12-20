@@ -1,78 +1,96 @@
-addiu_1:Add positive numbers: 0x10080000 and 0x3092
-addiu_2:Add positive (0x1) and negative (0xffffffff or -1) to output 0
-addiu_3:Add positive (0x1) and negative (0xfffffffe or -2) to output negative (0xffffffff or -1)
-addiu_4:Add numbers in lower 16 bits: 0x1672 and 0x8172
-addiu_5:Add 0x1672 and 0x3892
+addiu_1:Adding 2 positive numbers
+addiu_2:Test sign extension of immediate by adding positive number and negative number to give positive output.
+addiu_3:Test sign extension of immediate by adding a positive number and negative number to give negative output.
+addiu_4:Test sign extension of immediate by adding positive number and negative number to give negative output.
+addiu_5:Adding 2 positive numbers where first 4 bytes are 0000
 addiu_sanity_1
-addiu_t0:Add to $0 should not change $0
-addu_1:Load $4 and $5 with 0xFFFE0000 and 0x1 respectively. Add $4 and $5 into $2.
-addu_2:Add negative numbers: 0xffffffff and 0xffffffff
-addu_3:Add positive numbers: 0x1234 and 0x5678
-addu_4:Add negative number to $0
+addiu_t0:Add to $0 --> should not change $0
+addu_1:Load $4 and $5 with 0xfffe0000 and 0x1 respectively. Add $4 and $5 into $2.
+addu_2:Add two negative numbers of extreme values 0xffffffff
+addu_3:Add two positive numbers
+addu_4:Add negative number with zero
 addu_5:Add positive and negative numbers
-and_1:And 0xffffa5a5 and 0x5a6a
+and_1:And 0xffffa5a5 and 0x00005a6a
 and_2:And with 0 results in 0
 and_3:And 0xffffffff with itself to test all 32 bits
-and_4:And with 0xffffffff should not change the other register value
+and_4:And with 0xffffffff, should not change the other register value
 and_5:And with 0xfffff000 should mask out least significant 12 bits
-andi_1:And 0x1aaa with 0x5555. And again with 0xdddf
-andi_2:And 0xffffffff with 0x0000
-andi_3:And 0xffffffff with 0xffffffff
-andi_4:And 0x8000 with 0xffffffff
+andi_1:And 0x00001aaa (reg value) with 0x5555 (immediate), and then and reseult with 0xdddf. check for zero extension of immediate
+andi_2:And 0xffffffff (reg value) with 0x0000 (immediate)
+andi_3:And 0xffffffff (reg value) with 0xffff (immediate). check for zero extension of immediate.
+andi_4:And 0xffff8000 (reg value) with 0xffff (immediate). check for zero extension of immediate
 andi_5:And 0x1010 with 0x0101
-beq_1:Test it branches when equal
-beq_2:Test it doesn't branch when not equal
-beq_3:Test branch comparison with the same register results in a branch
-beq_4:Test branch comparison between 2 different registers with same value
-beq_5:Test branch comparison between 0xffffffff and 0x0000ffff results in no branch
-beq_fib_1:Find the 10th Fibonacci term
+beq_1:Test that comparison of register with itself results in branch taken. Test branch forwards
+beq_2:Test that comparison of 2 different registers with 2 different values results in branch not taken.
+beq_3:Test that comparison of register with itself results in branch taken. Test branch forwards
+beq_4:Test that comparison of 2 different registers with same value results in branch taken. Test branch forwards
+beq_5:Test that comparison of 2 different registers with 2 different values results in branch not taken.
+beq_6:Test BEQ backwards branching
+beq_7:Test delay slot
+beq_fib_1:Find the 10th Fibonacci term. Tests recursion and stack pointer management.
 beq_finder:Search through a list of 10 integers and find 0, return the index
-bgez_1:Test branch comparison: 0x00ff0000 > 0x0
-bgez_2:Test branch when greater than 0: 1 > 0
-bgez_3:Test it branches when equal to 0
-bgez_4:Test it does not branch when less than 0
-bgez_5:Test branching backwards
-bgezal_1:Test branch works for greater than 0
-bgezal_2:Test link register $31 updates correctly by moving value to $2
-bgezal_3:Test branch works for equal to 0
-bgezal_4:Test it doesn't branch when less than 0
-bgezal_5:Test it can branch backwards
-bgtz_1:Test it doesn't branch when equal to 0
-bgtz_2:Test it branches when greater than 0
-bgtz_3:Test it doesn't branch when equal to 0 and that registers are initialised to 0
-bgtz_4:Test it doesn't branch when less than 0
-bgtz_5:Test branching backwards
-blez_1:Test it branches when less than zero
-blez_2:Test it doesn't branch when greater than 0
+bgez_1:Test that branch is taken when register value greater than 0. Test branch forwards.
+bgez_2:Test that branch is taken when register value greater than 0. Test branch forwards.
+bgez_3:Test that branch is taken when register value is equal to 0. Test branch forwards.
+bgez_4:Test that branch is not taken when register value is less than 0.
+bgez_5:Test branching backwards when greater than 0.
+bgez_6:Test delay slot
+bgezal_1:Test branch works for greater than 0. Test branch forwards.
+bgezal_2:Test branch taken when register value greater than 0. Test link register $31 updates correctly. Test branch forwards.
+bgezal_3:Test branch works for equal to 0. Test branch forwards.
+bgezal_4:Test branch not taken when register value less than 0. Test link register $31 updates correctly.
+bgezal_5:Test branching backwards
+bgezal_6:Test delay slot
+bgtz_1:Test it doesn't branch when equal to 0. Test branch forwards
+bgtz_2:Test it branches when register value greater than 0. Test branch forwards.
+bgtz_3:Test it doesn't branch when equal to 0 and that registers are initialised to 0.
+bgtz_4:Test it doesn't branch when less than 0. Test branch forwards.
+bgtz_5:Test branching backwards wheb greater than 0.
+bgtz_6:Test delay slot
+blez_1:Test it branches when less than zero. Test branch forwards.
+blez_2:Test it doesn't branch when greater than 0.
 blez_3:Test it branches when equal to 0
-blez_4:Test it doesn't branch for value 0xffffffff
-blez_5:Test branching backwards
-bltz_1:Test it doesn't branch when greater than 0 for value 0x10
-bltz_2:Test it doesn't branch when greater than 0 for value 0x1
-bltz_3:Test it doesn't branch when equal to 0
-bltz_4:Test it branches when less than 0
-bltz_5:Test branching backwards
+blez_4:Test it branches when less than zero.
+blez_5:Test branching backwards when less than 0.
+blez_6:Test delay slot
+bltz_1:Test it doesn't branch when greater than 0.
+bltz_2:Test it doesn't branch when greater than 0.
+bltz_3:Test it doesn't branch when equal to 0.
+bltz_4:Test it branches when less than 0. Test branch forwards.
+bltz_5:Test branching backwards when less than 0
+bltz_6:Test delay slot
 bltzal_1:Branch when negative
-bltzal_2:No branch when equal to 0
-bltzal_3:No branch when positive
-bltzal_4:Test link register works
-bltzal_5:Branch backwards
-bne_1:Test it branches when not equal for 0xaa and 0xab
-bne_2:Test it branches when not equal for 0x0 and 0x1
-bne_3:Test it doesn't branch when they are equal (both zero)
-bne_4:Test it branches when comparing 0xffffffff and 0x0000ffff
-bne_5:Test branching backwards
-bnez_binseq:Shift left 15 times using bnez to branch back
-div_1:Divide 10/5 should result in lo=2
-div_2:Divide 11/5 should result in lo=2
-div_3:Divide 0xb0000 by 0x50000 should result in hi=0x10000
-div_4:Divide 5/10 should result in lo=0
-div_5:Dividing by -1 results in 0 remainder
-divu_1:Test division with remainder, results in correct quotient
-divu_2:Test division between 2 different halfs of word (larger division)
-divu_3:Test division with large quotient
-divu_4:Test complex division remainder
-divu_5:Test division with no remainder has hi=0
+bltzal_2:No branch when equal to 0. Test link register $31 updates correctly
+bltzal_3:No branch when positive. Test link register $31 updates correctly
+bltzal_4:Branch when negative. Test link register $31 updates correctly
+bltzal_5:Test branching backwards when less than zero.
+bltzal_6:Test delay slot
+bne_1:Test branch taken when 2 registers with 2 different values are compared. Test branch forwards.
+bne_2:Test branch taken when 2 registers with 2 different values are compared. Test branch forwards.
+bne_3:Test branch not taken when 2 registers with equal values are compared.
+bne_4:Test branch taken when 2 registers with 2 different values are compared. Test branch forwards.
+bne_5:Test branching backwards when 2 registers with 2 different values are compared.
+bne_6:Test delay slot
+bne_7: Test branch not taken when register is compared with itself.
+bne_binseq:Shift left 15 times using bne to branch back
+div_1:Divide larger number by smaller number (both positive). 10/5 should result in lo=2. checking quotient in lo
+div_2:Divide larger number by smaller number (both positive). 11/5 should result in lo=2. checking quotient in lo
+div_3:Divide larger number by smaller number (both positive). 0x000b0000/0x00050000 should result in hi=0x10000. checking remainder in hi
+div_4:Divide smaller number by larger number. 5/10 should result in lo=0. checking quotient in lo, should be 0.
+div_5:Divide positive number with negative number. 0x0000fff by -1 results in 0 in hi. checking remainder in hi.
+div_6:Divide positive number with negative number. 0x0000fff by -1 results in 0 in hi. checking quotient in lo, should be negative of the positive number
+div_7:Divide smaller number by larger number. 5/10 should result in hi=5. checking remainder in hi
+div_8:Divide 0 by a number. check quotient in lo, should be 0.
+div_9:Divide 0 by a number. check remainder in hi, should be 0.
+div_10:Divide 0xfffefff0 by 0x00000004. check quotient in lo, should be 0xffffbffc
+divu_1:Divide larger number by smaller number. checking quotient in lo
+divu_2:Divide larger number (w/ least signifcant half 0000) by smaller number (w/ most significant half 0000). checking quotient in lo
+divu_3:Divide smaller number by larger number. checking remainder in hi (should be equal to smaller number)
+divu_4:Divide larger number by smaller number. checking remainder in hi.
+divu_5:Divide larger number by smaller number with no remainder. checking remainder in hi (should be equal to 0)
+divu_6:Divide 0xfffffff0 by 0x00000004. check quotient in lo, should be 0x3fffbffc
+divu_7:Divide 0 by a number. check quotient in lo, should be 0.
+divu_8:Divide 0 by a number. check remainder in hi, should be 0.
 j_1:Test jumping forwards
 j_2:Test jumping backwards
 jal_1:Test jumping forwards
@@ -133,17 +151,26 @@ mtlo_2:Move 0x00000005 to $LO
 mtlo_3:Move 0xfffff005 to $LO
 mtlo_4:Move to $LO and then overwrite $LO with DIV instruction
 mtlo_5:Move to $LO and then overwrite $LO with MULT instruction
-mult_1:Signed multiplication of 2 positive numbers and then MFLO
-mult_2:Signed multiplication of a positive number with a negative number and then MFLO
-mult_3:Signed multiplication of 2 positive numbers and then MFLO
-mult_4:Signed multiplication of 2 positive numbers and then MFLO
-mult_5:Signed multiplication of a positive number with a negative number and then MFLO
+mult_1:Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
+mult_2:Signed multiplication of a positive number with a negative number and then MFLO. result is 32 bits or smaller.
+mult_3:Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
+mult_4:Signed multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller.
+mult_5:Signed multiplication of a positive number with a negative number and then MFLO. result is 32 bits or smaller.
+mult_6: Signed multiplication of 2 positive numbers and then MFHI. result is 32 bits or smaller. hi should contain all 0
+mult_7:Signed multiplication of a positive number with a negative number and then MFHI. result is 32 bits or smaller. hi should contain all f
+mult_8: Signed multiplication of 2 negative numbers and then MFHI. result is 32 bits or smaller. hi should contain all 0.
+mult_9: Signed multiplication of 2 negative numbers and then MFHI. result is 32 bits. hi should contain all 0.
+mult_10: Signed multiplication of 2 positive numbers and then MFHI. result is greater than 32 bits.
+mult_11: Signed multiplication of number with 0 and then MFLO. result should be 0.
 mult_factorial:Find factorial of 5
-multu_1:Unsigned multiplication of 2 positive numbers and then MFLO
-multu_2:Unsigned multiplication of a positive number with a negative number and then MFLO
-multu_3:Unsigned multiplication of a negative number with 0 and then MFLO
-multu_4:Unsigned multiplication of a positive number with a negative number and then MFLO
-multu_5:Unsigned multiplication of a positive number with a negative number and then MFLO
+multu_1:Unsigned multiplication of 2 positive numbers and then MFLO. result is 32 bits or smaller
+multu_2:Unsigned multiplication of a positive number with a negative number and then MFLO. result is 32 bits or smaller
+multu_3:Unsigned multiplication of a negative number with 0 and then MFLO. result should be 0.
+multu_4:Unsigned multiplication of a positive number with a negative number and then MFLO. result is 32 bits or smaller.
+multu_5:Unsigned multiplication of a positive number with a negative number and then MFLO. results is 32 bits or smaller.
+multu_6:Unsigned multiplication of 2 positive numbers and then MFHI. result is 32 bits or smaller. hi should contain all 0.
+multu_7: Unsigned multiplication of 2 negative numbers and then MFHI. result is 64 bits.
+multu_8: Signed multiplication of 2 positive numbers and then MFHI. result is greater than 32 bits.
 or_1:bitwise logical or of 0x5a5a0000 with 0xa5a50000
 or_2:bitwise logical or of 0xffffffff with 0x00000000
 or_3:bitwise logical or of 0x00000000 with 0x00000000
@@ -242,4 +269,4 @@ xori_2:xor 0x0123 with 0 -> no change
 xori_3:xor 0xffff000 with 0x00000fff
 xori_4:xor 0x0101 with 0x1010
 xori_5:xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
-xori_pseudo: Solves equation involving xori, multiplication and addition
+xori_pseudo:Solves equation involving xori, multiplication and addition
