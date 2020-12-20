@@ -1,0 +1,37 @@
+
+5-elf/fibonacci.mips1.elf:     file format elf32-tradlittlemips
+
+
+Disassembly of section .text:
+
+bfc00000 <fib>:
+bfc00000:	24020002 	li	v0,2
+bfc00004:	58440015 	bgec	v0,a0,bfc0005c <$L10>
+bfc00008:	27bdffd8 	addiu	sp,sp,-40
+bfc0000c:	afb20020 	sw	s2,32(sp)
+bfc00010:	2492fffd 	addiu	s2,a0,-3
+bfc00014:	afb1001c 	sw	s1,28(sp)
+bfc00018:	32520001 	andi	s2,s2,0x1
+bfc0001c:	afb00018 	sw	s0,24(sp)
+bfc00020:	00008825 	move	s1,zero
+bfc00024:	afbf0024 	sw	ra,36(sp)
+bfc00028:	2490ffff 	addiu	s0,a0,-1
+
+bfc0002c <$L3>:
+bfc0002c:	02002025 	move	a0,s0
+bfc00030:	2610fffe 	addiu	s0,s0,-2
+bfc00034:	ebfffff2 	balc	bfc00000 <fib>
+bfc00038:	1612fffc 	bne	s0,s2,bfc0002c <$L3>
+bfc0003c:	02228821 	addu	s1,s1,v0
+bfc00040:	8fbf0024 	lw	ra,36(sp)
+bfc00044:	8fb20020 	lw	s2,32(sp)
+bfc00048:	26220001 	addiu	v0,s1,1
+bfc0004c:	8fb1001c 	lw	s1,28(sp)
+bfc00050:	8fb00018 	lw	s0,24(sp)
+bfc00054:	03e00009 	jr	ra
+bfc00058:	27bd0028 	addiu	sp,sp,40
+
+bfc0005c <$L10>:
+bfc0005c:	03e00009 	jr	ra
+bfc00060:	24020001 	li	v0,1
+	...

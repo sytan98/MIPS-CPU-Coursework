@@ -48,16 +48,17 @@ module mips_cpu_bus_tb;
         // num_stalls = 15;
         num_stalls = $urandom_range(0,13);
 
-        reset <= 0;
+        reset = 0;
         @(posedge clk);
-        reset <= 1;
-        // $display("check state before reset=%d", check_state);
+        reset = 1;
+        @(negedge clk);
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
-        reset <= 0;
+        reset = 0;
+
         @(posedge clk);
 
-        assert(active==1)
-        else $display("TB : CPU did not set active=1 after reset.");
+        assert(active==1) else $fatal(2, "TB : CPU did not set active=1 after reset.");
 
         while (active) begin
             // num_stalls = 15;
