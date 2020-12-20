@@ -53,16 +53,15 @@ iverilog -g 2012 \
 ./test/mips_cpu_bus_tb_constant.v ./test/bus_memory.v \
 $srcfilestocompile \
 -s mips_cpu_bus_tb_constant \
--P mips_cpu_bus_tb_constant.NUM_STALLS=0 \
+-P mips_cpu_bus_tb_constant.NUM_STALLS=3 \
 -P mips_cpu_bus_tb_constant.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
 -o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}_constant_wait.sim
 
 iverilog -g 2012 \
-./test/mips_cpu_bus_tb_constant.v ./test/bus_memory.v \
+./test/mips_cpu_bus_tb_zero.v ./test/bus_memory_perfect_ram.v \
 $srcfilestocompile \
--s mips_cpu_bus_tb_constant \
--P mips_cpu_bus_tb_constant.NUM_STALLS=3 \
--P mips_cpu_bus_tb_constant.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
+-s mips_cpu_bus_tb_zero \
+-P mips_cpu_bus_tb_zero.ROM_INIT_FILE=\"./test/cases/${TESTCASE_ID}.bytes.txt\" \
 -o ./test/simulator/mips_cpu_bus_tb_${TESTCASE_ID}_constant_zero.sim
 
 >&2 echo "  2 - Running test-bench"
@@ -89,6 +88,8 @@ fi
 # Save a copy of testcase waveform
 cp mips_cpu_bus_tb_random.vcd ./test/waveforms/mips_cpu_bus_tb_${TESTCASE_ID}_random.vcd
 cp mips_cpu_bus_tb_constant.vcd ./test/waveforms/mips_cpu_bus_tb_${TESTCASE_ID}_constant.vcd
+cp mips_cpu_bus_tb_zero.vcd ./test/waveforms/mips_cpu_bus_tb_${TESTCASE_ID}_zero.vcd
+
 
 >&2 echo "  3 - Extracting result of OUT instructions"
 # This is the prefix for simulation output lines containing result of OUT instruction
@@ -131,7 +132,7 @@ elif [[ "${RESULT3}" -ne 0 ]] ; then
     echo "${TESTCASE_ID} ${INST} Fail   # Expected v0:${EXPECTED_V0} But got:${RECEIVED_V0} during zero waitrequest"
 else
     set +e
-    COMMENT=`grep "${TESTCASE_ID}" ./test/comments.txt | cut -d ":" -f 2-`
+    COMMENT=`grep "${TESTCASE_ID}:" ./test/comments.txt | cut -d ":" -f 2-`
     COMMENT_RESULT=$?
     set -e
     if [[ "${COMMENT_RESULT}" -ne 0 ]] ; then

@@ -13,7 +13,7 @@ module data_register(
     if(reset) begin
       dr <= 0;
     end
-    else if ( state == 2 ) begin
+    else if ( state == 3 ) begin
         dr <= dr_writedata;            //load the DR during MEM state
     end
   end
