@@ -61,7 +61,7 @@ always_comb begin
   end
   // cpu state = LOAD_DATA
   else if (state == 3) begin
-    read = 1;                         // only reading of memory is enabled.
+    read = 0;                         // only reading of memory is enabled.
     write = 0;                        // write is disabled.
     byteenable = 4'b1111;
     write_data_sel= 0;

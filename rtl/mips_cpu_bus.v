@@ -107,7 +107,9 @@ always @(posedge clk) begin
       $display("current PC address =%h", pcout);
       $display("current inst address =%h", address);
       $display("current inst =%h", instruction);
-      state <= LOAD_DATA;
+      if (waitrequest == 0) begin
+        state <= LOAD_DATA;
+      end
     end
     else if (state == LOAD_DATA) begin
       $display("CPU : INFO  : MEM.");
@@ -115,10 +117,8 @@ always @(posedge clk) begin
       $display("current PC address =%h", pcout);
       $display("current inst address =%h", address);
       $display("current inst =%h", instruction);
-      if (waitrequest == 0) begin
-        state <= EXEC;
-        clk_enable <= 1;
-      end
+      clk_enable <= 1;
+      state <= EXEC;
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");

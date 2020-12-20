@@ -27,8 +27,8 @@ beq_4 beq Pass   # Test that comparison of 2 different registers with same value
 beq_5 beq Pass   # Test that comparison of 2 different registers with 2 different values results in branch not taken.
 beq_6 beq Pass   # Test BEQ backwards branching
 beq_7 beq Pass   # Test delay slot
-beq_fib_1 beq Fail   # Expected v0:00000037 But got:1f460085 during zero waitrequest
-beq_finder beq Fail   # Expected v0:00000008 But got:8fa2002c during zero waitrequest
+beq_fib_1 beq Pass   # Find the 10th Fibonacci term. Tests recursion and stack pointer management.
+beq_finder beq Pass   # Search through a list of 10 integers and find 0, return the index
 bgez_1 bgez Pass   # Test that branch is taken when register value greater than 0. Test branch forwards.
 bgez_2 bgez Pass   # Test that branch is taken when register value greater than 0. Test branch forwards.
 bgez_3 bgez Pass   # Test that branch is taken when register value is equal to 0. Test branch forwards.
@@ -111,41 +111,41 @@ jr_1 jr Pass   # Test jumping forwards
 jr_2 jr Pass   # Test jumping backwards
 jr_3 jr Pass
 jr_4 jr Pass
-jr_sanity_1 jr Pass   # 
-lb_1 lb Fail   # Expected v0:00000000 But got:0000000c during zero waitrequest
-lb_2 lb Fail   # Expected v0:00000021 But got:00000002 during zero waitrequest
-lb_3 lb Fail   # Expected v0:FFFFFFFD But got:00000002 during zero waitrequest
-lb_4 lb Fail   # Expected v0:00000000 But got:00000004 during zero waitrequest
-lb_edge lb Fail   # Expected v0:fffffffd But got:00000002 during zero waitrequest
-lbu_1 lbu Fail   # Expected v0:000000F0 But got:0000002a during zero waitrequest
-lbu_2 lbu Fail   # Expected v0:00000021 But got:00000002 during zero waitrequest
-lbu_3 lbu Fail   # Expected v0:000000FD But got:00000002 during zero waitrequest
-lbu_edge lbu Fail   # Expected v0:000000FF But got:00000090 during zero waitrequest
-lh_1 lh Fail   # Expected v0:ffffc234 But got:0000000c during zero waitrequest
-lh_2 lh Fail   # Expected v0:00004321 But got:ffff8402 during zero waitrequest
-lh_3 lh Fail   # Expected v0:00000000 But got:00000004 during zero waitrequest
-lh_4 lh Fail   # Expected v0:FFFFFFFD But got:ffff8402 during zero waitrequest
-lhu_1 lhu Fail   # Expected v0:00001234 But got:0000000c during zero waitrequest
-lhu_2 lhu Fail   # Expected v0:00004321 But got:00009402 during zero waitrequest
-lhu_3 lhu Fail   # Expected v0:0000FFFD But got:00009402 during zero waitrequest
+jr_sanity_1 jr Pass
+lb_1 lb Pass   # Loading least significant byte by storing and loading from same effective address
+lb_2 lb Pass   # Loads the byte after the most significant byte by adding 0x2 to the address offset in which the word was stored
+lb_3 lb Pass   # Test storing negative number and loading byte from unaligned address
+lb_4 lb Pass   # Test loading least significant byte of 0xfffd0000 from unaligned address
+lb_edge lb Pass
+lbu_1 lbu Pass   # Load byte after most significant byte
+lbu_2 lbu Pass   # Load byte after most significant byte from word aligned at address 0xc
+lbu_3 lbu Pass   # Load byte from negative number
+lbu_edge lbu Pass
+lh_1 lh Pass   # Load negative half word
+lh_2 lh Pass   # Load second half of word
+lh_3 lh Pass   # Load first half of 0xfffd0000 to make sure word is stored correctly
+lh_4 lh Pass   # Load second half of 0xfffd0000
+lhu_1 lhu Pass   # Load first half of positive number
+lhu_2 lhu Pass   # Load second half of word
+lhu_3 lhu Pass   # Load second half of negative number 0xfffd0000
 lui_1 lui Pass   # Load many positive numbers and add them
 lui_2 lui Pass   # Load 0x703a
 lui_3 lui Pass   # Load 0xffff
-lw_1 lw Fail   # Expected v0:00007bcd But got:8d2a000c during zero waitrequest
-lw_2 lw Fail   # Expected v0:43210000 But got:8c020008 during zero waitrequest
-lw_3 lw Fail   # Expected v0:FFFD0000 But got:8c02000c during zero waitrequest
-lw_4 lw Fail   # Expected v0:FFFFFFFD But got:8c020004 during zero waitrequest
-lw_edge lw Fail   # Expected v0:3C03BFC0 But got:8c620000 during zero waitrequest
-lw_sanity_2 lw Fail   # Expected v0:00004321 But got:8c020008 during zero waitrequest
-lw_sanity_3 lw Fail   # Expected v0:FFFFFFFD But got:8c02000c during zero waitrequest
-lwl_1 lwl Fail   # Expected v0:00654321 But got:ac654321 during zero waitrequest
-lwl_2 lwl Fail   # Expected v0:00004321 But got:00ad4321 during zero waitrequest
-lwl_3 lwl Fail   # Expected v0:05000021 But got:a900ae21 during zero waitrequest
-lwl_4 lwl Fail   # Expected v0:01050000 But got:88a900af during zero waitrequest
-lwr_1 lwr Fail   # Expected v0:01050000 But got:98a900ac during zero waitrequest
-lwr_2 lwr Fail   # Expected v0:87010500 But got:8798a900 during zero waitrequest
-lwr_3 lwr Fail   # Expected v0:87650105 But got:876598a9 during zero waitrequest
-lwr_4 lwr Fail   # Expected v0:87654301 But got:87654398 during zero waitrequest
+lw_1 lw Pass   # Load word into address 0xc($9), where 0x0ddd0000 is in $9
+lw_2 lw Pass   # Load word with data in most significant 2 bytes
+lw_3 lw Pass   # Load negative number in most significant 2 bytes
+lw_4 lw Pass   # Load byte from negative word, store it, and then load entire word
+lw_edge lw Pass
+lw_sanity_2 lw Pass
+lw_sanity_3 lw Pass
+lwl_1 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b00 (load least significant byte into reg from the left)
+lwl_2 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b01 (load last 2 significant bytes into reg from the left)
+lwl_3 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b10 (load last 3 significant bytes into reg from the left)
+lwl_4 lwl Pass   # Testing LWL with last 2 LSB of Mem Address = 2’b11 (load entire word into reg)
+lwr_1 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b00 (load entire word into reg)
+lwr_2 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b01 (load 3 most significant bytes into reg from the right)
+lwr_3 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b10 (load 2 most signifcant bytes into reg from the right)
+lwr_4 lwr Pass   # Testing LWR with last 2 LSB of Mem Address = 2’b11 (load most significant byte into reg from the right)
 mfhi_1 mfhi Pass   # Move 0xffff0000 to $HI and then from $HI to $2
 mfhi_2 mfhi Pass   # Move 0x0000000f to $HI and then from $HI to $2
 mfhi_3 mfhi Pass   # Multiply 0x0000000a by 0x00000005 and then move the value from $HI to S2. Expected value of $HI = 0x0
@@ -187,37 +187,27 @@ multu_6 multu Pass   # Unsigned multiplication of 2 positive numbers and then MF
 multu_7 multu Pass   #  Unsigned multiplication of 2 negative numbers and then MFHI. result is 64 bits.
 multu_8 multu Pass   #  Signed multiplication of 2 positive numbers and then MFHI. result is greater than 32 bits.
 or_1 or Pass   # bitwise logical or of 0x5a5a0000 with 0xa5a50000
-bitwise logical xor 0xabcd with 0xf0f0
 or_2 or Pass   # bitwise logical or of 0xffffffff with 0x00000000
-bitwise logical xor 0x1010 with 0x1010
 or_3 or Pass   # bitwise logical or of 0x00000000 with 0x00000000
-bitwise logical xor 0xffffffff with 0x00001234
 or_4 or Pass   # bitwise logical or of 0x00001010 with 0x00000101
-bitwise logical xor 0x0fff with 0 -> no change
 or_5 or Pass   # bitwise logical or of 0x00000abb with 0x00000000
-bitwise logical xor 0xfffff00f with 0xfffff00f
 ori_1 ori Pass   # bitwise logical or of 0x00000000 with 0x00005555 (immediate), then 0x00005555 with 0x0000000a (immediate)
-bitwise logical xor (0xabcd0000^0xf0f00000)^0xffffffff -> all bits of first bitwise logical xor operation inverted
 ori_2 ori Pass   # bitwise logical or of 0xffffffff with 0x00000000 (immediate)
-bitwise logical xor 0x0123 with 0 -> no change
 ori_3 ori Pass   # bitwise logical or of 0xffff9000 with 0x00008000 (immediate)
-bitwise logical xor 0xffff000 with 0x00000fff
 ori_4 ori Pass   # bitwise logical or of 0x00000000 with 0x00000000 (immediate)
-bitwise logical xor 0x0101 with 0x1010
 ori_5 ori Pass   # bitwise logical or of 0x00001010 with 0x00000101 (immediate)
-bitwise logical xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
 ori_6 ori Pass
-sb_1 sb Fail   # Expected v0:00000034 But got:8d42008c during zero waitrequest
-sb_2 sb Fail   # Expected v0:000000ff But got:8ea20000 during zero waitrequest
-sb_3 sb Fail   # Expected v0:0000ff00 But got:8c020000 during zero waitrequest
-sb_4 sb Fail   # Expected v0:00000009 But got:8c020004 during zero waitrequest
-sb_5 sb Fail   # Expected v0:000f0000 But got:8c020000 during zero waitrequest
-sb_edge sb Fail   # Expected v0:0F000000 But got:8c020000 during zero waitrequest
-sh_1 sh Fail   # Expected v0:00004321 But got:8d4200ac during zero waitrequest
-sh_2 sh Fail   # Expected v0:0000ffff But got:8c020000 during zero waitrequest
-sh_3 sh Fail   # Expected v0:ffff0000 But got:8c020000 during zero waitrequest
-sh_4 sh Fail   # Expected v0:10100000 But got:8c020004 during zero waitrequest
-sh_5 sh Fail   # Expected v0:ffff0000 But got:8c020000 during zero waitrequest
+sb_1 sb Pass   # Store 8 least significant bits of 0x1234 to address of multiple 4, should only have 0x34 in address
+sb_2 sb Pass   # Store 8 least significant bits of 0xffffffff to address of multiple 4, should only have 0xFF in address
+sb_3 sb Pass   # Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
+sb_4 sb Pass   # Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
+sb_5 sb Pass   # Store 8 least significant bits of 0x1309 to address of multiple 4, should only have 0xF0000 in address
+sb_edge sb Pass
+sh_1 sh Pass   # Store half of 0x654321, should only have 0x4321 in address
+sh_2 sh Pass   # Store half of 0xffffffff to address of multiple 4, should only have 0xFFFF in address
+sh_3 sh Pass   # Store half of 0xffffffff to address of multiple 2, should only have 0xFFFF0000 in address
+sh_4 sh Pass   # Store half of 0x1010 to address of multiple 2, should only have 0x10100000 in addresss
+sh_5 sh Pass   # Store half of 0xffffffff to address of multiple 2, should only have 0xffff0000 in address
 sll_1 sll Pass   # Adds 0xffaa which is sign extended, multiple shifts and moving to registers. Should eventually shifted left by 24 bits
 sll_2 sll Pass   # Shift 0x1 left by 1 bit
 sll_3 sll Pass   # Shift 0x1 left by 15 bits
@@ -226,8 +216,8 @@ sll_5 sll Pass   # Shift 0x1 left by 31 bits
 sll_6 sll Pass   # Testing if it takes low order 5 bits of rs. Shift 0x1 by ff, but should only shift by 1f
 sll_7 sll Pass   # Shift 0xffff left by 15 bits
 sll_power sll Pass   # Shifts 2 to the left 4 times
-sll_sanity_1 sll Pass   # 
-sll_sanity_7 sll Pass   # 
+sll_sanity_1 sll Pass
+sll_sanity_7 sll Pass
 sllv_1 sllv Pass   # Shift 0xffaa left by 4 bits. Immediate Value should be sign extended
 sllv_2 sllv Pass   # Shift 0x1 left by 1 bit
 sllv_3 sllv Pass   # Shift 0x1 left by 15 bits
@@ -278,15 +268,15 @@ subu_2 subu Pass   # subtracting 0x00004321 from 0xffffffff
 subu_3 subu Pass   # subtracting 0xffffffff from 0 -> result is the absolute value of signed 0xffffffff
 subu_4 subu Pass   # subtracting 0x1 from 0 -> result is negative -1 (0xffffffff)
 subu_5 subu Pass   # subtracting 0xfffff0aa from 0xfffff001
-sw_1 sw Fail   # Expected v0:01050000 But got:8ca200ac during zero waitrequest
-sw_2 sw Fail   # Expected v0:00000105 But got:8ca200ac during zero waitrequest
-sw_3 sw Fail   # Expected v0:FFFFFFFF But got:8ca20aa0 during zero waitrequest
-sw_4 sw Fail   # Expected v0:FFFFFEFB But got:8d420ac3 during zero waitrequest
-sw_5 sw Fail   # Expected v0:FFEFB105 But got:8c020ac8 during zero waitrequest
+sw_1 sw Pass   # storing 0x01050000 at mem[0xac (immediate) + 0x1bfc0000 (register value)]
+sw_2 sw Pass   # storing 0x0105 at mem[0xac (immediate) + 0x1bfc (register value)]
+sw_3 sw Pass   # storing 0xffffffff at mem[0xaa0 (immediate) + 0x1bfc0000 (register value)]
+sw_4 sw Pass   # storing (0x0-0x105) at mem[0xac3 (immediate) + 0x105 (register value)]
+sw_5 sw Pass   # storing (0x105*0xfffff001)[31:0] at mem[0xac8 (immediate) + 0x0 (register value)]
 sw_edge sw Pass
-sw_sanity_1 sw Fail   # Expected v0:FFFFF321 But got:8ca200ac during zero waitrequest
-sw_sanity_2 sw Fail   # Expected v0:00000FFF But got:8ca20aa0 during zero waitrequest
-sw_sanity_3 sw Fail   # Expected v0:89700000 But got:8ca20aa0 during zero waitrequest
+sw_sanity_1 sw Pass
+sw_sanity_2 sw Pass
+sw_sanity_3 sw Pass
 xor_1 xor Pass   # bitwise logical xor 0xabcd with 0xf0f0
 xor_2 xor Pass   # bitwise logical xor 0x1010 with 0x1010
 xor_3 xor Pass   # bitwise logical xor 0xffffffff with 0x00001234

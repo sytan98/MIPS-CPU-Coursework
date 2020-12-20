@@ -41,7 +41,7 @@ module mips_cpu_bus_tb_zero;
             clk = !clk;
         end
 
-        // $fatal(2, "Simulation did not finish within %d cycles.", TIMEOUT_CYCLES);
+        $fatal(2, "Simulation did not finish within %d cycles.", TIMEOUT_CYCLES);
     end
 
     initial begin
@@ -51,6 +51,8 @@ module mips_cpu_bus_tb_zero;
         @(posedge clk);
         reset <= 1;
         // $display("check state before reset=%d", check_state);
+        @(negedge clk);
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
         reset <= 0;
         @(posedge clk);
