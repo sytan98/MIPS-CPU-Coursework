@@ -52,15 +52,15 @@ always_comb begin
     byteenable = 4'b1111;
     write_data_sel= 0;
   end
-  // cpu state = FETCH or LOAD
-  else if (state == 0 | state == 1) begin
+  // cpu state = FETCH
+  else if (state == 0) begin
     read = 1;                         // only reading of memory is enabled.
     write = 0;                        // write is disabled.
     byteenable = 4'b1111;
     write_data_sel= 0;
   end
-  // cpu state = LOAD_DATA
-  else if (state == 3) begin
+  // cpu state = LOAD, LOAD_DATA
+  else if (state == 1 | state == 3) begin
     read = 0;                         // only reading of memory is enabled.
     write = 0;                        // write is disabled.
     byteenable = 4'b1111;
@@ -140,7 +140,7 @@ always_comb begin
     jump = 0;
     jumpreg = 0;
   end
-  
+
   // cpu state = EXEC
   else if (state == 4) begin
     // rd_select: select signal to destination_reg_selector.v to select destination register
