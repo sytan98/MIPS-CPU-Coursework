@@ -85,8 +85,8 @@ jr_sanity_1:
 lb_1:Loading least significant byte by storing and loading from same effective address
 lb_2:Loads the byte after the most significant byte by adding 0x8 to the address offset in which the word was stored
 lb_3:Test storing negative number and loading byte from unaligned address
-lb_4:Test loading least significant byte of 0xfffd0000 from unaligned address 
-lbu_1:Load byte after most significant byte 
+lb_4:Test loading least significant byte of 0xfffd0000 from unaligned address
+lbu_1:Load byte after most significant byte
 lbu_2:Load byte after most significant byte from word aligned at address 0xc
 lbu_3:Load byte from negative number
 lh_1:Load negative half word
@@ -103,126 +103,126 @@ lw_1:Load word into address 0xc($9), where 0x7bcd is in $9
 lw_2:Load word with data in most significant 2 bytes
 lw_3:Load negative number in most significant 2 bytes
 lw_4:Load byte from negative word, store it, and then load entire word
-lwl_1:
-lwl_2:
-lwl_3:
-lwl_4:
-lwr_1:
-lwr_2:
-lwr_3:
-lwr_4:
+lwl_1:Testing LWL with last 2 LSB of Mem Address = 2’b00 (load least significant byte into reg from the left)
+lwl_2:Testing LWL with last 2 LSB of Mem Address = 2’b01 (load last 2 significant bytes into reg from the left)
+lwl_3:Testing LWL with last 2 LSB of Mem Address = 2’b10 (load last 3 significant bytes into reg from the left)
+lwl_4:Testing LWL with last 2 LSB of Mem Address = 2’b11 (load entire word into reg)
+lwr_1:Testing LWR with last 2 LSB of Mem Address = 2’b00 (load entire word into reg)
+lwr_2:Testing LWR with last 2 LSB of Mem Address = 2’b01 (load 3 most significant bytes into reg from the right)
+lwr_3:Testing LWR with last 2 LSB of Mem Address = 2’b10 (load 2 most signifcant bytes into reg from the right)
+lwr_4:Testing LWR with last 2 LSB of Mem Address = 2’b11 (load most significant byte into reg from the right)
 lw_sanity_2:
 lw_sanity_3:
-mfhi_1:
-mfhi_2:
-mfhi_3:
-mfhi_4:
-mfhi_5:
-mflo_1:
-mflo_2:
-mflo_3:
-mflo_4:
-mflo_5:
+mfhi_1:Move 0xffff0000 to $HI and then from $HI to $2
+mfhi_2:Move 0x0000000f to $HI and then from $HI to $2
+mfhi_3:Multiply 0x0000000a by 0x00000005 and then move the value from $HI to S2. Expected value of $HI = 0x0
+mfhi_4:Divide 0x00000567 by 0x00000fff and then move the value from $HI to $2. Expected value of $HI = remainder of operation
+mfhi_5:Move 0x0000000a to $HI and then from $HI to $2
+mflo_1:Move 0xffff0000 to $LO and then from $LO to $10 and then $2
+mflo_2:Move 0xffffffff to $LO and then from $LO to S2
+mflo_3:Divide 0x0000000f by 0x00000005 and move the value from $LO to $2. Expected value of $LO = quotient of operation
+mflo_4:Divide 0x00000005 by 0x0000000f and move the value from $LO to $2. Expected value of $LO = quotient of operation, 0
+mflo_5:Multiply 0x0000123f by 0x0000012a and then move the value from $LO to $2
 mflo_t0:Test that moving lo register value to $0 does not change $0
-mthi_1:
-mthi_2:
-mthi_3:
-mthi_4:
-mtlo_1:
-mtlo_2:
-mtlo_3:
-mtlo_4:
-mtlo_5:
-mult_1:
-mult_2:
-mult_3:
-mult_4:
-mult_5:
+mthi_1:Move 0xffff0000 to $HI and then to $2
+mthi_2:Move 0xffffffff t0 $HI and then to $2
+mthi_3:Do a division and then overwrite $HI with MTHI instruction
+mthi_4:Move 0xffffabcd to $HI
+mtlo_1:Move 0xffff0000 to $LO
+mtlo_2:Move 0x00000005 to $LO
+mtlo_3:Move 0xfffff005 to $LO
+mtlo_4:Move to $LO and then overwrite $LO with DIV instruction
+mtlo_5:Move to $LO and then overwrite $LO with MULT instruction
+mult_1:Signed multiplication of 2 positive numbers and then MFLO
+mult_2:Signed multiplication of a positive number with a negative number and then MFLO
+mult_3:Signed multiplication of 2 positive numbers and then MFLO
+mult_4:Signed multiplication of 2 positive numbers and then MFLO
+mult_5:Signed multiplication of a positive number with a negative number and then MFLO
 mult_factorial:Find factorial of 5
-multu_1:
-multu_2:
-multu_3:
-multu_4:
-multu_5:
-or_1:
-or_2:
-or_3:
-or_4:
-or_5:
-ori_1:
-ori_2:
-ori_3:
-ori_4:
-ori_5:
-sb_1:
-sb_2:
-sb_3:
-sb_4:
-sb_5:
-sh_1:
-sh_2:
-sh_3:
-sh_4:
-sh_5:
-sll_1:
-sll_2:
-sll_3:
-sll_4:
-sll_5:
-sll_6:
-sll_7:
+multu_1:Unsigned multiplication of 2 positive numbers and then MFLO
+multu_2:Unsigned multiplication of a positive number with a negative number and then MFLO
+multu_3:Unsigned multiplication of a negative number with 0 and then MFLO
+multu_4:Unsigned multiplication of a positive number with a negative number and then MFLO
+multu_5:Unsigned multiplication of a positive number with a negative number and then MFLO
+or_1:bitwise logical or of 0x5a5a0000 with 0xa5a50000
+or_2:bitwise logical or of 0xffffffff with 0x00000000
+or_3:bitwise logical or of 0x00000000 with 0x00000000
+or_4:bitwise logical or of 0x00001010 with 0x00000101
+or_5:bitwise logical or of 0x00000abb with 0x00000000
+ori_1:bitwise logical or of 0x00000000 with 0x00005555 (immediate), then 0x00005555 with 0x0000000a (immediate)
+ori_2:bitwise logical or of 0xffffffff with 0x00000000 (immediate)
+ori_3:bitwise logical or of 0xffff9000 with 0x00008000 (immediate)
+ori_4:bitwise logical or of 0x00000000 with 0x00000000 (immediate)
+ori_5:bitwise logical or of 0x00001010 with 0x00000101 (immediate)
+sb_1:Store 8 least significant bits of 0x1234 to address of multiple 4, should only have 0x34 in address
+sb_2:Store 8 least significant bits of 0xffffffff to address of multiple 4, should only have 0xFF in address
+sb_3:Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
+sb_4:Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
+sb_5:Store 8 least significant bits of 0x1309 to address of multiple 4, should only have 0xF0000 in address
+sh_1:Store half of 0x654321, should only have 0x4321 in address
+sh_2:Store half of 0xffffffff to address of multiple 4, should only have 0xFFFF in address
+sh_3:Store half of 0xffffffff to address of multiple 2, should only have 0xFFFF0000 in address
+sh_4:Store half of 0x1010 to address of multiple 2, should only have 0x10100000 in addresss
+sh_5:Store half of 0xffffffff to address of multiple 2, should only have 0xffff0000 in address
+sll_1:Adds 0xffaa which is sign extended, multiple shifts and moving to registers. Should eventually shifted left by 24 bits
+sll_2:Shift 0x1 left by 1 bit
+sll_3:Shift 0x1 left by 15 bits
+sll_4:Shift 0x1 left by 30 bits
+sll_5:Shift 0x1 left by 31 bits
+sll_6:Testing if it takes low order 5 bits of rs. Shift 0x1 by ff, but should only shift by 1f
+sll_7:Shift 0xffff left by 15 bits
 sll_power:Shifts 2 to the left 4 times
 sll_sanity_1:
 sll_sanity_7:
-sllv_1:
-sllv_2:
-sllv_3:
-sllv_4:
-sllv_5:
-sllv_6:
-sllv_7:
-slt_1:
-slt_2:
-slt_3:
-slt_4:
-slt_5:
-slti_1:
-slti_2:
-slti_3:
-slti_4:
-slti_5:
-sltiu_1:
-sltiu_2:
-sltiu_3:
-sltiu_4:
-sltiu_5:
-sltu_1:
-sltu_2:
-sltu_3:
-sltu_4:
-sltu_5:
-sra_1:
-sra_2:
-sra_3:
-sra_4:
-sra_5:
-srav_1:
-srav_2:
-srav_3:
-srav_4:
+sllv_1:Shift 0xffaa left by 4 bits. Immediate Value should be sign extended
+sllv_2:Shift 0x1 left by 1 bit
+sllv_3:Shift 0x1 left by 15 bits
+sllv_4:Shift 0x1 left by 30 bits
+sllv_5:Shift 0x1 left by 31 bits
+sllv_6:Testing if it takes low order 5 bits of rs. Shift 0x1 by ff, but should only shift by 1f
+sllv_7:Shift 0xffff left by 15 bits
+slt_1:Testing 0xa < 0xb
+slt_2:Testing 0x3 < 0xf
+slt_3:Testing 0x1234 not equals 0xabcd
+slt_4:Testing 0x8000 < 0xabcd
+slt_5:Testing if register is reset properly by comparing 0x0 with 0x0 in two different registers.
+slti_1:Testing 0xb < 0xc (rs < immediate)
+slti_2:Testing 0x3 < 0xf
+slti_3:Testing 0x1234 not less than abcd
+slti_4:Testing 0x8000 < 0xabcd
+slti_5:Testing 0x0 not less than 0x0
+sltiu_1:Testing rs and imdt w/ both MSB=0, with rs < imdt
+sltiu_2:Testing rs = imdt
+sltiu_3:Testing rs w/ MSB=1 and imdt w/ MSB=0, with rs > imdt
+sltiu_4:Testing rs w/MSB=0 and imdt w/ MSB=1, with rs < imdt
+sltiu_5:Testing rs and imdt w/ both MSB = 1, with rs < imdt
+sltu_1:Testing rs and rt w/ both MSB=0, with rs > rt
+sltu_2:Testing rs = rt
+sltu_3:Testing rs w/ MSB=1 and rt w/ MSB=0 (so rs < rt)
+sltu_4:Testing rs and rt w/ both MSB=1, with rs > rt
+sltu_5:Testing rs w/ MSB=0 and rt w/ MSB=1 (so rs > rt)
+sra_1:Testing rs with MSB = 1
+sra_2:Testing rs with MSB = 1, shamt at maximum at 5'b11111
+sra_3:Testing rs with MSB = 0
+sra_4:Testing rs with MSB = 0, shamt at maximum at 5'b11111
+sra_5:Testing rs with MSB = 0
+srav_1:Testing rt with MSB = 0
+srav_2:Testing rt with MSB = 1
+srav_3:Testing rt with MSB = 1, with lower order 5 bits of rs = 5'b11111
+srav_4:Testing rt with MSB = 0, with lower order 5 bits of rs = 5'b11111
 srl_1:right shift 0xabc00000 >> 0x8
-srl_2:right shift 0xffffffff >> 0x10 
+srl_2:right shift 0xffffffff >> 0x10
 srl_3:right shift 0x00001004 >> 0x1f (max shift) -> output is 0
 srl_4:right shift 0xf00f0000 >> 0x1f (max shift)
 srl_5:right shift 0xfaaaa0b3 >> 0x1e
-srlv_1:right shift 0xabcd0000 >> 2 (register's value) 
+srlv_1:right shift 0xabcd0000 >> 2 (register's value)
 srlv_2:right shift 0x78880000 >> 0xfffff010 (check it keeps the 5 LSBs)
 srlv_3:right shift 0xffff0000 >> 0xffffabdf (check it keeps the 5 LSBs)
-srlv_4:rigth shift 0xffff0000 >> 0x00000bdf (check it keeps the 5 LSBs)
-subu_1:subtracting 0xabcd0000 from 0xffff0000 
+srlv_4:right shift 0xffff0000 >> 0x00000bdf (check it keeps the 5 LSBs)
+subu_1:subtracting 0xabcd0000 from 0xffff0000
 subu_2:subtracting 0x00004321 from 0xffffffff
 subu_3:subtracting 0xffffffff from 0 -> result is the absolute value of signed 0xffffffff
-subu_4:subtracting 0x1 from 0 -> result is negative -1 (0xffffffff) 
+subu_4:subtracting 0x1 from 0 -> result is negative -1 (0xffffffff)
 subu_5:subtracting 0xfffff0aa from 0xfffff001
 sw_1:storing 0x01050000 at mem[0xac (immediate) + 0x1bfc0000 (register value)]
 sw_2:storing 0x0105 at mem[0xac (immediate) + 0x1bfc (register value)]
@@ -233,7 +233,7 @@ sw_sanity_1:
 sw_sanity_2:
 sw_sanity_3:
 xor_1:xor 0xabcd with 0xf0f0
-xor_2:xor 0x1010 with 0x1010 
+xor_2:xor 0x1010 with 0x1010
 xor_3:xor 0xffffffff with 0x00001234
 xor_4:xor 0x0fff with 0 -> no change
 xor_5:xor 0xfffff00f with 0xfffff00f
