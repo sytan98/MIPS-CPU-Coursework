@@ -59,6 +59,13 @@ always_comb begin
     byteenable = 4'b1111;
     write_data_sel= 0;
   end
+  // cpu state = LOAD_DATA
+  else if (state == 3) begin
+    read = 1;                         // only reading of memory is enabled.
+    write = 0;                        // write is disabled.
+    byteenable = 4'b1111;
+    write_data_sel= 0;
+  end
   // cpu state = MEM
   else if (state == 2) begin
     // store instructions: writing into memory. SB SH SW
@@ -112,7 +119,7 @@ always_comb begin
 end
 
 always_comb begin
-  if (reset| state == 0 | state  == 1 | state == 2) begin
+  if (reset| state == 0 | state  == 1 | state == 2 | state == 3) begin
     reg_write_enable = 0;             // to ensure that registers are not written to during fetch state.
     alu_op = 2'b00;                  // to ensure that memory address is calculated in MEM state.
     alu_src = 1;
@@ -133,8 +140,9 @@ always_comb begin
     jump = 0;
     jumpreg = 0;
   end
+  
   // cpu state = EXEC
-  else if (state == 3) begin
+  else if (state == 4) begin
     // rd_select: select signal to destination_reg_selector.v to select destination register
     case (opcode)
       0: rd_select = 1;                                 // R-type instructions
