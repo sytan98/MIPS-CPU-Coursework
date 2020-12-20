@@ -83,6 +83,7 @@ div_7:Divide smaller number by larger number. 5/10 should result in hi=5. checki
 div_8:Divide 0 by a number. check quotient in lo, should be 0.
 div_9:Divide 0 by a number. check remainder in hi, should be 0.
 div_10:Divide 0xfffefff0 by 0x00000004. check quotient in lo, should be 0xffffbffc
+div_edge:Divide 0x0fff by 0x0, should return undefined.
 divu_1:Divide larger number by smaller number. checking quotient in lo
 divu_2:Divide larger number (w/ least signifcant half 0000) by smaller number (w/ most significant half 0000). checking quotient in lo
 divu_3:Divide smaller number by larger number. checking remainder in hi (should be equal to smaller number)
@@ -91,21 +92,32 @@ divu_5:Divide larger number by smaller number with no remainder. checking remain
 divu_6:Divide 0xfffffff0 by 0x00000004. check quotient in lo, should be 0x3fffbffc
 divu_7:Divide 0 by a number. check quotient in lo, should be 0.
 divu_8:Divide 0 by a number. check remainder in hi, should be 0.
+divu_edge:Divide 0x60000000 by 0x0, should return undefined
 j_1:Test jumping forwards
 j_2:Test jumping backwards
+j_3:delay slot test
+j_4:delay slot test
 jal_1:Test jumping forwards
 jal_2:Test jumping backwards
+jal_3:delay slot test
+jal_4:delay slot test
+jal_edge:Test Linking of jal_2, stores value of $31 to v0, should be 0xbfc0002c
 jalr_1:Test jumping forwards
 jalr_2:Test jumping backwards
+jalr_3:delay slot test
+jalr_4:delay slot test
+jalr_edge:Test Linking of jalr_2, stores value of $31 to v0, should be 0x0
 jr_1:Test jumping forwards
 jr_2:Test jumping backwards
 lb_1:Loading least significant byte by storing and loading from same effective address
 lb_2:Loads the byte after the most significant byte by adding 0x2 to the address offset in which the word was stored
 lb_3:Test storing negative number and loading byte from unaligned address
 lb_4:Test loading least significant byte of 0xfffd0000 from unaligned address
+lb_edge: Test loading least significant byte of 0xfffd0000 from midpoint of aligned address
 lbu_1:Load byte after most significant byte
 lbu_2:Load byte after most significant byte from word aligned at address 0xc
 lbu_3:Load byte from negative number
+lbu_edge:Tests loading least significant byte of 0xfffd0000 from odd unaligned address
 lh_1:Load negative half word
 lh_2:Load second half of word
 lh_3:Load first half of 0xfffd0000 to make sure word is stored correctly
@@ -120,6 +132,7 @@ lw_1:Load word into address 0xc($9), where 0x0ddd0000 is in $9
 lw_2:Load word with data in most significant 2 bytes
 lw_3:Load negative number in most significant 2 bytes
 lw_4:Load byte from negative word, store it, and then load entire word
+lw_edge:Loads word into register $2 from instruction memory locations
 lwl_1:Testing LWL with last 2 LSB of Mem Address = 2’b00 (load least significant byte into reg from the left)
 lwl_2:Testing LWL with last 2 LSB of Mem Address = 2’b01 (load last 2 significant bytes into reg from the left)
 lwl_3:Testing LWL with last 2 LSB of Mem Address = 2’b10 (load last 3 significant bytes into reg from the left)
@@ -178,11 +191,13 @@ ori_2:bitwise logical or of 0xffffffff with 0x00000000 (immediate)
 ori_3:bitwise logical or of 0xffff9000 with 0x00008000 (immediate)
 ori_4:bitwise logical or of 0x00000000 with 0x00000000 (immediate)
 ori_5:bitwise logical or of 0x00001010 with 0x00000101 (immediate)
+ori_6:bitwise logical or of 0x000075a with 0xf012 (immediate) check for zero extension of immedidate)
 sb_1:Store 8 least significant bits of 0x1234 to address of multiple 4, should only have 0x34 in address
 sb_2:Store 8 least significant bits of 0xffffffff to address of multiple 4, should only have 0xFF in address
 sb_3:Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
 sb_4:Store 8 least significant bits of 0x0fff to address of multiple 2, should only have 0xFF00 in address
 sb_5:Store 8 least significant bits of 0x1309 to address of multiple 4, should only have 0xF0000 in address
+sb_edge:Stores word in unaligned memory location and loads from aligned to load single byte from initial word
 sh_1:Store half of 0x654321, should only have 0x4321 in address
 sh_2:Store half of 0xffffffff to address of multiple 4, should only have 0xFFFF in address
 sh_3:Store half of 0xffffffff to address of multiple 2, should only have 0xFFFF0000 in address
@@ -261,4 +276,5 @@ xori_2:bitwise logical xor 0x0123 with 0 -> no change
 xori_3:bitwise logical xor 0xffff000 with 0x00000fff
 xori_4:bitwise logical xor 0x0101 with 0x1010
 xori_5:bitwise logical xor 0xffffabcd with 0xffffdabc (checking immediate sign-extension)
+xori_6:xor 0xffff8000 with 0x8000 (check immediate zero-extension)
 xori_pseudo:Solves equation involving xori, multiplication and addition
