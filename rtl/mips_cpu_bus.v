@@ -19,8 +19,9 @@ typedef enum logic[2:0] {
         FETCH = 3'b000,       // fetch the instruction from memory
         LOAD = 3'b001,        // load instruction into intrustion register
         MEM = 3'b010,         // calculate memory address for load/store instructions, otherwise do nothing for non load/store instructions
-        EXEC = 3'b011,        // for CPU to execute instructions
-        HALTED = 3'b100       // cpu halted
+        LOAD_DATA = 3'b011,   
+        EXEC = 3'b100,        // for CPU to execute instructions
+        HALTED = 3'b101       // cpu halted
 } state_t;
 logic[2:0] state;
 
@@ -55,7 +56,7 @@ assign instruction = ir_readdata;
 
 // to ensure that the memory address is output from the CPU into bus_memory.v during MEM stage, important for load/store instructions
 logic address_sel;
-assign address_sel = (state==MEM) ? 1'd1 : 1'd0;
+assign address_sel = (state==MEM | state == LOAD_DATA) ? 1'd1 : 1'd0;
 
 logic[31:0] memory_address;
 logic[31:0] memory_address_temp;
@@ -106,10 +107,18 @@ always @(posedge clk) begin
       $display("current PC address =%h", pcout);
       $display("current inst address =%h", address);
       $display("current inst =%h", instruction);
+      state <= LOAD_DATA;
+    end
+    else if (state == LOAD_DATA) begin
+      $display("CPU : INFO  : MEM.");
+      //Current address
+      $display("current PC address =%h", pcout);
+      $display("current inst address =%h", address);
+      $display("current inst =%h", instruction);
       if (waitrequest == 0) begin
-          state <= EXEC;
-          clk_enable <= 1;
-        end
+        state <= EXEC;
+        clk_enable <= 1;
+      end
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
@@ -181,12 +190,12 @@ instr_register ir_inst(
   .ir_readdata(ir_readdata)
 );
 
-// // data register: to hold onto the data output from the memory
-// data_register dr_inst(
-//   .clk(clk), .reset(reset),
-//   .state(state), .dr_writedata(readdata),
-//   .dr_readdata(dr_readdata)
-// );
+// data register: to hold onto the data output from the memory
+data_register dr_inst(
+  .clk(clk), .reset(reset),
+  .state(state), .dr_writedata(readdata),
+  .dr_readdata(dr_readdata)
+);
 
 // memory address mux: to ensure that the memory address is output from the cpu into the memory during MEM
 mux_32bit addressmux(
@@ -322,7 +331,7 @@ destination_reg_selector rd_selector(
 reg_writedata_selector regwritedata_sel(
   // data to write into destination register
   .alu_out(alu_out),                                    // output of alu from alu.v
-  .data_readdata(readdata),                             // data read from memory for load instructions.
+  .data_readdata(dr_readdata),                             // data read from memory for load instructions.
   .pc_plus4(pc_plus4),                                  // PC+4 from pc_adder.v. will add 4 to this to be PC+8 for link instructions.
   .hi_readdata(hi_readdata), .lo_readdata(lo_readdata), // data read from hi and lo registers for mfhi and mflo instructions
   // control signals
