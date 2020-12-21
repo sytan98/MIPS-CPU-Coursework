@@ -10,7 +10,6 @@ module instr_register(
   
   
   logic[31:0] ir;
-  logic waitreg;
   assign ir_readdata = ir;
 
   always_ff @(posedge clk) begin
