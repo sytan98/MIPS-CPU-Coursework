@@ -84,11 +84,8 @@ always @(posedge clk) begin
     else if (state == FETCH) begin
         $display("CPU : INFO  : Fetching.");
         $display("current PC address =%h", pcout);
-        if (address == 0) begin
-            state <= HALTED;
-            active <= 0;
-        end
-        else if (waitrequest == 0) begin
+
+        if (waitrequest == 0) begin
           state <= LOAD;
         end
         // else begin
@@ -101,10 +98,13 @@ always @(posedge clk) begin
         $display("current PC address =%h", pcout);
         $display("current inst address =%h", address);
         $display("current inst =%h", instruction);
-        // if (waitrequest == 0) begin
-        //   state <= MEM;
-        // end
-        state <= MEM;
+        if (address == 0) begin
+            state <= HALTED;
+            active <= 0;
+        end
+        else begin
+          state <= MEM;
+        end
     end
     else if (state == MEM) begin
       $display("CPU : INFO  : MEM.");
