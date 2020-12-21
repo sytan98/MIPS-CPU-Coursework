@@ -88,11 +88,12 @@ always @(posedge clk) begin
             state <= HALTED;
             active <= 0;
         end
-        if (waitrequest == 0) begin
+        else if (waitrequest == 0) begin
           state <= LOAD;
         end
-        //state <= LOAD;
-
+        // else begin
+        //   state <= LOAD;
+        // end
     end
     else if (state == LOAD) begin
         $display("CPU : INFO  : LOAD.");
@@ -194,7 +195,7 @@ end
 
 // instruction register: to hold onto the instruction output from the memory
 instr_register ir_inst(
-  .clk(clk), .reset(reset),
+  .clk(clk), .reset(reset), .waitrequest(waitrequest),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
 );
