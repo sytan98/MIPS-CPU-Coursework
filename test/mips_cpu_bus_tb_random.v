@@ -81,6 +81,7 @@ module mips_cpu_bus_tb_random;
             @(posedge clk);
             // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
+            assert(address >= 4 & register_v0 != 32'hFFFF8666) else $fatal(2, "TB : CPU executed instruction at address 4.");
         end
         $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
