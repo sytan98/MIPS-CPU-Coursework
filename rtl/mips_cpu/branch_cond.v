@@ -15,17 +15,17 @@ module branch_cond(
   logic zero;
   logic neg;
 
-  assign zero = (read_data_a[31:0]==32'h00000000) ? 1 : 0; //if value of rs = 0
-  assign neg = (read_data_a[31]==1) ? 1 : 0;               //if value of rs < 0
+  assign zero = (read_data_a[31:0]==32'h00000000) ? 1'd1 : 1'd0; //if value of rs = 0
+  assign neg = (read_data_a[31]==1) ? 1'd1 : 1'd0;               //if value of rs < 0
 
 
   always_comb begin
     case(opcode)
-      4: condition_met = (branch &  equal) ? 1 : 0;        //BEQ
-      5: condition_met = (branch & !equal) ? 1 : 0;        //BNE
-      7: condition_met = (branch & !zero & !neg) ? 1 : 0;  //BGTZ
-      6: condition_met = (branch & (zero | neg)) ? 1 : 0;  //BLEZ
-      1: condition_met = ( ((b_code==1|b_code==17)&(branch&!neg)) | ((b_code==0|b_code==16)&(branch&neg)) ) ? 1 : 0;
+      4: condition_met = (branch &  equal) ? 1'd1 : 1'd0;        //BEQ
+      5: condition_met = (branch & !equal) ? 1'd1 : 1'd0;        //BNE
+      7: condition_met = (branch & !zero & !neg) ? 1'd1 : 1'd0;  //BGTZ
+      6: condition_met = (branch & (zero | neg)) ? 1'd1 : 1'd0;  //BLEZ
+      1: condition_met = ( ((b_code==1|b_code==17)&(branch&!neg)) | ((b_code==0|b_code==16)&(branch&neg)) ) ? 1'd1 : 1'd0;
                                                            //BGEZ, BGEZAL, BLTZ, BLTZAL
       default: condition_met = 0;                          //condition for branch to be taken has not been met, branch will not be taken
     endcase

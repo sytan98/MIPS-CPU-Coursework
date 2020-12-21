@@ -4,8 +4,7 @@ module instr_register(
   input logic clk, reset, waitrequest,
   input logic[2:0] state,               // cpu state
   input logic[31:0] ir_writedata,       // readdata from memory
-  output logic[31:0] ir_readdata,        // instruction held in instruction register
-  output logic regcheck
+  output logic[31:0] ir_readdata       // instruction held in instruction register
 );
   
   
