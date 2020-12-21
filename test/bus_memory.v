@@ -14,7 +14,6 @@ module bus_memory(
 	// 11 bits used for address as it is byte addressing.
 
 	parameter ROM_INIT_FILE = "";
-	parameter RAM_INIT_FILE = "./test/cases/ram_init_file.bytes.txt";
 	parameter address_bit_size = 11;
 	parameter reset_vector = 128; // this is word addressing. 128 * 4 = 32'h00000200 which is mapped to 0xbfc00000
 
@@ -114,10 +113,6 @@ module bus_memory(
 	      		if (byteenable[1]) bytes[mapped_address+1] <= writedata[15:8];
 	      		if (byteenable[2]) bytes[mapped_address+2] <= writedata[23:16];
 	      		if (byteenable[3]) bytes[mapped_address+3] <= writedata[31:24];
-				// bytes[mapped_address] <= writedata[7:0] & byteenable[0];
-				// bytes[mapped_address+1] <= writedata[15:8] & byteenable[1];
-				// bytes[mapped_address+2] <= writedata[23:16] & byteenable[2];
-				// bytes[mapped_address+3] <= writedata[31:24] & byteenable[3];
 				stall<=0;
 				state <= CHILL;
 			end
@@ -140,26 +135,12 @@ module bus_memory(
 		end
 
   	end
-
-  	// if (write == 1 && stall==1) begin // write
-      		// if (byteenable[0]) bytes[mapped_address] <=  writedata[7:0];
-      		// if (byteenable[1]) bytes[mapped_address+1] <= writedata[15:8];
-      		// if (byteenable[2]) bytes[mapped_address+2] <= writedata[23:16];
-      		// if (byteenable[3]) bytes[mapped_address+3] <= writedata[31:24];
-     //  		stall<=0;
-    	// end
-    	// if (read == 1 && stall==1) begin // read
-     //  		readdata <= {bytes[mapped_address+3], bytes[mapped_address+2], bytes[mapped_address+1], bytes[mapped_address]};
-     //  		stall<=0;
-    	// end
-
   	//Initialise memory:
 
 	initial begin
 		if (ROM_INIT_FILE != "") begin // instruction memory
 			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
 		end
-      	// $readmemh(RAM_INIT_FILE, bytes, 0); // data memory
 		bytes[0] = 8'h00;
 		bytes[1] = 8'h00;
 		bytes[2] = 8'h00;

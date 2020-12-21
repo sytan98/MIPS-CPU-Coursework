@@ -13,7 +13,6 @@ module bus_memory(
 	// 11 bits used for address as it is byte addressing.
 
 	parameter ROM_INIT_FILE = "";
-	parameter RAM_INIT_FILE = "";
 	parameter address_bit_size = 11;
 	parameter reset_vector = 128; // this is word addressing. 128 * 4 = 32'h00000200 which is mapped to 0xbfc00000
 
@@ -55,9 +54,6 @@ module bus_memory(
 		if (ROM_INIT_FILE != "") begin // instruction memory
 			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
 		end
-		// if (RAM_INIT_FILE != "") begin
-      	// 	$readmemh(RAM_INIT_FILE, bytes, 4); // data memory - don't write to address 0
-    	// end
 	end
 
 

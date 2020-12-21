@@ -25,7 +25,7 @@ elec50010-mips-coursework
 |   |   ...                 
 │   
 └───test
-    └───c_assemble
+    └───assembly
     └───cases
     └───output
     └───reference

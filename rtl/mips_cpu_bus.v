@@ -88,9 +88,6 @@ always @(posedge clk) begin
         if (waitrequest == 0) begin
           state <= LOAD;
         end
-        // else begin
-        //   state <= LOAD;
-        // end
     end
     else if (state == LOAD) begin
         $display("CPU : INFO  : LOAD.");
@@ -115,7 +112,6 @@ always @(posedge clk) begin
       if (waitrequest == 0) begin
         state <= LOAD_DATA;
       end
-      // state <= LOAD_DATA;
     end
     else if (state == LOAD_DATA) begin
       $display("CPU : INFO  : MEM.");
@@ -125,10 +121,6 @@ always @(posedge clk) begin
       $display("current inst =%h", instruction);
       clk_enable <= 1;
       state <= EXEC;
-      // if (waitrequest == 0) begin
-      //   clk_enable <= 1;
-      //   state <= EXEC;
-      // end
     end
     else if (state == EXEC) begin
         $display("CPU : INFO  : Executing.");
@@ -195,14 +187,14 @@ end
 
 // instruction register: to hold onto the instruction output from the memory
 instr_register ir_inst(
-  .clk(clk), .reset(reset), .waitrequest(waitrequest),
+  .clk(clk), .reset(reset),
   .state(state), .ir_writedata(readdata),
   .ir_readdata(ir_readdata)
 );
 
 // data register: to hold onto the data output from the memory
 data_register dr_inst(
-  .clk(clk), .reset(reset), .waitrequest(waitrequest),
+  .clk(clk), .reset(reset), 
   .state(state), .dr_writedata(readdata),
   .dr_readdata(dr_readdata)
 );

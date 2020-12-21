@@ -34,7 +34,7 @@ then
 else
     >&2 echo "${INSTRUCTION_TYPE} instructions to be tested."
     
-    TESTCASES="./test/cases/${INSTRUCTION_TYPE}*.bytes.txt"
+    TESTCASES="./test/cases/${INSTRUCTION_TYPE}_*.bytes.txt"
     # Loop over every file matching the TESTCASES pattern
     passesnum=0
     totalcount=0

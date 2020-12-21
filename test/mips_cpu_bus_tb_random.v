@@ -45,7 +45,6 @@ module mips_cpu_bus_tb_random;
     end
 
     initial begin
-        // num_stalls = 15;
         num_stalls = $urandom_range(0,13);
 
         reset = 0;
@@ -54,18 +53,17 @@ module mips_cpu_bus_tb_random;
         @(posedge clk);
         #1;
         reset = 1;
-        // @(posedge clk);
-        // @(negedge clk);
-        // assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
-        // $display("check state before reset=%d", check_state);
         @(posedge clk);
-        // assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
+        @(negedge clk);
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
-        // assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
-        // assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         @(posedge clk);
-        // assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
+        @(posedge clk);
+        assert(read == 0 & write == 0) else $fatal(2, "TB : CPU initiated memory transactions during reset.");
         #2;
         reset = 0;
         @(posedge clk);
@@ -74,12 +72,10 @@ module mips_cpu_bus_tb_random;
         else $display("TB : CPU did not set active=1 after reset.");
 
         while (active) begin
-            // num_stalls = 15;
             num_stalls = $urandom_range(0,13);
             $display("num stalls:%d", num_stalls);
 
             @(posedge clk);
-            // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
             if (address > 0 & address <= 8) begin
                 assert(register_v0 != 32'hFFFF8666) else $fatal(2, "TB : CPU executed instruction at address 4.");

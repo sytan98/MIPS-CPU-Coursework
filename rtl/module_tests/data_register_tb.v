@@ -22,7 +22,7 @@ module data_register_tb();
       if (reset == 1) begin
         assert (dr_readdata == 0);
       end
-      else if(state == 2) begin
+      else if(state == 3) begin
         assert (dr_readdata == dr_writedata)
         else $error("At time %t, dr_writedata=%h, but dr_readdata=%h", $time, dr_writedata, dr_readdata);
       end
