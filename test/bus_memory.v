@@ -159,9 +159,9 @@ module bus_memory(
 		if (ROM_INIT_FILE != "") begin // instruction memory
 			$readmemh(ROM_INIT_FILE, bytes, reset_vector*4); // multiply by 4 to get byte addressing
 		end
-		// if (RAM_INIT_FILE != "") begin
-      	// 	$readmemh(RAM_INIT_FILE, bytes, 4); // data memory - don't write to address 0
-    	// end
+		if (RAM_INIT_FILE != "") begin
+      		$readmemh(RAM_INIT_FILE, bytes, 0); // data memory - don't write to address 0
+    	end
 	end
 
 

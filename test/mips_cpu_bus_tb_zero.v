@@ -78,6 +78,7 @@ module mips_cpu_bus_tb_zero;
             @(posedge clk);
             // $display("current instruction address=%h", instr_address);
             $display("Register v0:%h", register_v0);
+            assert(address > 0 & address <= 8 & register_v0 == 32'h00001234);
         end
         $display("Output at v0:%h", register_v0);
         $display("TB : finished; running=0");
