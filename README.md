@@ -1,4 +1,4 @@
-# elec50010-mips-coursework
+# MIPS-CPU-Coursework (elec50010)
 
 An implementation of a BUS MIPS CPU. 
 
